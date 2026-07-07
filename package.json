@@ -1,0 +1,50 @@
+{
+  "name": "png-compressor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "极速压图 - 在线PNG压缩工具，纯浏览器端处理，文件不上传",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@jsquash/avif": "^2.1.1",
+    "@jsquash/oxipng": "^2.3.0",
+    "@jsquash/png": "^3.1.1",
+    "@upstash/redis": "^1.38.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.5.0",
+    "clsx": "^2.1.1",
+    "file-saver": "^2.0.5",
+    "heic2any": "^0.0.4",
+    "jose": "^6.2.3",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.468.0",
+    "next": "^14.2.29",
+    "nodemailer": "^9.0.3",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
+    "recharts": "^3.9.2",
+    "ssh2": "^1.17.0",
+    "tailwind-merge": "^2.6.0",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^20.17.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.29",
+    "playwright": "^1.61.1",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  }
+}

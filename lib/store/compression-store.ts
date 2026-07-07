@@ -1,0 +1,568 @@
+import { create } from 'zustand'
+import type { ImageFile, CompressionOptions, SavedPreset } from '@/lib/compression/types'
+import { DEFAULT_OPTIONS, getLimits, PRESETS_STORAGE_KEY } from '@/lib/compression/types'
+import { generateId, getCompressionRatio } from '@/lib/compression/utils'
+
+let worker: Worker | null = null
+let _compressAllCleanup: (() => void) | null = null
+const _compressOneCleanups = new Map<string, () => void>()
+
+/** Decode HEIC on main thread (heic2any uses window, not available in Worker) */
+async function decodeHEICOnMain(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+  const heic2any = (await import('heic2any')).default
+  const blob = new Blob([buffer], { type: 'image/heic' })
+  const result = await heic2any({ blob, toType: 'image/png' })
+  const pngBlob = Array.isArray(result) ? result[0] : result
+  return pngBlob.arrayBuffer()
+}
+
+function isHEIC(t: string) { return t === 'image/heic' || t === 'image/heif' || t === 'image/heic-sequence' }
+
+function getWorker(): Worker {
+  if (!worker) {
+    worker = new Worker(
+      new URL('../compression/worker.ts', import.meta.url),
+    )
+  }
+  return worker
+}
+
+interface CompressionState {
+  files: ImageFile[]
+  options: CompressionOptions
+  isCompressing: boolean
+  isPro: boolean
+  proLoading: boolean
+  presets: SavedPreset[]
+
+  checkProStatus: () => Promise<void>
+  addFiles: (newFiles: File[]) => void
+  removeFile: (id: string) => void
+  clearFiles: () => void
+  reorderFiles: (fromIndex: number, toIndex: number) => void
+  setOptions: (options: Partial<CompressionOptions>) => void
+  compressAll: () => void
+  compressOne: (id: string) => void
+  loadPresets: () => void
+  savePreset: (name: string) => boolean
+  deletePreset: (id: string) => void
+  applyPreset: (id: string) => void
+  rotateImage: (id: string, direction: 'cw' | 'ccw') => void
+  flipImage: (id: string, direction: 'h' | 'v') => void
+  resetTransform: (id: string) => void
+
+  totalOriginalSize: () => number
+  totalCompressedSize: () => number
+  overallRatio: () => number
+  allDone: () => boolean
+}
+
+export const useCompressionStore = create<CompressionState>((set, get) => ({
+  files: [],
+  options: { ...DEFAULT_OPTIONS },
+  isCompressing: false,
+  isPro: false,
+  proLoading: true,
+  presets: [],
+
+  checkProStatus: async () => {
+    try {
+      const code = localStorage.getItem('pro_license')
+      if (!code) { set({ proLoading: false, isPro: false }); return }
+
+      // 先乐观信任 localStorage（避免 Pro 状态闪烁）
+      set({ isPro: true })
+
+      const res = await fetch('/api/verify-license', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      })
+      const data = await res.json()
+
+      if (data.valid) {
+        set({ isPro: true, proLoading: false })
+      } else if (data.reason === 'revoked') {
+        // 只有明确被撤销才清本地（欺诈/退款）
+        localStorage.removeItem('pro_license')
+        set({ isPro: false, proLoading: false })
+      } else if (data.reason === 'device_limit') {
+        // 设备满了不清除，保留本地状态但显示免费
+        set({ isPro: false, proLoading: false })
+      } else {
+        // not_found / server_error 等情况
+        // 可能是 Redis 故障，不清除本地，先当免费版用
+        set({ isPro: false, proLoading: false })
+      }
+    } catch {
+      // 网络错误，信任 localStorage
+      const code = localStorage.getItem('pro_license')
+      set({ isPro: !!code, proLoading: false })
+    }
+  },
+
+  addFiles: (newFiles: File[]) => {
+    const { files, isPro } = get()
+    const limits = getLimits(isPro)
+    const remaining = limits.maxFiles - files.length
+    if (remaining <= 0) return
+
+    const toAdd = newFiles.slice(0, remaining).filter(f => {
+      if (!f.type.startsWith('image/')) return false
+      if (f.size > limits.maxSizePerFile) return false
+      return true
+    })
+
+    const imageFiles: ImageFile[] = toAdd.map((file) => ({
+      id: generateId(),
+      file,
+      originalSize: file.size,
+      compressedSize: null,
+      compressedBlob: null,
+      status: 'pending',
+      previewUrl: URL.createObjectURL(file),
+      width: 0,
+      height: 0,
+      rotation: 0,
+      flipH: false,
+      flipV: false,
+    }))
+
+    set({ files: [...files, ...imageFiles] })
+
+    // 异步读取图片尺寸（不阻塞 UI）
+    toAdd.forEach((file, i) => {
+      const id = imageFiles[i].id
+      createImageBitmap(file).then(bitmap => {
+        set({
+          files: get().files.map(f =>
+            f.id === id ? { ...f, width: bitmap.width, height: bitmap.height } : f
+          ),
+        })
+        bitmap.close()
+      }).catch(() => {
+        // 读取失败（如 SVG），保持 0x0
+      })
+    })
+  },
+
+  removeFile: (id: string) => {
+    const { files } = get()
+    const file = files.find(f => f.id === id)
+    if (file) URL.revokeObjectURL(file.previewUrl)
+    const cleanup = _compressOneCleanups.get(id)
+    if (cleanup) {
+      cleanup()
+      _compressOneCleanups.delete(id)
+    }
+    set({ files: files.filter(f => f.id !== id) })
+  },
+
+  clearFiles: () => {
+    const { files } = get()
+    files.forEach(f => URL.revokeObjectURL(f.previewUrl))
+    _compressOneCleanups.forEach(cleanup => cleanup())
+    _compressOneCleanups.clear()
+    set({ files: [] })
+  },
+
+  reorderFiles: (fromIndex: number, toIndex: number) => {
+    const { files } = get()
+    if (fromIndex === toIndex) return
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= files.length || toIndex >= files.length) return
+    const updated = [...files]
+    const [moved] = updated.splice(fromIndex, 1)
+    updated.splice(toIndex, 0, moved)
+    set({ files: updated })
+  },
+
+  setOptions: (newOptions) => {
+    set({ options: { ...get().options, ...newOptions } })
+  },
+
+  compressAll: () => {
+    const { files, options } = get()
+    const pendingFiles = files.filter(f => f.status === 'pending')
+    if (pendingFiles.length === 0) return
+
+    set({ isCompressing: true })
+    const w = getWorker()
+
+    if (_compressAllCleanup) {
+      _compressAllCleanup()
+      _compressAllCleanup = null
+    }
+
+    const handleMessage = (e: MessageEvent) => {
+      const { id, type, compressedBuffer, compressedSize, outputMime, error, step, triedQuality, currentKB, targetKB } = e.data
+
+      if (type === 'progress' && triedQuality !== undefined) {
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, targetProgress: { step, quality: triedQuality, currentKB, targetKB } }
+              : f
+          ),
+        })
+        return
+      }
+
+      if (type === 'progress') return
+
+      if (type === 'done') {
+        const blobMime = outputMime || get().files.find(f => f.id === id)?.file.type || 'image/png'
+        const compressedBlob = new Blob([compressedBuffer], { type: blobMime })
+        const qualityTier = e.data.qualityTier as string | undefined
+        const metadataStripped = e.data.metadataStripped as boolean | undefined
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, status: 'done' as const, compressedSize, compressedBlob,
+                  qualityTier: qualityTier as ImageFile['qualityTier'],
+                  metadataStripped,
+                  // rotation/flip baked into compressed blob, reset state
+                  rotation: 0, flipH: false, flipV: false }
+              : f
+          ),
+        })
+        checkDone()
+      }
+
+      if (type === 'error') {
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, status: 'error' as const, error }
+              : f
+          ),
+        })
+        checkDone()
+      }
+    }
+
+    const checkDone = () => {
+      const allFiles = get().files
+      const stillRunning = allFiles.some(f => f.status === 'pending' || f.status === 'compressing')
+      if (stillRunning) return
+
+      if (_compressAllCleanup) {
+        _compressAllCleanup()
+        _compressAllCleanup = null
+      }
+
+      // 统计压缩次数
+      const doneCount = allFiles.filter(f => f.status === 'done').length
+      if (doneCount > 0) {
+        fetch('/api/admin/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'compression', count: doneCount }),
+        }).catch(() => {})
+      }
+
+      set({ isCompressing: false })
+    }
+
+    w.addEventListener('message', handleMessage)
+    _compressAllCleanup = () => w.removeEventListener('message', handleMessage)
+
+    pendingFiles.forEach((file) => {
+      set({
+        files: get().files.map(f =>
+          f.id === file.id ? { ...f, status: 'compressing' as const } : f
+        ),
+      })
+
+      file.file.arrayBuffer().then(async (buffer) => {
+        // HEIC → PNG on main thread (heic2any needs window, not in Worker)
+        let fileBuffer = buffer
+        let fileType = file.file.type
+        if (isHEIC(fileType)) {
+          try {
+            fileBuffer = await decodeHEICOnMain(buffer)
+            fileType = 'image/png'
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === file.id ? { ...f, status: 'error' as const, error: 'HEIC解码失败' } : f
+              ),
+            })
+            checkDone()
+            return
+          }
+        }
+
+        w.postMessage({
+          id: file.id,
+          fileBuffer,
+          fileName: file.file.name,
+          fileType,
+          quality: options.quality,
+          speed: options.speed,
+          lossless: options.lossless,
+          outputFormat: options.outputFormat,
+          targetKB: options.targetKB || 0,
+          resizeWidth: options.resizeWidth || 0,
+          resizeHeight: options.resizeHeight || 0,
+          stripMetadata: options.stripMetadata,
+          rotation: file.rotation,
+          flipH: file.flipH,
+          flipV: file.flipV,
+        })
+      }).catch(() => {
+        set({
+          files: get().files.map(f =>
+            f.id === file.id ? { ...f, status: 'error' as const, error: '读取文件失败' } : f
+          ),
+        })
+        checkDone()
+      })
+    })
+  },
+
+  compressOne: (id: string) => {
+    const { options } = get()
+    const file = get().files.find(f => f.id === id)
+    if (!file) return
+
+    const prev = _compressOneCleanups.get(id)
+    if (prev) {
+      prev()
+      _compressOneCleanups.delete(id)
+    }
+
+    set({
+      files: get().files.map(f =>
+        f.id === id ? { ...f, status: 'compressing' as const } : f
+      ),
+    })
+
+    const w = getWorker()
+
+    const handler = (e: MessageEvent) => {
+      const { id: msgId, type, compressedBuffer, compressedSize, outputMime, error } = e.data
+      if (msgId !== id) return
+
+      if (type === 'done') {
+        const blobMime = outputMime || file.file.type
+        const compressedBlob = new Blob([compressedBuffer], { type: blobMime })
+        const qualityTier = e.data.qualityTier as string | undefined
+        const metadataStripped = e.data.metadataStripped as boolean | undefined
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, status: 'done' as const, compressedSize, compressedBlob,
+                  qualityTier: qualityTier as ImageFile['qualityTier'],
+                  metadataStripped,
+                  // rotation/flip baked into compressed blob, reset state
+                  rotation: 0, flipH: false, flipV: false }
+              : f
+          ),
+        })
+      }
+
+      if (type === 'error') {
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, status: 'error' as const, error }
+              : f
+          ),
+        })
+      }
+
+      w.removeEventListener('message', handler)
+      _compressOneCleanups.delete(id)
+    }
+
+    w.addEventListener('message', handler)
+
+    const cleanup = () => {
+      w.removeEventListener('message', handler)
+      _compressOneCleanups.delete(id)
+    }
+    _compressOneCleanups.set(id, cleanup)
+
+    file.file.arrayBuffer().then(async (buffer) => {
+        let fileBuffer = buffer
+        let fileType = file.file.type
+        if (isHEIC(fileType)) {
+          try {
+            fileBuffer = await decodeHEICOnMain(buffer)
+            fileType = 'image/png'
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === id ? { ...f, status: 'error' as const, error: 'HEIC解码失败' } : f
+              ),
+            })
+            w.removeEventListener('message', handler)
+            _compressOneCleanups.delete(id)
+            return
+          }
+        }
+
+          w.postMessage({
+        id: file.id,
+        fileBuffer,
+        fileName: file.file.name,
+        fileType,
+        quality: options.quality,
+        speed: options.speed,
+        lossless: options.lossless,
+        outputFormat: options.outputFormat,
+        targetKB: options.targetKB || 0,
+        resizeWidth: options.resizeWidth || 0,
+        resizeHeight: options.resizeHeight || 0,
+        stripMetadata: options.stripMetadata,
+        rotation: file.rotation,
+        flipH: file.flipH,
+        flipV: file.flipV,
+      })
+    }).catch(() => {
+      set({
+        files: get().files.map(f =>
+          f.id === id ? { ...f, status: 'error' as const, error: '读取文件失败' } : f
+        ),
+      })
+      w.removeEventListener('message', handler)
+      _compressOneCleanups.delete(id)
+    })
+  },
+
+  loadPresets: () => {
+    try {
+      const raw = localStorage.getItem(PRESETS_STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          set({ presets: parsed as SavedPreset[] })
+        }
+      }
+    } catch { /* localStorage 不可用 */ }
+  },
+
+  savePreset: (name: string) => {
+    const { options, presets } = get()
+    if (presets.some(p => p.name === name.trim())) return false
+    if (presets.length >= 10) return false
+
+    const preset: SavedPreset = {
+      id: generateId(),
+      name: name.trim(),
+      options: { ...options },
+      createdAt: Date.now(),
+    }
+    const updated = [...presets, preset]
+    try {
+      localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated))
+      set({ presets: updated })
+      return true
+    } catch {
+      return false
+    }
+  },
+
+  deletePreset: (id: string) => {
+    const updated = get().presets.filter(p => p.id !== id)
+    try {
+      localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated))
+    } catch {}
+    set({ presets: updated })
+  },
+
+  applyPreset: (id: string) => {
+    const preset = get().presets.find(p => p.id === id)
+    if (preset) {
+      set({ options: { ...preset.options } })
+    }
+  },
+
+  rotateImage: (id: string, direction: 'cw' | 'ccw') => {
+    const file = get().files.find(f => f.id === id)
+    if (!file) return
+
+    const delta = direction === 'cw' ? 90 : -90
+    const newRotation = (((file.rotation + delta) % 360) + 360) % 360 as ImageFile['rotation']
+
+    // For done images: reset to pending so rotation is baked correctly on next compress
+    set({
+      files: get().files.map(f =>
+        f.id === id
+          ? (f.status === 'done'
+              ? { ...f, rotation: newRotation, status: 'pending' as const, compressedSize: null, compressedBlob: null }
+              : { ...f, rotation: newRotation })
+          : f
+      ),
+    })
+  },
+
+  flipImage: (id: string, direction: 'h' | 'v') => {
+    const file = get().files.find(f => f.id === id)
+    if (!file) return
+
+    const newFlipH = direction === 'h' ? !file.flipH : file.flipH
+    const newFlipV = direction === 'v' ? !file.flipV : file.flipV
+
+    // For done images: reset to pending so flip is baked correctly on next compress
+    set({
+      files: get().files.map(f =>
+        f.id === id
+          ? (f.status === 'done'
+              ? { ...f, flipH: newFlipH, flipV: newFlipV, status: 'pending' as const, compressedSize: null, compressedBlob: null }
+              : { ...f, flipH: newFlipH, flipV: newFlipV })
+          : f
+      ),
+    })
+  },
+
+  resetTransform: (id: string) => {
+    const file = get().files.find(f => f.id === id)
+    if (!file) return
+    if (file.rotation === 0 && !file.flipH && !file.flipV) return
+
+    // Reset transforms; for done images, re-compress from original to bake 0° rotation
+    if (file.status === 'done') {
+      set({
+        files: get().files.map(f =>
+          f.id === id ? { ...f, rotation: 0, flipH: false, flipV: false, status: 'pending' as const, compressedSize: null, compressedBlob: null } : f
+        ),
+      })
+    } else {
+      set({
+        files: get().files.map(f =>
+          f.id === id ? { ...f, rotation: 0, flipH: false, flipV: false } : f
+        ),
+      })
+    }
+  },
+
+  totalOriginalSize: () => {
+    return get().files.reduce((sum, f) => sum + f.originalSize, 0)
+  },
+
+  totalCompressedSize: () => {
+    return get().files.reduce((sum, f) => sum + (f.compressedSize || 0), 0)
+  },
+
+  overallRatio: () => {
+    const original = get().totalOriginalSize()
+    const compressed = get().totalCompressedSize()
+    return getCompressionRatio(original, compressed)
+  },
+
+  allDone: () => {
+    const { files } = get()
+    if (files.length === 0) return false
+    return files.every(f => f.status === 'done' || f.status === 'error')
+  },
+}))
+
+// 多标签页同步：Tab1 激活 Pro → Tab2 自动感知
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'pro_license') {
+      useCompressionStore.getState().checkProStatus()
+    }
+  })
+}
