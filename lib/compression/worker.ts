@@ -3,6 +3,22 @@ import { q2bits, reduceColors } from './utils'
 // oxipng 动态导入，避免 WASM 加载问题阻塞 Worker
 // avif 编码器动态导入
 
+interface WatermarkOpts {
+  enabled: boolean
+  type: 'text' | 'image' | 'none'
+  text: string
+  fontSize: number
+  fontColor: string
+  fontOpacity: number
+  rotation: number
+  imageDataUrl: string | null
+  imageOpacity: number
+  imageScale: number
+  position: string
+  marginX: number
+  marginY: number
+}
+
 interface WMsg {
   id: string
   fileBuffer: ArrayBuffer
@@ -19,6 +35,7 @@ interface WMsg {
   rotation?: 0 | 90 | 180 | 270
   flipH?: boolean
   flipV?: boolean
+  watermark?: WatermarkOpts
 }
 
 interface WRes {
@@ -154,6 +171,99 @@ function injectExifIntoJPEG(buf: ArrayBuffer, exif: Uint8Array): ArrayBuffer {
   out.set(exif, 2)                       // APP1
   out.set(data.subarray(2), 2 + exif.length) // 剩余部分
   return out.buffer
+}
+
+/** Apply watermark (text or image) to ImageData */
+async function applyWatermark(img: ImageData, wm: WatermarkOpts, imgWidth: number, imgHeight: number): Promise<ImageData> {
+	if (!wm.enabled || wm.type === 'none') return img
+
+	const canvas = new OffscreenCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	if (!ctx) return img
+	ctx.putImageData(img, 0, 0)
+
+	const mX = wm.marginX ?? 20
+	const mY = wm.marginY ?? 20
+
+	if (wm.type === 'text') {
+		if (!wm.text) return img
+		ctx.save()
+		ctx.globalAlpha = wm.fontOpacity ?? 0.5
+		ctx.fillStyle = wm.fontColor || '#ffffff'
+		const fs = Math.max(8, Math.min(wm.fontSize ?? 24, imgHeight * 0.5))
+		ctx.font = `bold ${fs}px sans-serif`
+		ctx.textBaseline = 'top'
+
+		const metrics = ctx.measureText(wm.text)
+		const tw = metrics.width
+		const th = fs
+
+		const pos = wm.position || 'br'
+		const isLeft = pos[1] === 'l'
+		const isRight = pos[1] === 'r'
+		const isTop = pos[0] === 't'
+		const isBottom = pos[0] === 'b'
+
+		let x: number, y: number
+		if (isLeft) x = mX
+		else if (isRight) x = imgWidth - tw - mX
+		else x = (imgWidth - tw) / 2
+
+		if (isTop) y = mY
+		else if (isBottom) y = imgHeight - th - mY
+		else y = (imgHeight - th) / 2
+
+		if (wm.rotation) {
+			ctx.translate(x + tw / 2, y + th / 2)
+			ctx.rotate((wm.rotation * Math.PI) / 180)
+			ctx.translate(-(x + tw / 2), -(y + th / 2))
+		}
+
+		ctx.fillText(wm.text, x, y)
+		ctx.restore()
+	} else if (wm.type === 'image' && wm.imageDataUrl) {
+		try {
+			const resp = await fetch(wm.imageDataUrl)
+			const blob = await resp.blob()
+			const bitmap = await createImageBitmap(blob)
+
+			const scale = wm.imageScale ?? 0.3
+			const maxW = imgWidth * scale
+			const maxH = imgHeight * scale
+			let w = bitmap.width, h = bitmap.height
+			if (w > maxW || h > maxH) {
+				const ratio = Math.min(maxW / w, maxH / h)
+				w = Math.round(w * ratio)
+				h = Math.round(h * ratio)
+			}
+			if (w < 4 || h < 4) { bitmap.close(); return img }
+
+			const pos = wm.position || 'br'
+			const isLeft = pos[1] === 'l'
+			const isRight = pos[1] === 'r'
+			const isTop = pos[0] === 't'
+			const isBottom = pos[0] === 'b'
+
+			let x: number, y: number
+			if (isLeft) x = mX
+			else if (isRight) x = imgWidth - w - mX
+			else x = (imgWidth - w) / 2
+
+			if (isTop) y = mY
+			else if (isBottom) y = imgHeight - h - mY
+			else y = (imgHeight - h) / 2
+
+			ctx.save()
+			ctx.globalAlpha = wm.imageOpacity ?? 0.5
+			ctx.drawImage(bitmap, x, y, w, h)
+			ctx.restore()
+			bitmap.close()
+		} catch {
+			// watermark image failed to load, silently skip
+		}
+	}
+
+	return ctx.getImageData(0, 0, imgWidth, imgHeight)
 }
 
 // ─── 质量评级 ───────────────────────────────────────────
@@ -345,7 +455,7 @@ async function compressToTarget(
 }
 
 self.onmessage = async (e: MessageEvent<WMsg>) => {
-  const { id, fileBuffer, fileType, quality, speed, lossless, outputFormat, targetKB, resizeWidth, resizeHeight, stripMetadata } = e.data
+  const { id, fileBuffer, fileType, quality, speed, lossless, outputFormat, targetKB, resizeWidth, resizeHeight, stripMetadata, watermark: wm } = e.data
   try {
     // 确定输出 MIME
     let outMime = fileType
@@ -380,6 +490,11 @@ self.onmessage = async (e: MessageEvent<WMsg>) => {
     const { rotation, flipH, flipV } = e.data
     if (rotation || flipH || flipV) {
       img = applyTransform(img, rotation || 0, flipH || false, flipV || false)
+    }
+
+    // 水印（在压缩前应用）
+    if (wm && wm.enabled && wm.type !== 'none') {
+      img = await applyWatermark(img, wm, img.width, img.height)
     }
 
     let resultBuf: ArrayBuffer

@@ -1,7 +1,6 @@
 import { LanguageProvider } from '@/lib/i18n/context'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
-import { FilingBanner } from '@/components/layout/FilingBanner'
 import { JsonLd } from '@/components/layout/JsonLd'
 import { PageViewTracker } from '@/components/layout/PageViewTracker'
 import { Analytics } from '@vercel/analytics/react'
@@ -66,7 +65,6 @@ export default function LangLayout({
   return (
     <LanguageProvider locale={locale}>
       <Header />
-      <FilingBanner />
       <JsonLd />
       <PageViewTracker />
       <Analytics />

@@ -6,6 +6,7 @@ const DEFAULT_LOCALE = 'zh'
 
 // Paths that should NOT be redirected
 const SKIP_PATHS = [
+  '/.well-known/',
   '/api/',
   '/admin',
   '/_next/',

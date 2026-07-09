@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, useRef } from 'react'
 import { DropZone } from '@/components/compressor/DropZone'
 import { ImageList } from '@/components/compressor/ImageList'
 import { CompressionControls } from '@/components/compressor/CompressionControls'
+import { WatermarkSettings } from '@/components/compressor/WatermarkSettings'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
@@ -11,15 +12,19 @@ import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
 import { Shield, Zap, Share2, Check, Image, MousePointerClick, Download, ArrowRight, Crown } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
-
-const formats = ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
+import { useIsCn } from '@/lib/use-is-cn'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
   const { t, locale } = useT()
+  const isCn = useIsCn()
   const { files, addFiles, isPro, proLoading, checkProStatus } = useCompressionStore()
+
+  const formats = isCn
+    ? ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
+    : ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
   const hasFiles = files.length > 0
   const doneCount = files.filter(f => f.status === 'done').length
 
@@ -126,25 +131,28 @@ export default function HomePage() {
               <span key={f} className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">{f}</span>
             ))}
           </div>
-          <div className="flex items-center justify-center gap-3 pt-3">
-            {isPro ? (
-              <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors">
-                <Crown className="w-4 h-4" /> {t('pro.active')}
+          {!isCn && (
+            <div className="flex items-center justify-center gap-3 pt-3">
+              {isPro ? (
+                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors">
+                  <Crown className="w-4 h-4" /> {t('pro.active')}
+                </Link>
+              ) : (
+                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors">
+                  <Crown className="w-4 h-4" /> {t('pro.badgePrice')}
+                </Link>
+              )}
+              <Link href={`/${locale}/vs-tinypng`} className="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 underline underline-offset-2">
+                vs TinyPNG →
               </Link>
-            ) : (
-              <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors">
-                <Crown className="w-4 h-4" /> {t('pro.badgePrice')}
-              </Link>
-            )}
-            <Link href={`/${locale}/vs-tinypng`} className="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 underline underline-offset-2">
-              vs TinyPNG →
-            </Link>
-          </div>
+            </div>
+          )}
         </section>
       )}
 
       <DropZone />
       <CompressionControls />
+      <WatermarkSettings />
       <ImageList />
 
       {!hasFiles && (

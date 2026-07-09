@@ -12,6 +12,7 @@ const ACCEPT = {
   'image/png': ['.png'],
   'image/jpeg': ['.jpg', '.jpeg'],
   'image/webp': ['.webp'],
+  'image/avif': ['.avif'],
   'image/gif': ['.gif'],
   'image/bmp': ['.bmp'],
   'image/svg+xml': ['.svg'],

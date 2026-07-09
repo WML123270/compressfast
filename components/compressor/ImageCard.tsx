@@ -7,6 +7,7 @@ import { getQualityTier, QUALITY_TIER_COLORS } from '@/lib/compression/types'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { formatFileSize, getCompressionRatio } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
+import { generateFilename } from '@/lib/compression/utils'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
 import { ImageCompare } from './ImageCompare'
@@ -15,7 +16,7 @@ interface ImageCardProps { image: ImageFile; index?: number; showDragHandle?: bo
 
 export function ImageCard({ image, showDragHandle }: ImageCardProps) {
   const { t } = useT()
-  const { removeFile, compressOne, rotateImage, flipImage, resetTransform } = useCompressionStore()
+  const { removeFile, compressOne, rotateImage, flipImage, resetTransform, naming } = useCompressionStore()
   const [showPreview, setShowPreview] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const previewBlobUrlRef = useRef<string | null>(null)
@@ -61,13 +62,8 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
           } catch { /* use original blob */ }
         }
 
-        const ext = image.compressedBlob.type === 'image/jpeg' ? '.jpg'
-          : image.compressedBlob.type === 'image/webp' ? '.webp'
-          : image.compressedBlob.type === 'image/png' ? '.png'
-          : image.compressedBlob.type === 'image/avif' ? '.avif'
-          : getExtensionFromType(image.compressedBlob.type)
-        const baseName = image.file.name.replace(/\.[^.]+$/, '')
-        saveAs(blob, baseName + '_compressed' + ext)
+        const name = generateFilename({ ...image, compressedBlob: blob }, naming, 1)
+        saveAs(blob, name)
       } finally {
         setDownloading(false)
       }

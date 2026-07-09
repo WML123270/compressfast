@@ -11,7 +11,7 @@ import { revokeLicense } from '@/lib/license'
 import { getLicenseByEmail, resetDevices } from '@/lib/license'
 
 export async function GET(request: NextRequest) {
-  if (!isAdmin(request)) {
+  if (!(await isAdmin(request))) {
     return NextResponse.json({ error: '未授权' }, { status: 401 })
   }
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdmin(request)) {
+  if (!(await isAdmin(request))) {
     return NextResponse.json({ error: '未授权' }, { status: 401 })
   }
 

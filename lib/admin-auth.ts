@@ -1,6 +1,6 @@
 /**
  * 管理后台鉴权
- * - 简单 token 验证，不依赖 JWT
+ * - 基于 Web Crypto API 的 HMAC-SHA256 token
  * - 验证通过后设 httpOnly cookie，7 天有效
  */
 
@@ -13,44 +13,63 @@ function getAdminKey(): string {
   return process.env.ADMIN_KEY || 'compressfast2026'
 }
 
-/** 简单 hash */
-function simpleHash(input: string): string {
-  let hash = 0
-  for (let i = 0; i < input.length; i++) {
-    hash = ((hash << 5) - hash) + input.charCodeAt(i)
-    hash = hash & hash
-  }
-  return Math.abs(hash).toString(36)
-}
-
-function makeToken(key: string): string {
+/** HMAC-SHA256 token（不可伪造） */
+async function makeToken(key: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
-  const hash = simpleHash(key + ':' + now + ':salt2026')
+  const data = `${key}:${now}:admin`
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(key)
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false, ['sign'],
+  )
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(data))
+  const hash = Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
   return `${now}:${hash}`
 }
 
-function verifyToken(key: string, token: string): boolean {
+/** 生成 HMAC 验证摘要（同步 helper，用一次性 hash 做快速比较） */
+async function computeHmac(key: string, data: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(key)
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false, ['sign'],
+  )
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(data))
+  return Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+async function verifyToken(key: string, token: string): Promise<boolean> {
   const parts = token.split(':')
   if (parts.length !== 2) return false
   const ts = parseInt(parts[0], 10)
-  const hash = parts[1]
+  if (isNaN(ts)) return false
+  const sig = parts[1]
 
   // 检查是否在有效期内
   if (Date.now() / 1000 - ts > COOKIE_MAX_AGE) return false
 
-  // 验证 hash
-  const expected = simpleHash(key + ':' + ts + ':salt2026')
-  return hash === expected
+  // 验证 HMAC
+  const expected = await computeHmac(key, `${key}:${ts}:admin`)
+  return sig === expected
 }
 
 /** 验证 admin key 是否匹配 */
 export function verifyAdminKey(key: string): boolean {
+  if (!key || typeof key !== 'string') return false
   return key === getAdminKey()
 }
 
 /** 生成 token 并设置 cookie */
-export function setAdminCookie(response: NextResponse): void {
-  const token = makeToken(getAdminKey())
+export async function setAdminCookie(response: NextResponse): Promise<void> {
+  const token = await makeToken(getAdminKey())
 
   response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -61,8 +80,19 @@ export function setAdminCookie(response: NextResponse): void {
   })
 }
 
+/** 清除 admin cookie（退出登录） */
+export function clearAdminCookie(response: NextResponse): void {
+  response.cookies.set(COOKIE_NAME, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/',
+  })
+}
+
 /** 检查请求是否为管理员 */
-export function isAdmin(request: NextRequest): boolean {
+export async function isAdmin(request: NextRequest): Promise<boolean> {
   const token = request.cookies.get(COOKIE_NAME)?.value
   if (!token) return false
   return verifyToken(getAdminKey(), token)

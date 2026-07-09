@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = NextResponse.json({ success: true })
-    setAdminCookie(response)
+    await setAdminCookie(response)
     return response
   } catch {
     return NextResponse.json({ error: '请求无效' }, { status: 400 })

@@ -8,7 +8,7 @@ import { isAdmin } from '@/lib/admin-auth'
 import { getDashboardStats } from '@/lib/stats'
 
 export async function GET(request: NextRequest) {
-  if (!isAdmin(request)) {
+  if (!(await isAdmin(request))) {
     return NextResponse.json({ error: '未授权' }, { status: 401 })
   }
 

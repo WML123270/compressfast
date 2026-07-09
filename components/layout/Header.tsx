@@ -3,13 +3,15 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ImageIcon, Sun, Moon, Globe } from 'lucide-react'
+import { ImageIcon, Sun, Moon, Globe, Crown } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export function Header() {
   const { t, locale } = useT()
   const pathname = usePathname()
   const router = useRouter()
+  const isCn = useIsCn()
   const [isDark, setIsDark] = useState(() => {
     if (typeof document === 'undefined') return false
     return document.documentElement.classList.contains('dark')
@@ -36,6 +38,15 @@ export function Header() {
           <span>{t('app.name')}</span>
         </Link>
         <nav className="flex items-center gap-2">
+          {!isCn && (
+            <Link
+              href={`/${locale}/pro`}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Pro</span>
+            </Link>
+          )}
           <button
             onClick={switchLang}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-sm transition-all text-xs font-medium"

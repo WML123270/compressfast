@@ -3,26 +3,17 @@
 import { useState, useCallback } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
+import { NamingSettings } from './NamingSettings'
 import { Zap, Download, Trash2 } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
-import { getExtensionFromType } from '@/lib/utils'
-import type { ImageFile } from '@/lib/compression/types'
+import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
 
-function getOutputName(f: ImageFile): string {
-  const ext = f.compressedBlob?.type === 'image/jpeg' ? '.jpg'
-    : f.compressedBlob?.type === 'image/webp' ? '.webp'
-    : f.compressedBlob?.type === 'image/png' ? '.png'
-    : f.compressedBlob?.type === 'image/avif' ? '.avif'
-    : getExtensionFromType(f.compressedBlob?.type || f.file.type)
-  return f.file.name.replace(/\.[^.]+$/, '') + '_compressed' + ext
-}
-
 export function ImageList() {
   const { t } = useT()
-  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles } = useCompressionStore()
+  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming } = useCompressionStore()
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
 
@@ -60,14 +51,14 @@ export function ImageList() {
 
     if (doneFiles.length === 1) {
       const f = doneFiles[0]
-      const name = getOutputName(f)
+      const name = generateFilename(f, naming, 1)
       saveAs(f.compressedBlob!, name)
       return
     }
 
     const zip = new JSZip()
-    doneFiles.forEach(f => {
-      const name = getOutputName(f)
+    doneFiles.forEach((f, i) => {
+      const name = generateFilename(f, naming, i + 1)
       zip.file(name, f.compressedBlob!)
     })
     const zipBlob = await zip.generateAsync({ type: 'blob' })
@@ -128,6 +119,8 @@ export function ImageList() {
           </button>
         </div>
       </div>
+
+      <NamingSettings />
 
       <div className="space-y-2" onDrop={handleDrop}>
         {files.map((image, index) => (

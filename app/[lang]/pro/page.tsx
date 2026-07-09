@@ -1,13 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, Loader2, Crown } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, Crown, X, Minus, Star, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
+import { useIsCn } from '@/lib/use-is-cn'
+
+/** 功能对比行数据 */
+interface FeatureRow {
+  feature: string
+  free: string | boolean
+  pro: string | boolean
+  proDesc?: string
+  highlight?: boolean
+}
 
 export default function ProPage() {
   const { t, locale } = useT()
+  const isCn = useIsCn()
   const { isPro, checkProStatus } = useCompressionStore()
   const [activateCode, setActivateCode] = useState('')
   const [activating, setActivating] = useState(false)
@@ -130,6 +141,29 @@ export default function ProPage() {
     } catch {}
   }
 
+  if (isCn) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6">
+        <div className="text-5xl">🆓</div>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+          {locale === 'zh' ? '国内版完全免费' : 'Free in China Region'}
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          {locale === 'zh'
+            ? '极速压图国内版永久免费，无需付费解锁。批量压缩、格式转换、尺寸调整等全部功能免费使用。'
+            : 'CompressFast domestic version is permanently free. All features including batch compression, format conversion, and resizing are free to use.'}
+        </p>
+        <Link
+          href={`/${locale}`}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {locale === 'zh' ? '开始压缩' : 'Start Compressing'}
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
       <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400">
@@ -145,64 +179,110 @@ export default function ProPage() {
         <p className="text-slate-500 dark:text-slate-400 mt-2">{t('pro.subtitle')}</p>
       </section>
 
-      {/* Pricing table — 已激活则隐藏 */}
+      {/* Feature Comparison Table */}
       {!isPro && (
-      <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
-        <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-5 text-center">
-          <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">{t('pro.freePlan')}</h3>
-          <ul className="text-sm space-y-2 text-slate-600 dark:text-slate-400 text-left">
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.batch')}: {t('pro.free.batch')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('controls.mode.quality')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('trust.formats')}</li>
-          </ul>
+      <section className="max-w-2xl mx-auto">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 text-center mb-5">
+          {locale === 'zh' ? '功能对比' : 'Feature Comparison'}
+        </h2>
+
+        {/* 表头 */}
+        <div className="grid grid-cols-[1fr_100px_100px] gap-px bg-slate-200 dark:bg-slate-700 rounded-xl overflow-hidden text-sm">
+          <div className="bg-slate-50 dark:bg-slate-800 p-3 font-semibold text-slate-600 dark:text-slate-400">
+            {locale === 'zh' ? '功能' : 'Feature'}
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800 p-3 font-semibold text-center text-slate-500 dark:text-slate-400">
+            {t('pro.freePlan')}
+          </div>
+          <div className="bg-brand-50 dark:bg-brand-900/20 p-3 font-semibold text-center text-brand-700 dark:text-brand-300">
+            <span className="flex items-center justify-center gap-1">
+              <Crown className="w-3.5 h-3.5" /> Pro
+            </span>
+          </div>
+
+          {(() => {
+            const isZh = locale === 'zh'
+            const features: FeatureRow[] = [
+              { feature: t('pro.feature.batch'), free: t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
+              { feature: t('pro.feature.sizePerFile'), free: t('pro.free.sizePerFile'), pro: t('pro.pro.sizePerFile'), proDesc: isZh ? '大图不受限' : 'Handle larger files' },
+              { feature: t('pro.feature.formats'), free: t('pro.free.formats'), pro: t('pro.pro.formats'), proDesc: t('pro.proDesc.formats'), highlight: true },
+              { feature: t('pro.feature.watermark'), free: false, pro: true, proDesc: t('pro.proDesc.watermark') },
+              { feature: t('pro.feature.presets'), free: false, pro: true, proDesc: t('pro.proDesc.presets') },
+              { feature: t('pro.feature.scenes'), free: false, pro: true, proDesc: t('pro.proDesc.scenes') },
+              { feature: t('pro.feature.presetExport'), free: false, pro: true, proDesc: t('pro.proDesc.export') },
+              { feature: t('pro.feature.ads'), free: false, pro: true, proDesc: isZh ? '纯净体验' : 'Clean experience' },
+              { feature: t('pro.feature.support'), free: false, pro: true, proDesc: t('pro.proDesc.support') },
+              { feature: t('pro.feature.devices'), free: '1', pro: '5', proDesc: isZh ? '手机+电脑+平板全支持' : 'Phone + PC + tablet' },
+              { feature: t('pro.feature.updates'), free: true, pro: true, proDesc: isZh ? '持续免费更新' : 'Free updates forever' },
+            ]
+            return features.map((row, i) => {
+              const bg = row.highlight
+                ? 'bg-purple-50/50 dark:bg-purple-900/5'
+                : i % 2 === 0
+                  ? 'bg-white dark:bg-slate-800/50'
+                  : 'bg-slate-50/50 dark:bg-slate-800/30'
+              return (
+                <div key={i} className={`contents text-xs`}>
+                  <div className={`${bg} p-3 flex items-center gap-2 font-medium text-slate-700 dark:text-slate-300`}>
+                    {row.highlight && <Sparkles className="w-3 h-3 text-purple-500 flex-shrink-0" />}
+                    {row.feature}
+                    {row.highlight && (
+                      <span className="px-1 py-0.5 rounded text-[9px] bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold">NEW</span>
+                    )}
+                  </div>
+                  <div className={`${bg} p-3 text-center text-slate-500 dark:text-slate-400`}>
+                    {row.free === true ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : typeof row.free === 'string' ? row.free : <X className="w-4 h-4 text-slate-300 dark:text-slate-600 mx-auto" />}
+                  </div>
+                  <div className={`${bg} p-3 text-center`}>
+                    {row.pro === true ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : typeof row.pro === 'string' ? <span className="font-semibold text-brand-700 dark:text-brand-300">{row.pro}</span> : <Minus className="w-4 h-4 text-slate-300 mx-auto" />}
+                  </div>
+                </div>
+              )
+            })
+          })()}
         </div>
 
-        <div className="border-2 border-brand-500 bg-brand-50/30 dark:bg-brand-900/10 rounded-xl p-5 text-center relative">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-brand-600 text-white text-xs font-medium rounded-full">
-            Pro
+        {/* 价格 CTA */}
+        <div className="mt-6 text-center space-y-3">
+          <div>
+            <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('pro.price')}</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{t('pro.priceLabel')}</span>
           </div>
-          <h3 className="font-bold text-brand-700 dark:text-brand-300 mb-1">{t('pro.proPlan')}</h3>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{t('pro.price')}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{t('pro.priceLabel')}</p>
-          <ul className="text-sm space-y-2 text-slate-600 dark:text-slate-400 text-left">
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.batch')}: {t('pro.pro.batch')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.presets')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.ads')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.support')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.devices')}: 5</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> {t('pro.feature.updates')}</li>
-          </ul>
-          <div className="mt-4 space-y-2">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            {locale === 'zh'
+              ? '一次付费，永久有效。无需订阅，无需登录。'
+              : 'Pay once, own forever. No subscription. No login.'}
+          </p>
+          <div className="max-w-sm mx-auto space-y-2">
             <input
               type="email"
               value={buyEmail}
               onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
               placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
-              className="w-full px-3 py-2 text-sm text-center rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+              className="w-full px-4 py-2.5 text-sm text-center rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
             />
-            {buyError && (
-              <p className="text-xs text-red-500">{buyError}</p>
-            )}
+            {buyError && <p className="text-xs text-red-500">{buyError}</p>}
             <button
               onClick={handleBuy}
               disabled={buyLoading}
-              className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white font-medium rounded-lg transition-colors text-sm"
+              className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2"
             >
               {buyLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                t('pro.buyButton')
+                <>
+                  <Crown className="w-4 h-4" /> {t('pro.buyButton')}
+                </>
               )}
             </button>
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-xs text-blue-700 dark:text-blue-300 text-left space-y-1">
-              <p className="font-medium">👉 {locale === 'zh' ? '付款完成后：' : 'After payment:'}</p>
-              <p>{locale === 'zh' ? '1. 完成 Creem 付款' : '1. Complete payment on Creem'}</p>
-              <p>{locale === 'zh' ? '2. 回到此页面，在下方「忘记激活码？」输入同一个邮箱' : '2. Come back and enter the same email in "Forgot code?"'}</p>
-              <p>{locale === 'zh' ? '3. 点击「查找」获取激活码' : '3. Click "Look Up" to get your code'}</p>
-            </div>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500">
+              {locale === 'zh'
+                ? '🔒 安全支付由 Creem 处理 · 支持 Visa/Mastercard'
+                : '🔒 Secure payment via Creem · Visa/Mastercard'}
+            </p>
           </div>
         </div>
-      </div>
+      </section>
       )}
 
       {/* Pro Active Banner */}

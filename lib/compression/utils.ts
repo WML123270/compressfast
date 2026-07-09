@@ -51,6 +51,56 @@ export function generateId(): string {
   return Array.from(bytes).map(b => b.toString(36)).join('').substring(0, 9)
 }
 
+import type { NamingOptions, ImageFile } from './types'
+import { getExtensionFromType } from '@/lib/utils'
+
+/** 根据命名选项生成输出文件名 */
+export function generateFilename(file: ImageFile, naming: NamingOptions, index: number): string {
+  const baseName = file.file.name.replace(/\.[^.]+$/, '')
+  const ext = file.compressedBlob?.type === 'image/jpeg' ? '.jpg'
+    : file.compressedBlob?.type === 'image/webp' ? '.webp'
+    : file.compressedBlob?.type === 'image/png' ? '.png'
+    : file.compressedBlob?.type === 'image/avif' ? '.avif'
+    : getExtensionFromType(file.compressedBlob?.type || file.file.type)
+
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  const num = naming.numberPadding > 0
+    ? String(index).padStart(naming.numberPadding, '0')
+    : String(index)
+
+  let name: string
+  switch (naming.pattern) {
+    case 'original_min':
+      name = `${baseName}_min${ext}`
+      break
+    case 'compressed_original':
+      name = `compressed_${baseName}${ext}`
+      break
+    case 'custom': {
+      name = naming.customTemplate
+        .replace(/\{original\}/g, baseName)
+        .replace(/\{n\}/g, num)
+        .replace(/\{date\}/g, date)
+        .replace(/\{ext\}/g, ext)
+      // Auto append extension if template doesn't end with it
+      if (!name.endsWith(ext)) name += ext
+      break
+    }
+    case 'original_compressed':
+    default:
+      if (naming.numberPadding > 0) {
+        name = naming.numberPosition === 'prefix'
+          ? `${num}_${baseName}_compressed${ext}`
+          : `${baseName}_compressed_${num}${ext}`
+      } else {
+        name = `${baseName}_compressed${ext}`
+      }
+      break
+  }
+
+  return name
+}
+
 export async function fileToImageData(file: File): Promise<{
   imageData: ImageData
   width: number

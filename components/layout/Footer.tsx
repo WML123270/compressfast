@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
 
@@ -7,6 +8,20 @@ export function Footer() {
   const { t, locale } = useT()
   const year = new Date().getFullYear()
   const isZh = locale === 'zh'
+  const [isCn, setIsCn] = useState(
+    process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn',
+  )
+
+  useEffect(() => {
+    const hostname = window.location.hostname
+    const deployTarget = process.env.NEXT_PUBLIC_DEPLOY_TARGET
+    const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)
+    const isVercel = hostname.includes('vercel.app')
+    const cn = (deployTarget === 'cn' || isIp) && !isVercel
+    if (cn !== isCn) setIsCn(cn)
+  }, [isCn])
+
+  const icpNumber = process.env.NEXT_PUBLIC_ICP_NUMBER || ''
 
   return (
     <footer className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 mt-20">
@@ -27,6 +42,18 @@ export function Footer() {
         <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
           {t('footer.copyright', { year })}
         </p>
+        {isCn && icpNumber && (
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+            <a
+              href="https://beian.miit.gov.cn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            >
+              {icpNumber}
+            </a>
+          </p>
+        )}
         <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
           <a href="https://turbo0.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">{t('footer.turbo0')}</a>
         </p>

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
-import type { ImageFile, CompressionOptions, SavedPreset } from '@/lib/compression/types'
-import { DEFAULT_OPTIONS, getLimits, PRESETS_STORAGE_KEY } from '@/lib/compression/types'
+import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions } from '@/lib/compression/types'
+import { DEFAULT_OPTIONS, getLimits, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY } from '@/lib/compression/types'
+
+const IS_CN = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
 
 let worker: Worker | null = null
@@ -34,6 +36,8 @@ interface CompressionState {
   isPro: boolean
   proLoading: boolean
   presets: SavedPreset[]
+  naming: NamingOptions
+  watermark: WatermarkOptions
 
   checkProStatus: () => Promise<void>
   addFiles: (newFiles: File[]) => void
@@ -47,6 +51,8 @@ interface CompressionState {
   savePreset: (name: string) => boolean
   deletePreset: (id: string) => void
   applyPreset: (id: string) => void
+  setNaming: (opts: Partial<NamingOptions>) => void
+  setWatermark: (opts: Partial<WatermarkOptions>) => void
   rotateImage: (id: string, direction: 'cw' | 'ccw') => void
   flipImage: (id: string, direction: 'h' | 'v') => void
   resetTransform: (id: string) => void
@@ -64,8 +70,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   isPro: false,
   proLoading: true,
   presets: [],
+  naming: { ...DEFAULT_NAMING },
+  watermark: { ...DEFAULT_WATERMARK },
 
   checkProStatus: async () => {
+    // 国内版：无 Pro，直接返回免费
+    if (IS_CN) { set({ isPro: false, proLoading: false }); return }
     try {
       const code = localStorage.getItem('pro_license')
       if (!code) { set({ proLoading: false, isPro: false }); return }
@@ -181,9 +191,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   compressAll: () => {
-    const { files, options } = get()
+    const { files, options, watermark, isPro } = get()
     const pendingFiles = files.filter(f => f.status === 'pending')
     if (pendingFiles.length === 0) return
+
+    // AVIF 仅 Pro 可用，非 Pro 回退到原格式
+    const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
 
     set({ isCompressing: true })
     const w = getWorker()
@@ -300,7 +313,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           quality: options.quality,
           speed: options.speed,
           lossless: options.lossless,
-          outputFormat: options.outputFormat,
+          outputFormat: effectiveFormat,
           targetKB: options.targetKB || 0,
           resizeWidth: options.resizeWidth || 0,
           resizeHeight: options.resizeHeight || 0,
@@ -308,6 +321,21 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           rotation: file.rotation,
           flipH: file.flipH,
           flipV: file.flipV,
+          watermark: watermark.enabled ? {
+            enabled: watermark.enabled,
+            type: watermark.type,
+            text: watermark.text,
+            fontSize: watermark.fontSize,
+            fontColor: watermark.fontColor,
+            fontOpacity: watermark.fontOpacity,
+            rotation: watermark.rotation,
+            imageDataUrl: watermark.imageDataUrl,
+            imageOpacity: watermark.imageOpacity,
+            imageScale: watermark.imageScale,
+            position: watermark.position,
+            marginX: watermark.marginX,
+            marginY: watermark.marginY,
+          } : undefined,
         })
       }).catch(() => {
         set({
@@ -321,9 +349,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   compressOne: (id: string) => {
-    const { options } = get()
+    const { options, isPro } = get()
     const file = get().files.find(f => f.id === id)
     if (!file) return
+
+    // AVIF 仅 Pro 可用
+    const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
 
     const prev = _compressOneCleanups.get(id)
     if (prev) {
@@ -410,7 +441,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         quality: options.quality,
         speed: options.speed,
         lossless: options.lossless,
-        outputFormat: options.outputFormat,
+        outputFormat: effectiveFormat,
         targetKB: options.targetKB || 0,
         resizeWidth: options.resizeWidth || 0,
         resizeHeight: options.resizeHeight || 0,
@@ -418,6 +449,21 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         rotation: file.rotation,
         flipH: file.flipH,
         flipV: file.flipV,
+        watermark: get().watermark.enabled ? {
+          enabled: get().watermark.enabled,
+          type: get().watermark.type,
+          text: get().watermark.text,
+          fontSize: get().watermark.fontSize,
+          fontColor: get().watermark.fontColor,
+          fontOpacity: get().watermark.fontOpacity,
+          rotation: get().watermark.rotation,
+          imageDataUrl: get().watermark.imageDataUrl,
+          imageOpacity: get().watermark.imageOpacity,
+          imageScale: get().watermark.imageScale,
+          position: get().watermark.position,
+          marginX: get().watermark.marginX,
+          marginY: get().watermark.marginY,
+        } : undefined,
       })
     }).catch(() => {
       set({
@@ -443,6 +489,8 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   savePreset: (name: string) => {
+    // 国内版：不支持自定义预设
+    if (IS_CN) return false
     const { options, presets } = get()
     if (presets.some(p => p.name === name.trim())) return false
     if (presets.length >= 10) return false
@@ -477,6 +525,41 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       set({ options: { ...preset.options } })
     }
   },
+
+  setNaming: (opts: Partial<NamingOptions>) => {
+    const updated = { ...get().naming, ...opts }
+    set({ naming: updated })
+    try { localStorage.setItem(NAMING_STORAGE_KEY, JSON.stringify(updated)) } catch {}
+  },
+
+  setWatermark: (opts: Partial<WatermarkOptions>) => {
+    const updated = { ...get().watermark, ...opts }
+    set({ watermark: updated })
+    try { localStorage.setItem(WATERMARK_STORAGE_KEY, JSON.stringify(updated)) } catch {}
+  },
+
+  // Initialize naming from localStorage on first load
+  ...(typeof window !== 'undefined' ? (() => {
+    try {
+      const raw = localStorage.getItem(NAMING_STORAGE_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        return { naming: { ...DEFAULT_NAMING, ...saved } }
+      }
+    } catch {}
+    return {}
+  })() : {}),
+  // Initialize watermark from localStorage on first load
+  ...(typeof window !== 'undefined' ? (() => {
+    try {
+      const raw = localStorage.getItem(WATERMARK_STORAGE_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        return { watermark: { ...DEFAULT_WATERMARK, ...saved } }
+      }
+    } catch {}
+    return {}
+  })() : {}),
 
   rotateImage: (id: string, direction: 'cw' | 'ccw') => {
     const file = get().files.find(f => f.id === id)

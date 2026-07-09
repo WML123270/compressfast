@@ -99,6 +99,68 @@ export const QUALITY_TIER_COLORS: Record<QualityTier, string> = {
   overcompressed: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 }
 
+export interface NamingOptions {
+  pattern: 'original_compressed' | 'original_min' | 'compressed_original' | 'custom'
+  customTemplate: string // 支持 {original} {n} {date} {ext} 占位符
+  numberStart: number
+  numberPadding: number // 0 = 不补零，2 = 01, 3 = 001
+  /** 使用编号前缀还是后缀 */
+  numberPosition: 'prefix' | 'suffix'
+}
+
+export const DEFAULT_NAMING: NamingOptions = {
+  pattern: 'original_compressed',
+  customTemplate: '{original}_min',
+  numberStart: 1,
+  numberPadding: 0,
+  numberPosition: 'suffix',
+}
+
+export const NAMING_STORAGE_KEY = 'png-compressor-naming'
+
+/** 水印位置：9 宫格 + 居中 */
+export type WatermarkPosition = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br'
+
+export type WatermarkType = 'text' | 'image' | 'none'
+
+export interface WatermarkOptions {
+  enabled: boolean
+  type: WatermarkType
+  /** 文字水印 */
+  text: string
+  fontSize: number        // px
+  fontColor: string       // hex like #ffffff
+  fontOpacity: number     // 0-1
+  rotation: number        // degrees
+  /** 图片水印 */
+  imageDataUrl: string | null  // data: URL of watermark image
+  imageOpacity: number    // 0-1
+  imageScale: number      // 0.1-2.0, percentage of original image width
+  /** 通用 */
+  position: WatermarkPosition
+  /** 边距（px） */
+  marginX: number
+  marginY: number
+}
+
+export const DEFAULT_WATERMARK: WatermarkOptions = {
+  enabled: false,
+  type: 'text',
+  text: '',
+  fontSize: 24,
+  fontColor: '#ffffff',
+  fontOpacity: 0.5,
+  rotation: -30,
+  imageDataUrl: null,
+  imageOpacity: 0.5,
+  imageScale: 0.3,
+  position: 'br',
+  marginX: 20,
+  marginY: 20,
+}
+
+export const WATERMARK_STORAGE_KEY = 'png-compressor-watermark'
+
 export const PRESETS_STORAGE_KEY = 'png-compressor-presets'
 
 /** Pro 用户解锁的特性标记 */
@@ -108,4 +170,5 @@ export const PRO_FEATURES = {
   prioritySupport: true,
   maxDevices: 5,
   lifetimeUpdates: true,
+  avifExport: true,
 }
