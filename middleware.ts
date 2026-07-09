@@ -21,6 +21,7 @@ const SKIP_PATHS = [
   '/next.svg',
   '/vercel.svg',
   '/window.svg',
+  '/bdunion.txt',
   '/baidu_verify',
 ]
 
