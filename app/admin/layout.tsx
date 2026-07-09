@@ -1,20 +1,8 @@
 'use client'
 
-import { useState, useEffect, createContext, useContext } from 'react'
-import { useRouter } from 'next/navigation'
-import { BarChart3, Key, Shield, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-// ---------- Auth Context ----------
-interface AdminContextType {
-  authed: boolean
-  checking: boolean
-  logout: () => void
-}
-const AdminContext = createContext<AdminContextType>({ authed: false, checking: true, logout: () => {} })
-export const useAdmin = () => useContext(AdminContext)
-
-// ---------- Layout ----------
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [authed, setAuthed] = useState(false)
   const [checking, setChecking] = useState(true)
@@ -22,15 +10,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [loginError, setLoginError] = useState('')
   const [loggingIn, setLoggingIn] = useState(false)
 
-  // 检查是否已登录
   useEffect(() => {
-    fetch('/api/admin/stats')
+    fetch('/api/admin/stats', { credentials: 'include' })
       .then(r => { if (r.ok) setAuthed(true) })
       .catch(() => {})
       .finally(() => setChecking(false))
   }, [])
 
-  // 处理登录
   const handleLogin = async () => {
     if (!keyInput.trim()) return
     setLoggingIn(true)
@@ -40,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: keyInput.trim() }),
+        credentials: 'include',
       })
       if (res.ok) {
         setAuthed(true)
@@ -53,11 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const logout = async () => {
-    await fetch('/api/admin/logout', { method: 'POST' })
+    await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' })
     setAuthed(false)
   }
 
-  // 加载中
   if (checking) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -66,15 +52,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // 未登录 → 显示密钥输入
   if (!authed) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" />
-            <h1 className="text-lg font-semibold text-slate-800">管理后台</h1>
-          </div>
+          <h1 className="text-lg font-semibold text-slate-800">管理后台</h1>
           <p className="text-sm text-slate-500">请输入管理密钥</p>
           <input
             type="password"
@@ -98,50 +80,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // 已登录 → 管理界面
   return (
-    <AdminContext.Provider value={{ authed, checking, logout }}>
-      <div className="min-h-screen bg-slate-50 flex">
-        {/* Sidebar */}
-        <aside className="w-52 bg-white border-r border-slate-200 flex flex-col shrink-0">
-          <div className="p-4 border-b border-slate-100">
-            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-blue-600" />
-              极速压图 · 后台
-            </h2>
-          </div>
-          <nav className="flex-1 p-2 space-y-0.5">
-            <Link
-              href="/admin"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              <BarChart3 className="w-4 h-4" />
-              数据概览
-            </Link>
-            <Link
-              href="/admin/licenses"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              <Key className="w-4 h-4" />
-              激活码管理
-            </Link>
-          </nav>
-          <div className="p-3 border-t border-slate-100">
-            <button
-              onClick={logout}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-500 w-full"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              退出
-            </button>
-          </div>
-        </aside>
-
-        {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
-      </div>
-    </AdminContext.Provider>
+    <div className="min-h-screen bg-slate-50 flex">
+      <aside className="w-48 bg-white border-r border-slate-200 flex flex-col shrink-0">
+        <div className="p-4 border-b border-slate-100">
+          <h2 className="text-sm font-semibold text-slate-700">极速压图 · 后台</h2>
+        </div>
+        <nav className="flex-1 p-2 space-y-0.5">
+          <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">
+            数据概览
+          </Link>
+          <Link href="/admin/licenses" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">
+            激活码管理
+          </Link>
+        </nav>
+        <div className="p-3 border-t border-slate-100">
+          <button onClick={logout} className="text-xs text-slate-400 hover:text-red-500 w-full text-left">
+            退出
+          </button>
+        </div>
+      </aside>
+      <main className="flex-1 p-6 overflow-auto">
+        {children}
+      </main>
+    </div>
   )
 }
