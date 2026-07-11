@@ -17,7 +17,7 @@ export NVM_DIR="$HOME/.nvm"
 
 # ─── 安装依赖 ───────────────────────────
 echo ">>> 安装依赖..."
-npm install --production --registry=https://registry.npmmirror.com
+npm install --registry=https://registry.npmmirror.com
 
 # ─── 检查 .env.local ─────────────────────
 if [ ! -f .env.local ]; then
@@ -31,6 +31,9 @@ echo ">>> 构建中..."
 npm run build
 
 # ─── 启动/重启 ──────────────────────────
+# 构建完成后清理 dev 依赖，减小 node_modules 体积
+npm prune --production
+
 echo ">>> 启动应用..."
 export NODE_ENV=production
 
