@@ -43,7 +43,7 @@ export function ImageCompare({ beforeSrc, afterSrc, beforeLabel, afterLabel }: I
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-video overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 select-none touch-none"
+      className="relative w-full aspect-video overflow-hidden rounded-lg bg-slate-900 select-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -80,7 +80,7 @@ export function ImageCompare({ beforeSrc, afterSrc, beforeLabel, afterLabel }: I
 
       {/* Drag handle */}
       <div
-        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-lg border-2 border-slate-300 flex items-center justify-center pointer-events-none"
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-lg border-slate-300 flex items-center justify-center pointer-events-none"
         style={{ left: `${position}%` }}
       >
         <MoveHorizontal className="w-3.5 h-3.5 text-slate-500" />
@@ -88,12 +88,12 @@ export function ImageCompare({ beforeSrc, afterSrc, beforeLabel, afterLabel }: I
 
       {/* Labels */}
       <div className="absolute bottom-2 left-2 pointer-events-none">
-        <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-black/50 text-white backdrop-blur-sm">
+        <span className="px-2 py-0.5 font-medium rounded bg-black/50 text-white backdrop-blur-sm">
           {beforeLabel}
         </span>
       </div>
       <div className="absolute bottom-2 right-2 pointer-events-none">
-        <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-black/50 text-white backdrop-blur-sm">
+        <span className="px-2 py-0.5 font-medium rounded bg-black/50 text-white backdrop-blur-sm">
           {afterLabel}
         </span>
       </div>

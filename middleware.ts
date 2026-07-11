@@ -23,6 +23,8 @@ const SKIP_PATHS = [
   '/window.svg',
   '/bdunion.txt',
   '/baidu_verify',
+  '/verify-file.txt',
+  '/google',
 ]
 
 function shouldSkip(pathname: string): boolean {
@@ -39,6 +41,8 @@ function getLocaleFromPath(pathname: string): string | null {
 }
 
 function getLocaleFromRequest(request: NextRequest): string {
+  const hostname = request.nextUrl.hostname
+
   // 1. Check cookie
   const cookieLocale = request.cookies.get('lang')?.value
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as typeof SUPPORTED_LOCALES[number])) {
@@ -49,7 +53,10 @@ function getLocaleFromRequest(request: NextRequest): string {
   const acceptLang = request.headers.get('accept-language') || ''
   if (acceptLang.includes('zh')) return 'zh'
 
-  // 3. Default to English for non-Chinese users (international version)
+  // 3. Chinese domestic domain defaults to zh
+  if (hostname === 'jisuyatu.com' || hostname.endsWith('.cn')) return 'zh'
+
+  // 4. Default to English for international version
   return 'en'
 }
 
@@ -80,10 +87,19 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  // Redirect root to detected locale
+  // Rewrite root path to detected locale (no redirect — preserves HTML for crawlers)
+  // For other paths without locale prefix, redirect as before
   const locale = getLocaleFromRequest(request)
   const newUrl = new URL(`/${locale}${pathname}`, request.url)
   newUrl.search = request.nextUrl.search
+
+  if (pathname === '/') {
+    // Internal rewrite: serves the locale page content at the root URL
+    // This is critical for Baidu Union verification which checks the root domain
+    const response = NextResponse.rewrite(newUrl)
+    response.cookies.set('lang', locale, { maxAge: 365 * 24 * 60 * 60 })
+    return response
+  }
 
   const response = NextResponse.redirect(newUrl)
   response.cookies.set('lang', locale, { maxAge: 365 * 24 * 60 * 60 })

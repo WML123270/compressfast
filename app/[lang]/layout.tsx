@@ -3,6 +3,7 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { JsonLd } from '@/components/layout/JsonLd'
 import { PageViewTracker } from '@/components/layout/PageViewTracker'
+import { ToastProvider } from '@/components/ui/Toast'
 import { Analytics } from '@vercel/analytics/react'
 import type { Locale } from '@/lib/i18n/dictionaries'
 import type { Metadata } from 'next'
@@ -64,12 +65,21 @@ export default function LangLayout({
 
   return (
     <LanguageProvider locale={locale}>
-      <Header />
-      <JsonLd />
-      <PageViewTracker />
-      <Analytics />
-      <main className="flex-1">{children}</main>
-      <Footer />
+      <ToastProvider>
+        <div className="relative min-h-screen flex flex-col">
+          {/* Top glow orb */}
+          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-glow-top pointer-events-none" aria-hidden="true" />
+          {/* Bottom glow orb */}
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-glow-bottom pointer-events-none" aria-hidden="true" />
+
+          <Header />
+          <JsonLd />
+          <PageViewTracker />
+          <Analytics />
+          <main className="flex-1 relative z-10">{children}</main>
+          <Footer />
+        </div>
+      </ToastProvider>
     </LanguageProvider>
   )
 }

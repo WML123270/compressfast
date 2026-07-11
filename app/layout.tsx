@@ -18,7 +18,10 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    other: { 'baidu-site-verification': 'codeva-Qzz2bgaqoR' },
+    other: {
+      'baidu-site-verification': 'codeva-Qzz2bgaqoR',
+      'baidu_union_verify': '88a78eaf1ef0ec38f4c7e7d4ca595e55',
+    },
   },
   manifest: '/manifest.json',
   other: {
@@ -55,9 +58,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const htmlLang = langCookie === 'zh' ? 'zh' : 'en'
 
   return (
-    <html lang={htmlLang} suppressHydrationWarning>
+    <html lang={htmlLang} className="dark" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="#020617" />
+        <meta name="baidu_union_verify" content="88a78eaf1ef0ec38f4c7e7d4ca595e55" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var l=window.location.pathname;document.documentElement.lang=l.startsWith('/zh')?'zh':'en'})()`,
@@ -65,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
+            __html: `(function(){document.documentElement.classList.add('dark')})()`,
           }}
         />
         <script
@@ -74,7 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors">
+      <body className="min-h-screen flex flex-col bg-[#0b1420] text-slate-100 antialiased">
         <LangDetector />
         {children}
         <Analytics />

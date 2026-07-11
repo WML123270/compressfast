@@ -64,34 +64,34 @@ export default function AdminLicensesPage() {
   })
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-slate-500 text-sm"><div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full" /> 加载中...</div>
+    return <div className="flex items-center gap-2 text-sm"><div className="animate-spin w-4 h-4 border-t-transparent rounded-full" /> 加载中...</div>
   }
 
   if (error) {
-    return <div className="text-center py-12"><p className="text-red-500 text-sm mb-3">{error}</p><button onClick={fetchLicenses} className="text-sm text-blue-600 hover:underline">重试</button></div>
+    return <div className="text-center py-12"><p className="text-sm mb-3">{error}</p><button onClick={fetchLicenses} className="text-blue-600 hover:underline">重试</button></div>
   }
 
   return (
     <div className="space-y-4 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-800">激活码管理</h1>
-        <p className="text-xs text-slate-400">{licenses.length} 个激活码</p>
+        <h1 className="font-bold text-slate-800">激活码管理</h1>
+        <p className="text-slate-400">{licenses.length} 个激活码</p>
       </div>
 
       <input type="text" placeholder="搜索激活码或邮箱..." value={search}
         onChange={e => setSearch(e.target.value)}
-        className="w-full max-w-sm px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        className="w-full max-w-sm px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-blue-500" />
 
-      {actionMsg && <div className="text-sm px-3 py-2 bg-blue-50 text-blue-700 rounded-lg">{actionMsg}</div>}
+      {actionMsg && <div className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg">{actionMsg}</div>}
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-slate-400">{search ? '无匹配结果' : '暂无激活码'}</p>
+        <p className="text-slate-400">{search ? '无匹配结果' : '暂无激活码'}</p>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-slate-400 bg-slate-50 border-b border-slate-200">
+                <tr className="text-left text-slate-400 bg-slate-50 border-slate-200">
                   <th className="px-4 py-3 font-medium">激活码</th><th className="px-4 py-3 font-medium">邮箱</th>
                   <th className="px-4 py-3 font-medium">购买时间</th><th className="px-4 py-3 font-medium">金额</th>
                   <th className="px-4 py-3 font-medium">设备数</th><th className="px-4 py-3 font-medium">状态</th>
@@ -100,25 +100,25 @@ export default function AdminLicensesPage() {
               </thead>
               <tbody>
                 {filtered.map((l, i) => (
-                  <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50">
+                  <tr key={i} className="border-slate-50 hover:bg-slate-50/50">
                     <td className="px-4 py-3 font-mono text-xs">{l.code}</td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{l.email}</td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">{new Date(l.created_at).toLocaleDateString('zh-CN')}</td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{l.orderAmount || '$24.99'}</td>
+                    <td className="px-4 py-3 text-xs">{l.email}</td>
+                    <td className="px-4 py-3 text-xs">{new Date(l.created_at).toLocaleDateString('zh-CN')}</td>
+                    <td className="px-4 py-3 text-xs">{l.orderAmount || '$24.99'}</td>
                     <td className="px-4 py-3 text-xs"><span className={l.devices.length >= 5 ? 'text-red-500' : 'text-slate-500'}>{l.devices?.length || 0} / 5</span></td>
                     <td className="px-4 py-3">
                       {l.active
-                        ? <span className="text-xs text-green-600">有效</span>
-                        : <span className="text-xs text-red-500">已撤销</span>}
+                        ? <span className="text-green-600">有效</span>
+                        : <span className="text-red-500">已撤销</span>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         {l.active && (
                           <button onClick={() => handleAction('revoke', l.code, l.email)}
-                            className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">撤销</button>
+                            className="text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">撤销</button>
                         )}
                         <button onClick={() => handleAction('reset-devices', l.code, l.email)}
-                          className="text-xs text-slate-400 hover:text-blue-600 px-2 py-1 rounded hover:bg-blue-50">重置设备</button>
+                          className="text-slate-400 hover:text-blue-600 px-2 py-1 rounded hover:bg-blue-50">重置设备</button>
                       </div>
                     </td>
                   </tr>

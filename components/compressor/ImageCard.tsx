@@ -71,14 +71,14 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
   }
 
   return (
-    <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-3 sm:p-4 bg-white dark:bg-slate-800 hover:shadow-sm transition-shadow">
+    <div className="border border-slate-700 rounded-xl p-3 sm:p-4 bg-slate-800 hover:shadow-sm transition-shadow">
       <div className="flex items-center gap-3">
         {showDragHandle && (
-          <div className="flex-shrink-0 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 cursor-grab active:cursor-grabbing -ml-1">
+          <div className="flex-shrink-0 text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing -ml-1">
             <GripVertical className="w-4 h-4" />
           </div>
         )}
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden flex-shrink-0 border border-slate-200 dark:border-slate-600 flex items-center justify-center">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-slate-700 overflow-hidden flex-shrink-0 border border-slate-600 flex items-center justify-center">
           <img
             src={image.previewUrl}
             alt={image.file.name}
@@ -91,18 +91,18 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{image.file.name}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="font-medium text-slate-200 truncate text-sm sm:text-base">{image.file.name}</p>
+          <p className="text-slate-400 mt-0.5 text-xs sm:text-sm">
             {formatFileSize(image.originalSize)}
             {image.width > 0 && image.height > 0 && (
-              <span> · {image.width}×{image.height}</span>
+              <span className="hidden sm:inline"> · {image.width}×{image.height}</span>
             )}
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {image.status === 'pending' && (
-            <span className="text-xs text-slate-400 dark:text-slate-500">{t('card.pending')}</span>
+            <span className="text-slate-500">{t('card.pending')}</span>
           )}
 
           {image.status === 'compressing' && (
@@ -111,13 +111,23 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
               {image.targetProgress ? (
                 <span className="text-xs">{t('card.compressingQuality', { quality: image.targetProgress.quality, currentKB: image.targetProgress.currentKB })}</span>
               ) : (
-                <span className="text-xs hidden sm:inline">{t('card.compressing')}</span>
+                <span className="text-xs">{t('card.compressing')}</span>
               )}
             </div>
           )}
 
           {image.status === 'done' && (
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2">
+              {/* Mobile: compact info + download */}
+              <div className="sm:hidden flex items-center gap-1.5">
+                {image.qualityTier && (
+                  <span className={`px-1 py-0.5 rounded text-[10px] font-medium ${QUALITY_TIER_COLORS[image.qualityTier as QualityTier]}`}>
+                    {t(`quality.${image.qualityTier}`)}
+                  </span>
+                )}
+                <span className="text-green-400 text-xs font-medium">{ratio.toFixed(0)}%</span>
+              </div>
+              {/* Desktop: full info */}
               <div className="text-right hidden sm:block">
                 <div className="flex items-center gap-1.5">
                   {image.qualityTier && (
@@ -125,12 +135,12 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
                       {t(`quality.${image.qualityTier}`)}
                     </span>
                   )}
-                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">{t('card.reduced', { ratio: ratio.toFixed(0) })}</p>
+                  <p className="text-green-400 font-medium">{t('card.reduced', { ratio: ratio.toFixed(0) })}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{formatFileSize(image.compressedSize!)}</p>
+                  <p className="text-slate-400">{formatFileSize(image.compressedSize!)}</p>
                   {image.metadataStripped && (
-                    <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 dark:text-green-400" title={t('quality.privacy')}>
+                    <span className="inline-flex items-center gap-0.5 text-green-400" title={t('quality.privacy')}>
                       <ShieldCheck className="w-3 h-3" />
                     </span>
                   )}
@@ -139,7 +149,7 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
               <button
                 onClick={handleDownload}
                 disabled={downloading}
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-1.5 font-medium text-white bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 rounded-lg transition-colors text-xs sm:text-sm"
               >
                 {downloading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -153,8 +163,8 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
 
           {image.status === 'error' && (
             <div className="flex items-center gap-1">
-              <span className="text-xs text-red-600 hidden sm:inline">{image.error || t('card.failed')}</span>
-              <button onClick={() => compressOne(image.id)} className="p-1 text-slate-400 hover:text-brand-600" title={t('card.retry')}>
+              <span className="text-red-400 text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none">{image.error || t('card.failed')}</span>
+              <button onClick={() => compressOne(image.id)} className="p-1 text-slate-400 hover:text-brand-600 flex-shrink-0" title={t('card.retry')}>
                 <RotateCcw className="w-4 h-4" />
               </button>
             </div>
@@ -178,46 +188,46 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
 
       {/* Transform toolbar — only for non-compressing images */}
       {image.status !== 'compressing' && (
-        <div className="flex items-center gap-1 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-          <span className="text-[10px] text-slate-400 dark:text-slate-500 mr-1 hidden sm:inline">编辑:</span>
+        <div className="flex items-center gap-0.5 sm:gap-1 mt-2 pt-2 border-slate-700">
+          <span className="text-slate-500 mr-0.5 hidden sm:inline text-xs">编辑:</span>
           <button
             onClick={() => rotateImage(image.id, 'ccw')}
-            className="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+            className="p-1 sm:p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-md transition-colors"
             title={t('card.rotateCcw')}
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button
             onClick={() => rotateImage(image.id, 'cw')}
-            className="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+            className="p-1 sm:p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-md transition-colors"
             title={t('card.rotateCw')}
           >
-            <RotateCw className="w-4 h-4" />
+            <RotateCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
-          <span className="w-px h-5 bg-slate-200 dark:bg-slate-600 mx-1" />
+          <span className="w-px h-4 sm:h-5 bg-slate-600 mx-0.5 sm:mx-1" />
           <button
             onClick={() => flipImage(image.id, 'h')}
-            className={`p-1.5 rounded-md transition-colors ${image.flipH ? 'text-brand-600 bg-brand-50 dark:bg-brand-900/30 ring-1 ring-brand-200 dark:ring-brand-800' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+            className={`p-1 sm:p-1.5 rounded-md transition-colors ${image.flipH ? 'text-brand-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
             title={t('card.flipH')}
           >
-            <FlipHorizontal className="w-4 h-4" />
+            <FlipHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button
             onClick={() => flipImage(image.id, 'v')}
-            className={`p-1.5 rounded-md transition-colors ${image.flipV ? 'text-brand-600 bg-brand-50 dark:bg-brand-900/30 ring-1 ring-brand-200 dark:ring-brand-800' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+            className={`p-1 sm:p-1.5 rounded-md transition-colors ${image.flipV ? 'text-brand-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
             title={t('card.flipV')}
           >
-            <FlipVertical className="w-4 h-4" />
+            <FlipVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           {(image.rotation !== 0 || image.flipH || image.flipV) && (
             <>
-              <span className="w-px h-5 bg-slate-200 dark:bg-slate-600 mx-1" />
+              <span className="w-px h-4 sm:h-5 bg-slate-600 mx-0.5 sm:mx-1" />
               <button
                 onClick={() => resetTransform(image.id)}
-                className="p-1.5 text-amber-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                className="p-1 sm:p-1.5 text-amber-500 hover:text-red-500 hover:bg-red-900/20 rounded-md transition-colors"
                 title={t('card.rotateReset')}
               >
-                <Undo2 className="w-4 h-4" />
+                <Undo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </>
           )}
@@ -225,7 +235,7 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
       )}
 
       {showPreview && image.status === 'done' && previewBlobUrlRef.current && (
-        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+        <div className="mt-3 pt-3 border-slate-700">
           <ImageCompare
             beforeSrc={image.previewUrl}
             afterSrc={previewBlobUrlRef.current}
@@ -233,8 +243,8 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
             afterLabel={t('card.after')}
           />
           <div className="flex justify-between mt-2 text-xs">
-            <span className="text-slate-400 dark:text-slate-500">{formatFileSize(image.originalSize)}</span>
-            <span className="text-green-600 dark:text-green-400 font-medium">
+            <span className="text-slate-500">{formatFileSize(image.originalSize)}</span>
+            <span className="text-green-400 font-medium">
               {formatFileSize(image.compressedSize!)} · {t('card.reduced', { ratio: ratio.toFixed(0) })}
             </span>
           </div>

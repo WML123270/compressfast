@@ -3,13 +3,20 @@
 import { Shield, Zap, Download, ArrowLeft, Check, X } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export default function VsPage() {
   const { t, locale } = useT()
+  const isCn = useIsCn()
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.vercel.app'
   const tools = [
-    { name: t('app.name'), url: siteUrl, price: t('vs.compressfast.price'), privacy: t('vs.compressfast.privacy'), batch: t('vs.compressfast.batch'), maxSize: t('vs.compressfast.maxSize'), formats: t('vs.compressfast.formats'), lossless: true, highlight: true },
+    { name: t('app.name'), url: siteUrl,
+      price: isCn ? (locale === 'zh' ? '完全免费' : 'Free') : t('vs.compressfast.price'),
+      privacy: t('vs.compressfast.privacy'),
+      batch: isCn ? (locale === 'zh' ? '30 张/次' : '30/batch') : t('vs.compressfast.batch'),
+      maxSize: isCn ? '25MB' : t('vs.compressfast.maxSize'),
+      formats: t('vs.compressfast.formats'), lossless: true, highlight: true },
     { name: 'TinyPNG', url: 'https://tinypng.com', price: t('vs.tinypng.price'), privacy: t('vs.tinypng.privacy'), batch: t('vs.tinypng.batch'), maxSize: t('vs.tinypng.maxSize'), formats: t('vs.tinypng.formats'), lossless: false },
     { name: 'Squoosh', url: 'https://squoosh.app', price: t('vs.squoosh.price'), privacy: t('vs.squoosh.privacy'), batch: t('vs.squoosh.batch'), maxSize: t('vs.squoosh.maxSize'), formats: t('vs.squoosh.formats'), lossless: true },
     { name: 'iLoveIMG', url: 'https://www.iloveimg.com', price: t('vs.iloveimg.price'), privacy: t('vs.iloveimg.privacy'), batch: t('vs.iloveimg.batch'), maxSize: t('vs.iloveimg.maxSize'), formats: t('vs.iloveimg.formats'), lossless: false },
@@ -26,13 +33,13 @@ export default function VsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
-      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 mb-6">
+      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-slate-400 hover:text-brand-400 mb-6">
         <ArrowLeft className="w-4 h-4" /> {t('vs.back')}
       </Link>
 
       <section className="text-center mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">{t('vs.title')}</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-2xl mx-auto">{t('vs.subtitle')}</p>
+        <h1 className="sm:text-3xl font-bold text-slate-100">{t('vs.title')}</h1>
+        <p className="text-slate-400 mt-3 max-w-2xl mx-auto">{t('vs.subtitle')}</p>
       </section>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
@@ -41,37 +48,37 @@ export default function VsPage() {
           { icon: Zap, title: t('vs.insight2.title'), desc: t('vs.insight2.desc') },
           { icon: Download, title: t('vs.insight3.title'), desc: t('vs.insight3.desc') },
         ].map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-            <Icon className="w-6 h-6 text-brand-600 dark:text-brand-400 mb-2" />
-            <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-1">{title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+          <div key={title} className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">
+            <Icon className="w-6 h-6 text-brand-400 mb-2" />
+            <h3 className="font-semibold text-slate-200 mb-1">{title}</h3>
+            <p className="text-slate-400 leading-relaxed">{desc}</p>
           </div>
         ))}
       </div>
 
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">{t('vs.comparison')}</h2>
+        <h2 className="font-bold text-slate-100 mb-4">{t('vs.comparison')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="border-b-2 border-slate-200 dark:border-slate-700">
-                <th className="text-left py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">{t('vs.headerItem')}</th>
+              <tr className="border-slate-700">
+                <th className="text-left py-3 px-4 text-slate-400 font-medium">{t('vs.headerItem')}</th>
                 {tools.map(tool => (
-                  <th key={tool.name} className={`py-3 px-4 text-center ${tool.highlight ? 'text-brand-700 dark:text-brand-300 font-bold' : 'text-slate-700 dark:text-slate-300'}`}>
+                  <th key={tool.name} className={`py-3 px-4 text-center ${tool.highlight ? 'text-brand-300 font-bold' : 'text-slate-300'}`}>
                     {tool.highlight ? '⭐ ' : ''}{tool.name}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <tbody className="divide-slate-700/50">
               {comparisonRows.map(row => (
-                <tr key={row.label} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="py-3 px-4 font-medium text-slate-600 dark:text-slate-400">{row.label}</td>
+                <tr key={row.label} className="hover:bg-slate-800/50">
+                  <td className="py-3 px-4 font-medium text-slate-400">{row.label}</td>
                   {tools.map(tool => (
-                    <td key={tool.name} className={`py-3 px-4 text-center ${tool.highlight ? 'bg-brand-50/30 dark:bg-brand-900/10' : ''}`}>
+                    <td key={tool.name} className={`py-3 px-4 text-center ${tool.highlight ? 'bg-brand-50/30 bg-brand-900/10' : ''}`}>
                       {row.bool
                         ? (tool[row.key] ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : <X className="w-4 h-4 text-slate-300 mx-auto" />)
-                        : <span className={`text-xs sm:text-sm ${tool.highlight ? 'text-slate-800 dark:text-slate-200 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>{String(tool[row.key])}</span>
+                        : <span className={`text-xs sm:text-sm ${tool.highlight ? 'text-slate-200 font-medium' : 'text-slate-400'}`}>{String(tool[row.key])}</span>
                       }
                     </td>
                   ))}
@@ -83,14 +90,14 @@ export default function VsPage() {
       </section>
 
       <section className="space-y-6 mb-10">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('vs.review')}</h2>
+        <h2 className="font-bold text-slate-100">{t('vs.review')}</h2>
 
-        <div className="bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 border-2 border-brand-300 dark:border-brand-700 rounded-xl p-5">
-          <h3 className="font-bold text-brand-800 dark:text-brand-200 text-lg mb-2">{t('vs.review1.name')}</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">{t('vs.review1.desc')}</p>
+        <div className="bg-gradient-to-r from-brand-900/20 to-blue-900/20 border-brand-700 rounded-xl p-5">
+          <h3 className="font-bold text-lg mb-2">{t('vs.review1.name')}</h3>
+          <p className="text-slate-400 leading-relaxed mb-3">{t('vs.review1.desc')}</p>
           <div className="flex flex-wrap gap-2">
             {t('vs.review1.tags').split(' / ').map(tag => (
-              <span key={tag} className="px-2 py-0.5 text-xs font-medium rounded-full bg-brand-100 dark:bg-brand-800/30 text-brand-700 dark:text-brand-300">{tag}</span>
+              <span key={tag} className="px-2 py-0.5 font-medium rounded-full bg-brand-800/30 text-brand-300">{tag}</span>
             ))}
           </div>
         </div>
@@ -100,15 +107,15 @@ export default function VsPage() {
           { name: t('vs.review3.name'), desc: t('vs.review3.desc') },
           { name: t('vs.review4.name'), desc: t('vs.review4.desc') },
         ].map(({ name, desc }) => (
-          <div key={name} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-            <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">{name}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+          <div key={name} className="bg-slate-800 border border-slate-700 rounded-xl p-5">
+            <h3 className="font-semibold text-slate-200 mb-2">{name}</h3>
+            <p className="text-slate-400 leading-relaxed">{desc}</p>
           </div>
         ))}
       </section>
 
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">{t('vs.scenarios')}</h2>
+        <h2 className="font-bold text-slate-100 mb-4">{t('vs.scenarios')}</h2>
         <div className="space-y-3">
           {[
             { who: t('vs.scenario.designer'), tool: t('vs.scenario.designer.tool'), why: t('vs.scenario.designer.why') },
@@ -116,11 +123,11 @@ export default function VsPage() {
             { who: t('vs.scenario.creator'), tool: t('vs.scenario.creator.tool'), why: t('vs.scenario.creator.why') },
             { who: t('vs.scenario.casual'), tool: t('vs.scenario.casual.tool'), why: t('vs.scenario.casual.why') },
           ].map(({ who, tool, why }) => (
-            <div key={who} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg px-4 py-3">
-              <span className="text-slate-700 dark:text-slate-300 font-medium min-w-[100px]">{who}</span>
+            <div key={who} className="flex items-start gap-3 bg-slate-800/50 rounded-lg px-4 py-3">
+              <span className="text-slate-300 font-medium min-w-[100px]">{who}</span>
               <div>
-                <p className="text-sm text-slate-800 dark:text-slate-200">{tool}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{why}</p>
+                <p className="text-slate-200">{tool}</p>
+                <p className="text-slate-400 mt-0.5">{why}</p>
               </div>
             </div>
           ))}
@@ -128,16 +135,19 @@ export default function VsPage() {
       </section>
 
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">{t('vs.faq')}</h2>
+        <h2 className="font-bold text-slate-100 mb-4">{t('vs.faq')}</h2>
         <div className="space-y-4">
           {[
             { q: t('vs.faq.q1'), a: t('vs.faq.a1') },
             { q: t('vs.faq.q2'), a: t('vs.faq.a2') },
             { q: t('vs.faq.q3'), a: t('vs.faq.a3') },
+            { q: t('vs.faq.q4'), a: t('vs.faq.a4') },
+            { q: t('vs.faq.q5'), a: t('vs.faq.a5') },
+            { q: t('vs.faq.q6'), a: t('vs.faq.a6') },
           ].map(({ q, a }) => (
             <div key={q}>
-              <h3 className="font-semibold text-slate-800 dark:text-slate-200">{q}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{a}</p>
+              <h3 className="font-semibold text-slate-200">{q}</h3>
+              <p className="text-slate-400 mt-1">{a}</p>
             </div>
           ))}
         </div>
@@ -148,7 +158,7 @@ export default function VsPage() {
         <p className="opacity-90 mb-5 text-sm">{t('vs.cta.subtitle')}</p>
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-700 hover:text-brand-800 font-medium rounded-xl transition-colors text-sm"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:text-brand-800 font-medium rounded-xl transition-colors text-sm"
         >
           {t('vs.cta.button')} <ArrowLeft className="w-4 h-4 rotate-180" />
         </Link>

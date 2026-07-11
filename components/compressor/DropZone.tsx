@@ -2,11 +2,12 @@
 
 import { useCallback, useState } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
-import { Upload, AlertCircle } from 'lucide-react'
+import { Upload, AlertCircle, Loader2 } from 'lucide-react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
+import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
 
 const ACCEPT = {
   'image/png': ['.png'],
@@ -20,10 +21,11 @@ const ACCEPT = {
 }
 
 export function DropZone() {
-  const { t } = useT()
+  const { t, locale } = useT()
   const { files, addFiles, isCompressing, isPro } = useCompressionStore()
   const limits = getLimits(isPro)
   const [error, setError] = useState<string | null>(null)
+  const [sampleLoading, setSampleLoading] = useState<string | null>(null)
 
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
@@ -64,40 +66,91 @@ export function DropZone() {
     multiple: true,
   })
 
+  const handleSample = useCallback(async (sample: SampleImage) => {
+    setSampleLoading(sample.name)
+    setError(null)
+    try {
+      const file = await sample.generator()
+      addFiles([file])
+    } catch {
+      setError(t('dropzone.samples.error'))
+    }
+    setSampleLoading(null)
+  }, [addFiles, t])
+
   const remaining = limits.maxFiles - files.length
+  const isZh = locale === 'zh'
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <div
         {...getRootProps()}
         className={[
-          'relative border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200',
+          'relative border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center cursor-pointer transition-all duration-300',
           isDragActive
-            ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 dropzone-active'
-            : 'border-slate-300 dark:border-slate-600 hover:border-brand-400 hover:bg-slate-50 dark:hover:bg-slate-800',
+            ? 'border-cyan-400 bg-cyan-500/10 shadow-[0_0_40px_rgba(6,182,212,0.15)] scale-[1.02]'
+            : 'border-slate-700 hover:border-cyan-500/60 hover:bg-white/5',
           isCompressing ? 'opacity-50 pointer-events-none' : '',
         ].join(' ')}
       >
         <input {...getInputProps()} />
-        <Upload className="w-10 h-10 mx-auto mb-3 text-slate-400 dark:text-slate-500" />
-        <p className="text-base font-medium text-slate-700 dark:text-slate-200 mb-1">
+        <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 flex items-center justify-center">
+          <Upload className="w-8 h-8 text-cyan-400" />
+        </div>
+        <p className="font-semibold text-slate-200 mb-2">
           {isDragActive ? t('dropzone.dragActive') : t('dropzone.drag')}
         </p>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-slate-400 max-w-sm mx-auto">
           {isPro
             ? t('dropzone.hintPro', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
             : t('dropzone.hint', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
           }
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+        <p className="text-slate-500 mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-slate-700">
           {t('dropzone.paste')}
         </p>
         {remaining < limits.maxFiles && remaining > 0 && (
-          <p className="text-xs text-brand-600 dark:text-brand-400 mt-2">{t('dropzone.remaining', { n: remaining })}</p>
+          <p className="text-cyan-400 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
         )}
       </div>
+
+      {/* Sample images — only show when no files loaded */}
+      {files.length === 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+            <p className="text-xs text-slate-500 whitespace-nowrap">{t('dropzone.samples.label')}</p>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {SAMPLE_IMAGES.map((sample) => {
+              const isLoading = sampleLoading === sample.name
+              return (
+                <button
+                  key={sample.name}
+                  onClick={() => handleSample(sample)}
+                  disabled={isCompressing || sampleLoading !== null}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-800 bg-white/5 hover:bg-white/10 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.08)] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform">
+                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-cyan-400" /> : sample.icon}
+                  </span>
+                  <span className="text-xs font-medium text-slate-300 group-hover:text-cyan-400 transition-colors">
+                    {isZh
+                      ? { photo: '风景照', screenshot: '截图', design: 'Logo', gradient: '渐变' }[sample.name]
+                      : { photo: 'Photo', screenshot: 'Screenshot', design: 'Logo', gradient: 'Gradient' }[sample.name]
+                    }
+                  </span>
+                  <span className="text-[10px] text-slate-500">{sample.size}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
+        <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 animate-slide-up">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
