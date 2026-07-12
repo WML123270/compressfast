@@ -19,6 +19,7 @@ export interface ToolPageData {
     outputFormat?: string
     speed?: number
     resizeWidth?: number
+    resizeHeight?: number
     lossless?: boolean
     stripMetadata?: boolean
   }
@@ -151,6 +152,99 @@ export const TOOLS: Record<string, ToolPageData> = {
       { qEn: 'Will my image quality be affected?', qZh: '会影响画质吗？', aEn: 'You control the quality setting (0-100%). At 85%+, the difference is invisible to the naked eye. Lossless mode is also available for PNG compression.', aZh: '画质由你控制（0-100%）。85%以上肉眼几乎看不出差异。PNG还支持无损压缩模式。' },
     ],
     relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp'],
+  },
+
+  'compress-gif': {
+    slug: 'compress-gif',
+    titleEn: 'Compress GIF Online Free — Reduce GIF Size | CompressFast',
+    titleZh: '在线GIF压缩 — 免费减小GIF体积 | 极速压图',
+    descriptionEn: 'Compress GIF images online for free. 100% browser-based — no upload. Reduce GIF file size without losing animation. Batch support, quality control, frame optimization.',
+    descriptionZh: '免费在线压缩GIF动图，100%浏览器本地处理，无需上传。减小GIF体积保留动画效果。支持批量处理、画质调节。',
+    keywords: ['compress gif', 'gif compressor', 'compress gif online', 'reduce gif size', 'compress animated gif', 'gif optimizer', 'free gif compressor'],
+    heroTitleEn: 'Compress GIF Images Online',
+    heroTitleZh: '在线压缩GIF动图',
+    heroSubEn: 'Reduce GIF file size without breaking animations. Free, private, no upload.',
+    heroSubZh: '减小GIF体积、保留动画效果。免费、隐私安全、无需上传。',
+    targetFormat: 'original',
+    defaultSettings: { quality: 60, speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🎞️', titleEn: 'Keep Animations', titleZh: '保留动画', descEn: 'Unlike converting to MP4, our compression keeps your GIF animations intact — just smaller.', descZh: '不像转MP4会丢失动图效果，我们的压缩完整保留GIF动画——只是变小了。' },
+      { icon: '📉', titleEn: 'Up to 70% Smaller', titleZh: '最高减小70%', descEn: 'Smart color reduction and frame optimization can shrink GIFs by up to 70% with minimal visual difference.', descZh: '智能色彩缩减和帧优化最高可减小GIF 70%体积，视觉效果几乎没有差别。' },
+      { icon: '🔒', titleEn: 'No Upload Needed', titleZh: '无需上传', descEn: 'GIFs stay on your device. All compression happens locally in your browser via Web Workers.', descZh: 'GIF文件留在你的设备上，所有压缩在浏览器本地通过Web Worker完成。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Drop Your GIF Files', titleZh: '拖入GIF文件', descEn: 'Drag animated GIFs into the upload area, click to browse, or Ctrl+V paste from clipboard.', descZh: '将GIF动图拖入上传区、点击选择、或Ctrl+V粘贴。' },
+      { step: 2, titleEn: 'Adjust Compression', titleZh: '调节压缩强度', descEn: 'Use the quality slider to balance file size and visual quality. Lower quality = smaller file, higher quality = better visuals.', descZh: '用画质滑块平衡文件大小和视觉效果。低画质=更小体积，高画质=更好观感。' },
+      { step: 3, titleEn: 'Download Compressed GIFs', titleZh: '下载压缩后的GIF', descEn: 'Download each GIF individually or batch ZIP all results. Compare before/after with the built-in slider.', descZh: '逐张下载或批量ZIP打包。用内置对比滑块查看压缩前后效果。' },
+    ],
+    faqs: [
+      { qEn: 'Will compression break my GIF animation?', qZh: '压缩会破坏GIF动画吗？', aEn: 'No — CompressFast preserves GIF animations while reducing file size. Your GIFs will still move after compression.', aZh: '不会——极速压图在减小体积的同时保留GIF动画效果。压缩后你的GIF照样能动。' },
+      { qEn: 'How much can GIF files be reduced?', qZh: 'GIF文件能减小多少？', aEn: 'Typically 30-70% reduction depending on the GIF. Simple GIFs with fewer colors compress better. You can preview the result before downloading.', aZh: '通常能减小30-70%，取决于GIF本身。颜色少的简单GIF压缩效果更好。下载前可以预览结果。' },
+      { qEn: 'Is there a file size limit for GIFs?', qZh: 'GIF文件有大小限制吗？', aEn: 'Free users can compress GIFs up to 25MB each. Pro users get 50MB per file. No limits on the number of GIFs you can process (within batch limits).', aZh: '免费用户每张GIF最大25MB，Pro用户50MB。GIF数量无限制（在批量限制内）。' },
+    ],
+    relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp'],
+  },
+
+  'resize-image': {
+    slug: 'resize-image',
+    titleEn: 'Resize Image Online Free — Change Image Dimensions | CompressFast',
+    titleZh: '在线调整图片尺寸 — 免费修改图片大小 | 极速压图',
+    descriptionEn: 'Resize images online for free. Change width and height in pixels or percentage. Batch resize up to 30 images at once. Common presets: 1080p, 720p, 50%, 75%. No upload, 100% private.',
+    descriptionZh: '免费在线调整图片尺寸。按像素或百分比修改宽高。批量同时处理30张。常用预设：1080p、720p、50%、75%。无需上传，完全隐私。',
+    keywords: ['resize image', 'resize image online', 'image resizer', 'change image size', 'resize jpg', 'resize png', 'bulk resize images', 'free image resizer'],
+    heroTitleEn: 'Resize Images Online',
+    heroTitleZh: '在线调整图片尺寸',
+    heroSubEn: 'Change image dimensions in seconds. Pixels or percentage. Batch 30. Free & private.',
+    heroSubZh: '秒改图片尺寸。像素或百分比任意选。批量30张。免费、隐私安全。',
+    targetFormat: 'original',
+    defaultSettings: { quality: 85, speed: 5, resizeWidth: 1080, resizeHeight: 1080, stripMetadata: true },
+    benefits: [
+      { icon: '📏', titleEn: 'Pixels or Percentage', titleZh: '像素/百分比双模式', descEn: 'Resize by exact pixel dimensions or by percentage. 50% to shrink, 200% to enlarge. Full control.', descZh: '精确像素尺寸或百分比缩放任选。50%缩小、200%放大，完全掌控。' },
+      { icon: '🎯', titleEn: 'Common Presets', titleZh: '常用预设', descEn: 'One-click presets for 1080p (social media), 720p, 50%, and 75%. No math required.', descZh: '一键预设：1080p（社交媒体）、720p、50%、75%。不用自己算。' },
+      { icon: '📦', titleEn: 'Batch Resize 30', titleZh: '批量30张', descEn: 'Resize up to 30 images at once with the same dimensions. ZIP download all results.', descZh: '同时调整最多30张图片为相同尺寸，一键ZIP下载。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload Your Images', titleZh: '上传你的图片', descEn: 'Drag images into the upload area. Supports PNG, JPEG, WebP, GIF, BMP, SVG and more.', descZh: '将图片拖入上传区。支持PNG、JPEG、WebP、GIF、BMP、SVG等格式。' },
+      { step: 2, titleEn: 'Set New Dimensions', titleZh: '设置新尺寸', descEn: 'Enter width and height in pixels, choose a percentage preset, or pick from 1080p/720p quick options.', descZh: '输入像素宽高、选择百分比预设、或用1080p/720p快捷选项。' },
+      { step: 3, titleEn: 'Download Resized Images', titleZh: '下载调整后的图片', descEn: 'Download each image individually or batch ZIP. Original quality preserved — just different dimensions.', descZh: '逐张下载或批量ZIP。画质不变——只改尺寸。' },
+    ],
+    faqs: [
+      { qEn: 'Does resizing reduce image quality?', qZh: '调整尺寸会降低画质吗？', aEn: 'Minimally. Resizing down (making smaller) preserves quality well. Resizing up (enlarging) may show some softness — CompressFast uses browser-native high-quality scaling to minimize this.', aZh: '影响很小。缩小图片时画质保持良好。放大时可能会有轻微模糊——极速压图使用浏览器原生高质量缩放算法来最小化影响。' },
+      { qEn: 'Can I resize images to exact social media sizes?', qZh: '能调到社交媒体需要的精确尺寸吗？', aEn: 'Yes — use the 1080p preset for Instagram/Facebook, 720p for Twitter/X, or enter custom dimensions for any platform.', aZh: '可以——用1080p预设适配Instagram/Facebook，720p适配Twitter/X，或者手动输入任意平台的尺寸要求。' },
+      { qEn: 'Is my image data safe during resizing?', qZh: '调整尺寸过程中图片数据安全吗？', aEn: 'Completely. All processing happens in your browser. Your images never leave your device. You can resize offline.', aZh: '绝对安全。所有处理在浏览器中完成，图片不离开你的设备。断网也能正常使用。' },
+    ],
+    relatedTools: ['compress-png', 'compress-jpeg', 'convert-jpg-to-png'],
+  },
+
+  'convert-jpg-to-png': {
+    slug: 'convert-jpg-to-png',
+    titleEn: 'Convert JPG to PNG Online Free — No Upload | CompressFast',
+    titleZh: '在线JPG转PNG — 免费格式转换 | 极速压图',
+    descriptionEn: 'Convert JPG to PNG online for free. No upload, 100% browser-based. Batch convert up to 30 images at once. Also works: PNG to JPG, WebP to PNG, and more format conversions.',
+    descriptionZh: '免费在线JPG转PNG，无需上传，100%浏览器本地处理。批量同时转换30张。还支持PNG转JPG、WebP转PNG等更多格式转换。',
+    keywords: ['convert jpg to png', 'jpg to png converter', 'convert jpg to png online', 'jpg to png free', 'jpeg to png converter', 'image format converter', 'change jpg to png'],
+    heroTitleEn: 'Convert JPG to PNG Online',
+    heroTitleZh: '在线JPG转PNG',
+    heroSubEn: 'Convert JPG to PNG instantly. No upload, batch 30, free forever.',
+    heroSubZh: 'JPG瞬间转PNG。无需上传、批量30张、永久免费。',
+    targetFormat: 'png',
+    defaultSettings: { quality: 90, outputFormat: 'png', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🔄', titleEn: 'One-Click Conversion', titleZh: '一键转换', descEn: 'Select PNG as output format and your JPGs are converted automatically. No extra steps, no software to install.', descZh: '选PNG为输出格式，JPG自动转换。无需额外步骤，不用装软件。' },
+      { icon: '🎨', titleEn: 'Multiple Format Support', titleZh: '多格式互转', descEn: 'Not just JPG to PNG — also convert between JPEG, WebP, AVIF, and more. One tool, all conversions.', descZh: '不止JPG转PNG——还支持JPEG、WebP、AVIF等格式互转。一个工具搞定所有转换。' },
+      { icon: '📦', titleEn: 'Batch Convert 30', titleZh: '批量转换30张', descEn: 'Convert up to 30 JPGs to PNG at once. All processed in parallel. ZIP download all results.', descZh: '同时转换最多30张JPG为PNG，并行处理。一键ZIP下载全部结果。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload JPG Files', titleZh: '上传JPG文件', descEn: 'Drag JPG images into the upload area or click to browse. Batch up to 30 files at once.', descZh: '将JPG图片拖入上传区或点击选择，一次最多30张。' },
+      { step: 2, titleEn: 'Select PNG as Output', titleZh: '选择PNG输出', descEn: 'In the format selector, choose PNG. Your JPGs will be converted to PNG format during compression.', descZh: '在格式选择器中选PNG。压缩过程中JPG会自动转为PNG格式。' },
+      { step: 3, titleEn: 'Download PNG Files', titleZh: '下载PNG文件', descEn: 'Each converted file downloads as .png. Use batch download for a ZIP of all converted images.', descZh: '每张转换后的文件以.png格式下载。批量下载可一次性获取所有转换结果的ZIP包。' },
+    ],
+    faqs: [
+      { qEn: 'Is JPG to PNG conversion lossless?', qZh: 'JPG转PNG是无损的吗？', aEn: 'PNG is a lossless format, but JPG source files already have compression artifacts from their original encoding. Converting to PNG preserves the current quality without adding new artifacts — your PNG will look exactly like the JPG you uploaded.', aZh: 'PNG是无损格式，但JPG源文件本身已有压缩痕迹。转换为PNG保留当前画质、不会新增失真——PNG看起来和你上传的JPG一模一样。' },
+      { qEn: 'Will the file size increase when converting JPG to PNG?', qZh: 'JPG转PNG文件会变大吗？', aEn: 'Usually yes — PNG is a lossless format so files tend to be larger than compressed JPGs. But you get better quality for editing, screenshots, and images with text or sharp edges.', aZh: '通常会——PNG是无损格式，文件往往比压缩过的JPG大。但你能获得更好的编辑质量，特别适合截图、带文字或锐利边缘的图片。' },
+      { qEn: 'Can I convert other formats too?', qZh: '能转换其他格式吗？', aEn: 'Yes — CompressFast supports conversion between PNG, JPEG, WebP, AVIF (Pro), GIF, BMP, and SVG. Use the format selector in the controls panel to choose your output format.', aZh: '可以——极速压图支持PNG、JPEG、WebP、AVIF（Pro专属）、GIF、BMP、SVG之间的互相转换。在控制面板的格式选择器中选输出格式即可。' },
+    ],
+    relatedTools: ['compress-jpeg', 'compress-png', 'resize-image'],
   },
 
   'tinypng-alternative': {
