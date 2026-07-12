@@ -72,20 +72,12 @@ export function Footer() {
         {mounted && !isCn && (
           <div className="mt-5 flex items-center justify-center gap-4 text-xs">
             <a
-              href="https://buymeacoffee.com/compressfast"
+              href={process.env.NEXT_PUBLIC_CREEM_TIP_URL || 'https://www.creem.io/payment/prod_PxY4p0dRqz6lyrngUmBjU'}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 transition-all"
             >
-              <span>☕</span> Buy Me a Coffee
-            </a>
-            <a
-              href="https://ko-fi.com/compressfast"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 hover:bg-pink-500/20 hover:text-pink-300 transition-all"
-            >
-              <span>❤️</span> Ko-fi
+              <span>☕</span> Buy Me a Coffee · $5
             </a>
           </div>
         )}
