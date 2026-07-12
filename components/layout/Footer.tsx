@@ -68,9 +68,17 @@ export function Footer() {
           </Link>
         </div>
 
-        {/* Support / Sponsor — overseas only, render after mount to avoid SSR CN env override */}
+        {/* Social + Support — overseas only, render after mount */}
         {mounted && !isCn && (
           <div className="mt-5 flex items-center justify-center gap-4 text-xs">
+            <a
+              href="https://x.com/CompressFastApp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 hover:bg-sky-500/20 hover:text-sky-300 transition-all"
+            >
+              <span>𝕏</span> @CompressFastApp
+            </a>
             <a
               href={process.env.NEXT_PUBLIC_CREEM_TIP_URL || 'https://www.creem.io/payment/prod_PxY4p0dRqz6lyrngUmBjU'}
               target="_blank"

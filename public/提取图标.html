@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>提取图标</title></head>
+<body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e">
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const img = new Image();
+img.onload = () => {
+  const ctx = document.getElementById('c').getContext('2d');
+  // Rounded background
+  ctx.fillStyle = '#0b1420';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 512, 512, 96);
+  ctx.fill();
+  // Draw favicon centered, scaled up
+  const s = Math.min(img.width, img.height);
+  const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+  ctx.drawImage(img, sx, sy, s, s, 56, 56, 400, 400);
+  // Download
+  document.getElementById('c').toBlob(b => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'icon-512.png';
+    a.click();
+  });
+};
+img.src = 'favicon.ico';
+</script>
+<p style="position:fixed;bottom:20px;color:#64748b">图标已自动下载 · 关闭此页面</p>
+</body></html>
