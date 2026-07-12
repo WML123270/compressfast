@@ -8,11 +8,13 @@ export function Footer() {
   const { t, locale } = useT()
   const year = new Date().getFullYear()
   const isZh = locale === 'zh'
+  const [mounted, setMounted] = useState(false)
   const [isCn, setIsCn] = useState(
     process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn',
   )
 
   useEffect(() => {
+    setMounted(true)
     const hostname = window.location.hostname
     const deployTarget = process.env.NEXT_PUBLIC_DEPLOY_TARGET
     const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)
@@ -66,8 +68,8 @@ export function Footer() {
           </Link>
         </div>
 
-        {/* Support / Sponsor — overseas only */}
-        {!isCn && (
+        {/* Support / Sponsor — overseas only, render after mount to avoid SSR CN env override */}
+        {mounted && !isCn && (
           <div className="mt-5 flex items-center justify-center gap-4 text-xs">
             <a
               href="https://buymeacoffee.com/compressfast"
