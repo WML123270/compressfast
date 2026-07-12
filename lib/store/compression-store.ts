@@ -5,6 +5,16 @@ import { DEFAULT_OPTIONS, getLimits, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING
 const IS_CN = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
 
+/** SSR-safe localStorage reader */
+function readStored<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw) return { ...fallback, ...JSON.parse(raw) }
+  } catch {}
+  return fallback
+}
+
 let worker: Worker | null = null
 let _compressAllCleanup: (() => void) | null = null
 const _compressOneCleanups = new Map<string, () => void>()
@@ -70,8 +80,8 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   isPro: false,
   proLoading: true,
   presets: [],
-  naming: { ...DEFAULT_NAMING },
-  watermark: { ...DEFAULT_WATERMARK },
+  naming: readStored(NAMING_STORAGE_KEY, DEFAULT_NAMING),
+  watermark: readStored(WATERMARK_STORAGE_KEY, DEFAULT_WATERMARK),
 
   checkProStatus: async () => {
     // 国内版：无 Pro，直接返回免费
@@ -537,29 +547,6 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     set({ watermark: updated })
     try { localStorage.setItem(WATERMARK_STORAGE_KEY, JSON.stringify(updated)) } catch {}
   },
-
-  // Initialize naming from localStorage on first load
-  ...(typeof window !== 'undefined' ? (() => {
-    try {
-      const raw = localStorage.getItem(NAMING_STORAGE_KEY)
-      if (raw) {
-        const saved = JSON.parse(raw)
-        return { naming: { ...DEFAULT_NAMING, ...saved } }
-      }
-    } catch {}
-    return {}
-  })() : {}),
-  // Initialize watermark from localStorage on first load
-  ...(typeof window !== 'undefined' ? (() => {
-    try {
-      const raw = localStorage.getItem(WATERMARK_STORAGE_KEY)
-      if (raw) {
-        const saved = JSON.parse(raw)
-        return { watermark: { ...DEFAULT_WATERMARK, ...saved } }
-      }
-    } catch {}
-    return {}
-  })() : {}),
 
   rotateImage: (id: string, direction: 'cw' | 'ccw') => {
     const file = get().files.find(f => f.id === id)

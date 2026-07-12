@@ -10,7 +10,7 @@ import { getLimits } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
-import { Shield, Zap, Share2, Check, Image, MousePointerClick, Download, ArrowRight, Crown, ChevronDown, Upload } from 'lucide-react'
+import { Shield, Zap, Image, MousePointerClick, Download, Crown, ChevronDown, Upload } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 import { AdSlot } from '@/components/layout/AdSlot'
@@ -409,26 +409,3 @@ function HomeContent({ compressCount, totalBytesSaved, trustBadges, steps, local
   )
 }
 
-function ShareSection() {
-  const { t } = useT()
-  const [copied, setCopied] = useState(false)
-
-  const handleShare = async () => {
-    const url = window.location.href
-    const title = t('meta.title')
-    if (navigator.share) { try { await navigator.share({ title, url }); return } catch {} }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch {}
-  }
-
-  return (
-    <section className="pt-6 text-center">
-      <p className="text-slate-400 mb-3">{t('share.prompt')}</p>
-      <button
-        onClick={handleShare}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-600 bg-slate-800 hover:border-brand-500 hover:shadow-sm transition-all text-sm font-medium"
-      >
-        {copied ? <><Check className="w-4 h-4 text-green-500" /> {t('share.copied')}</> : <><Share2 className="w-4 h-4" /> {t('share.button')}</>}
-      </button>
-    </section>
-  )
-}

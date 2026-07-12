@@ -454,6 +454,26 @@ async function compressToTarget(
   return { buf: bestBuf, size: bestSize, currentKB: Math.round(bestSize / 1024) }
 }
 
+/** SVG 文本级优化（浏览器安全，不使用 Canvas 光栅化，保持矢量格式） */
+async function optimizeSvg(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+  let svg = new TextDecoder().decode(buffer)
+  // Remove XML comments
+  svg = svg.replace(/<!--[\s\S]*?-->/g, '')
+  // Remove XML declaration
+  svg = svg.replace(/<\?xml[^>]*\?>/gi, '')
+  // Collapse whitespace between tags (>  < → ><)
+  svg = svg.replace(/>\s+</g, '><')
+  // Trim leading/trailing whitespace
+  svg = svg.trim()
+  // Collapse multiple spaces into one (preserve spaces in text content)
+  svg = svg.replace(/\s{2,}/g, ' ')
+  // Remove unnecessary whitespace around = in attributes
+  svg = svg.replace(/\s*=\s*/g, '=')
+  return new TextEncoder().encode(svg).buffer as ArrayBuffer
+}
+
+function isSVG(t: string) { return t === 'image/svg+xml' }
+
 self.onmessage = async (e: MessageEvent<WMsg>) => {
   const { id, fileBuffer, fileType, quality, speed, lossless, outputFormat, targetKB, resizeWidth, resizeHeight, stripMetadata, watermark: wm } = e.data
   try {
@@ -466,6 +486,23 @@ self.onmessage = async (e: MessageEvent<WMsg>) => {
 
     const targetBytes = targetKB ? targetKB * 1024 : 0
     const shouldStrip = stripMetadata !== false // 默认 true
+
+    // SVG: 文本级优化，不走 Canvas 光栅化（保持矢量格式）
+    if (isSVG(fileType)) {
+      let resultBuf = await optimizeSvg(fileBuffer)
+      const resultSize = resultBuf.byteLength
+      const qualityTier = calcQualityTier(fileBuffer.byteLength, resultSize)
+
+      self.postMessage({
+        id, type: 'done',
+        compressedBuffer: resultBuf,
+        compressedSize: resultSize,
+        outputMime: 'image/svg+xml',
+        qualityTier,
+        metadataStripped: true, // SVGO 默认清除注释/元数据
+      } as WRes)
+      return
+    }
 
     // HEIC 已在主线程解码为 PNG，Worker 不再处理 HEIC
 
