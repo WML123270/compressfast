@@ -6,8 +6,8 @@ import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.vercel.app'),
-  title: 'CompressFast - Free Online Image Compression | Local Processing',
-  description: 'Free online image compression tool. 100% browser-side processing — your files never leave your device.',
+  title: 'CompressFast — Professional Online Image Optimization Platform',
+  description: 'CompressFast is a professional image optimization platform. Supports 8+ formats including PNG, JPEG, WebP, AVIF. All processing is local and private — fast, secure, and free.',
   keywords: ['image compression', 'compress images online', 'free image compressor', 'batch image compression', 'lossless compression'],
   robots: { index: true, follow: true },
   alternates: {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   verification: {
     other: {
-      'baidu-site-verification': 'codeva-Qzz2bgaqoR',
+      'baidu-site-verification': 'codeva-0i0J3e3ChT',
       'baidu_union_verify': '88a78eaf1ef0ec38f4c7e7d4ca595e55',
     },
   },
