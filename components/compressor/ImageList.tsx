@@ -67,15 +67,15 @@ export function ImageList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-        <div className="flex items-center gap-2 sm:gap-4 text-slate-400 text-xs sm:text-sm flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 bg-gray-100 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-2 sm:gap-4 text-neutral-700 text-xs sm:text-sm flex-wrap">
           <span>{t('list.total', { n: files.length })}</span>
           {hasDone && (
             <>
-              <span className="text-green-400">
+              <span className="text-blue-500">
                 {t('list.saved', { size: formatFileSize(totalOriginalSize() - totalCompressedSize()) })}
               </span>
-              <span className="text-green-400 font-medium">
+              <span className="text-blue-500 font-medium">
                 {t('list.reduced', { ratio: overallRatio().toFixed(0) })}
               </span>
             </>
@@ -86,7 +86,7 @@ export function ImageList() {
           {pendingCount > 0 && !isCompressing && (
             <button
               onClick={compressAll}
-              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
             >
               <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {t('list.compressAll', { n: pendingCount })}
@@ -94,8 +94,8 @@ export function ImageList() {
           )}
 
           {isCompressing && (
-            <button disabled className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-brand-400 rounded-lg cursor-not-allowed text-xs sm:text-sm flex-1 sm:flex-none justify-center">
-              <span className="inline-block w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <button disabled className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-400 rounded-lg cursor-not-allowed text-xs sm:text-sm flex-1 sm:flex-none justify-center">
+              <span className="inline-block w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin" />
               {t('list.compressing')}
             </button>
           )}
@@ -103,7 +103,7 @@ export function ImageList() {
           {hasDone && (
             <button
               onClick={handleBatchDownload}
-              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
             >
               <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {allProcessed ? t('list.downloadAll') : t('list.downloadDone', { n: doneCount })}
@@ -112,7 +112,7 @@ export function ImageList() {
 
           <button
             onClick={clearFiles}
-            className="flex items-center gap-1 px-2 py-2 sm:px-3 sm:py-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
+            className="flex items-center gap-1 px-2 py-2 sm:px-3 sm:py-2 text-neutral-700 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
           >
             <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline">{t('list.clear')}</span>

@@ -26,56 +26,56 @@ export function Footer() {
   const icpNumber = process.env.NEXT_PUBLIC_ICP_NUMBER || ''
 
   return (
-    <footer className="border-t border-white/10 bg-slate-900/50 backdrop-blur-sm mt-16">
-      <div className="max-w-5xl mx-auto px-4 py-8 text-center text-slate-400">
+    <footer className="border-t border-gray-200 bg-gray-50 mt-16">
+      <div className="max-w-5xl mx-auto px-4 py-8 text-center">
 
-        {/* ICP 备案号 — 百度联盟审核要求显眼展示 */}
+        {/* ICP 备案号 */}
         {isCn && icpNumber && (
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-            <span className="text-xs text-slate-500">ICP备案</span>
+          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200">
+            <span className="text-xs text-neutral-600">ICP备案</span>
             <a
               href="https://beian.miit.gov.cn"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-sm text-blue-600 hover:text-blue-600 font-medium transition-colors"
             >
               {icpNumber}
             </a>
           </div>
         )}
 
-        <p className="mb-2">
-          <strong className="text-slate-200">{t('app.name')}</strong>
+        <p className="mb-2 text-neutral-800">
+          <strong className="text-neutral-900">{t('app.name')}</strong>
           {' '}{t('footer.tagline')}
         </p>
-        <p className="text-slate-500 text-sm">{t('footer.tech')}</p>
+        <p className="text-neutral-700 text-sm">{t('footer.tech')}</p>
 
-        <div className="mt-5 flex items-center justify-center gap-5 text-xs flex-wrap">
-          <Link href={`/${locale}/help`} className="hover:text-cyan-400 transition-colors">
+        <div className="mt-5 flex items-center justify-center gap-5 text-sm flex-wrap">
+          <Link href={`/${locale}/help`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '帮助中心' : 'Help'}
           </Link>
-          <Link href={`/${locale}/about`} className="hover:text-cyan-400 transition-colors">
+          <Link href={`/${locale}/about`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '关于' : 'About'}
           </Link>
-          <Link href={`/${locale}/contact`} className="hover:text-cyan-400 transition-colors">
+          <Link href={`/${locale}/contact`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '联系我们' : 'Contact'}
           </Link>
-          <Link href={`/${locale}/privacy`} className="hover:text-cyan-400 transition-colors">
+          <Link href={`/${locale}/privacy`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '隐私政策' : 'Privacy Policy'}
           </Link>
-          <Link href={`/${locale}/terms`} className="hover:text-cyan-400 transition-colors">
+          <Link href={`/${locale}/terms`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '服务条款' : 'Terms'}
           </Link>
         </div>
 
-        {/* Social + Support — overseas only, render after mount */}
+        {/* Social + Support — overseas only */}
         {mounted && !isCn && (
           <div className="mt-5 flex items-center justify-center gap-4 text-xs">
             <a
               href="https://x.com/CompressFastApp"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 hover:bg-sky-500/20 hover:text-sky-300 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-600 hover:bg-sky-100 transition-all"
             >
               <span>𝕏</span> @CompressFastApp
             </a>
@@ -83,19 +83,19 @@ export function Footer() {
               href={process.env.NEXT_PUBLIC_CREEM_TIP_URL || 'https://www.creem.io/payment/prod_PxY4p0dRqz6lyrngUmBjU'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 transition-all"
             >
               <span>☕</span> Buy Me a Coffee · $5
             </a>
           </div>
         )}
 
-        <p className="mt-4 text-slate-500 text-sm">
+        <p className="mt-4 text-neutral-700 text-sm">
           {t('footer.copyright', { year })}
         </p>
 
-        <p className="mt-2 text-slate-600 text-xs">
-          <a href="https://turbo0.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">{t('footer.turbo0')}</a>
+        <p className="mt-2 text-neutral-600 text-xs">
+          <a href="https://turbo0.com" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-800 transition-colors">{t('footer.turbo0')}</a>
         </p>
       </div>
     </footer>

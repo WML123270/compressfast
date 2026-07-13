@@ -58,9 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const htmlLang = langCookie === 'zh' ? 'zh' : 'en'
 
   return (
-    <html lang={htmlLang} className="dark" suppressHydrationWarning>
+    <html lang={htmlLang} suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#020617" />
+        <meta name="theme-color" content="#ffffff" />
         <meta name="baidu_union_verify" content="88a78eaf1ef0ec38f4c7e7d4ca595e55" />
         <script
           dangerouslySetInnerHTML={{
@@ -69,16 +69,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){document.documentElement.classList.add('dark')})()`,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
             __html: `(function(){try{if(window.location.hostname.includes('localhost')){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){r.unregister()})})}}catch(e){}})();if('serviceWorker' in navigator && !window.location.hostname.includes('localhost')){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}`,
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#0b1420] text-slate-100 antialiased">
+      <body className="min-h-screen flex flex-col text-neutral-800 antialiased">
         <LangDetector />
         {children}
         <Analytics />

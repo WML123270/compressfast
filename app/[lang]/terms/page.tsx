@@ -10,12 +10,12 @@ export default function TermsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-6">
-      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-slate-400 hover:text-brand-600">
+      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-700 hover:text-blue-600">
         <ArrowLeft className="w-4 h-4" /> {isZh ? '返回首页' : 'Back to Home'}
       </Link>
 
       <div className="flex items-center gap-3">
-        <FileText className="w-6 h-6 text-brand-600" />
+        <FileText className="w-6 h-6 text-blue-600" />
         <h1 className="sm:text-3xl font-bold text-slate-100">
           {isZh ? '服务条款' : 'Terms of Service'}
         </h1>
@@ -25,20 +25,20 @@ export default function TermsPage() {
         {isZh ? '最后更新：2026年7月4日' : 'Last updated: July 4, 2026'}
       </p>
 
-      <div className="prose prose-sm max-w-none text-slate-400 space-y-6">
+      <div className="prose prose-sm max-w-none text-neutral-700 space-y-6">
         <section>
           <h2 className="font-semibold text-slate-200">
             {isZh ? '1. 服务说明' : '1. Service Description'}
           </h2>
           <p>{isZh ? '极速压图（CompressFast）是一款在线图片压缩工具，提供纯浏览器端的图片压缩、格式转换、尺寸调整、水印添加等功能。' : 'CompressFast is an online image compression tool providing browser-side image compression, format conversion, resizing, watermarking, and more.'}</p>
-          <h3 className="font-medium text-slate-300 mt-3">{isZh ? '1.1 免费版' : '1.1 Free Tier'}</h3>
+          <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.1 免费版' : '1.1 Free Tier'}</h3>
           <ul className="space-y-1">
             <li>{isZh ? '每次最多 30 张图片' : 'Up to 30 images per batch'}</li>
             <li>{isZh ? '单张不超过 25MB' : 'Max 25MB per file'}</li>
             <li>{isZh ? '支持 PNG / JPEG / WebP 输出格式' : 'PNG / JPEG / WebP output formats'}</li>
             <li>{isZh ? '核心压缩、尺寸调整、格式转换功能免费' : 'Core compression, resizing, and format conversion free'}</li>
           </ul>
-          <h3 className="font-medium text-slate-300 mt-3">{isZh ? '1.2 Pro 专业版' : '1.2 Pro Tier'}</h3>
+          <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.2 Pro 专业版' : '1.2 Pro Tier'}</h3>
           <ul className="space-y-1">
             <li>{isZh ? '一次性付费 $24.99，永久有效，无需订阅' : 'One-time $24.99 purchase, lifetime access, no subscription'}</li>
             <li>{isZh ? '每次最多 500 张，单张 50MB' : 'Up to 500/batch, 50MB per file'}</li>
@@ -133,8 +133,8 @@ export default function TermsPage() {
             {isZh ? '9. 联系我们' : '9. Contact'}
           </h2>
           <p>{isZh ? '如对服务条款有任何疑问，请通过以下方式联系：' : 'For questions about these terms of service:'}</p>
-          <p className="mt-2">{isZh ? '邮箱：' : 'Email: '}<a href="mailto:support@compressfast.site" className="text-brand-600 hover:underline">support@compressfast.site</a></p>
-          <p className="text-slate-400 mt-4">{isZh ? '最后更新：2026年7月9日' : 'Last updated: July 9, 2026'}</p>
+          <p className="mt-2">{isZh ? '邮箱：' : 'Email: '}<a href="mailto:support@compressfast.site" className="text-blue-600 hover:underline">support@compressfast.site</a></p>
+          <p className="text-neutral-700 mt-4">{isZh ? '最后更新：2026年7月9日' : 'Last updated: July 9, 2026'}</p>
         </section>
       </div>
     </div>

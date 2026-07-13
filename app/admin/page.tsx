@@ -50,10 +50,10 @@ export default function AdminDashboardPage() {
         {[
           { label: '总 PV', value: stats?.totalPV ?? 0, color: 'bg-blue-50 text-blue-600 border-blue-100' },
           { label: '总压缩次数', value: stats?.totalCompressions ?? 0, color: 'bg-amber-50 text-amber-600 border-amber-100' },
-          { label: 'Pro 购买数', value: stats?.totalPurchases ?? 0, color: 'bg-green-50 text-green-600 border-green-100' },
+          { label: 'Pro 购买数', value: stats?.totalPurchases ?? 0, color: 'bg-blue-50 text-blue-600 border-blue-100' },
           { label: '总收入', value: '$' + (stats?.totalRevenue ?? 0).toFixed(2), color: 'bg-purple-50 text-purple-600 border-purple-100' },
         ].map(({ label, value, color }) => (
-          <div key={label} className={`bg-white rounded-xl border border-slate-200 p-4`}>
+          <div key={label} className={`bg-white rounded-xl border border-gray-200 p-4`}>
             <p className="text-slate-400">{label}</p>
             <p className="font-bold text-slate-800">{value}</p>
           </div>
@@ -64,10 +64,10 @@ export default function AdminDashboardPage() {
       {(stats?.recentPurchases ?? []).length === 0 ? (
         <p className="text-slate-400">暂无购买记录</p>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-slate-400 bg-slate-50 border-slate-200">
+              <tr className="text-left text-neutral-700 bg-gray-50 border-slate-200">
                 <th className="px-4 py-3 font-medium">激活码</th><th className="px-4 py-3 font-medium">邮箱</th>
                 <th className="px-4 py-3 font-medium">时间</th><th className="px-4 py-3 font-medium">金额</th>
               </tr>

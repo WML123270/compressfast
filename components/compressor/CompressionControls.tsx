@@ -124,17 +124,17 @@ export function CompressionControls() {
     : undefined
 
   const FORMATS: { value: CompressionOptions['outputFormat']; label: string; desc: string; icon: any; color: string }[] = [
-    { value: 'original', label: t('controls.format.original'), desc: t('controls.format.originalDesc'), icon: RotateCcw, color: 'border-slate-600 bg-slate-800/50 text-slate-300 hover:border-slate-400' },
+    { value: 'original', label: t('controls.format.original'), desc: t('controls.format.originalDesc'), icon: RotateCcw, color: 'border-gray-300 bg-gray-100 text-neutral-800 hover:border-gray-300' },
     { value: 'png', label: 'PNG', desc: t('controls.format.pngDesc'), icon: FileImage, color: 'border-emerald-700/50 bg-emerald-900/10 text-emerald-400 hover:border-emerald-400' },
     { value: 'jpeg', label: 'JPEG', desc: t('controls.format.jpegDesc'), icon: Camera, color: 'border-amber-700/50 bg-amber-900/10 text-amber-400 hover:border-amber-400' },
-    { value: 'webp', label: 'WebP', desc: t('controls.format.webpDesc'), icon: Globe, color: 'border-cyan-700/50 bg-cyan-900/10 text-cyan-400 hover:border-cyan-400' },
+    { value: 'webp', label: 'WebP', desc: t('controls.format.webpDesc'), icon: Globe, color: 'border-blue-200 bg-blue-50 text-blue-600 hover:border-blue-400' },
     ...(isCn ? [] : [{ value: 'avif' as CompressionOptions['outputFormat'], label: 'AVIF', desc: t('controls.format.avifDesc'), icon: Dna, color: 'border-purple-700/50 bg-purple-900/10 text-purple-400 hover:border-purple-400' }]),
   ]
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-5 animate-slide-up">
-      <div className="flex items-center gap-2 font-semibold text-slate-200">
-        <Settings2 className="w-4 h-4 text-cyan-400" />
+    <div className="bg-gray-50 backdrop-blur-xl border border-gray-200 rounded-2xl p-5 space-y-5 animate-slide-up">
+      <div className="flex items-center gap-2 font-semibold text-neutral-900">
+        <Settings2 className="w-4 h-4 text-blue-600" />
         <span>{t('controls.title')}</span>
         {hasPending && (
           <span className="text-amber-400 font-normal">
@@ -146,7 +146,7 @@ export function CompressionControls() {
       {!options.targetKB && (
         <>
           <div className="space-y-2">
-            <label className="text-slate-400 font-medium text-sm">{t('controls.strength')}</label>
+            <label className="text-neutral-700 font-medium text-sm">{t('controls.strength')}</label>
             <div className="grid grid-cols-3 gap-2">
               {PRESETS.map(({ key, label, icon: Icon, quality, speed }) => {
                 const isActive = activePreset === key
@@ -157,13 +157,13 @@ export function CompressionControls() {
                     className={[
                       'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200',
                       isActive
-                        ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
-                        : 'border-slate-700 bg-white/5 hover:border-slate-500 hover:bg-white/10',
+                        ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/10'
+                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100',
                     ].join(' ')}
                   >
-                    <Icon className={isActive ? 'w-5 h-5 text-cyan-400' : 'w-5 h-5 text-slate-500'} />
-                    <span className={isActive ? 'text-sm font-semibold text-cyan-400' : 'text-sm font-semibold text-slate-300'}>{label}</span>
-                    <span className="text-slate-500 leading-tight text-center">{estimateSize(avgOriginalSize, quality)}</span>
+                    <Icon className={isActive ? 'w-5 h-5 text-blue-600' : 'w-5 h-5 text-neutral-600'} />
+                    <span className={isActive ? 'text-sm font-semibold text-blue-600' : 'text-sm font-semibold text-neutral-800'}>{label}</span>
+                    <span className="text-neutral-700 leading-tight text-center">{estimateSize(avgOriginalSize, quality)}</span>
                   </button>
                 )
               })}
@@ -171,9 +171,9 @@ export function CompressionControls() {
           </div>
 
           {/* 场景预设 */}
-          <div className="pt-3 border-t border-slate-700/50">
+          <div className="pt-3 border-t border-gray-200/50">
           <div className="space-y-2">
-            <label className="font-semibold text-slate-500 uppercase tracking-widest">
+            <label className="font-semibold text-neutral-700 uppercase tracking-widest">
               {isZh ? '场景预设' : 'Scene Presets'}
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -191,13 +191,13 @@ export function CompressionControls() {
                     className={[
                       'flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 transition-all duration-200 text-left',
                       isActive
-                        ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
-                        : 'border-slate-700 bg-white/5 hover:border-slate-500 hover:bg-white/10',
+                        ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/10'
+                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100',
                     ].join(' ')}
                   >
-                    <Icon className={isActive ? 'w-4 h-4 text-cyan-400' : 'w-4 h-4 text-slate-500'} />
-                    <span className={isActive ? 'text-xs font-semibold text-cyan-400' : 'text-xs font-semibold text-slate-300'}>{label}</span>
-                    <span className="text-slate-500 leading-tight text-center line-clamp-2">{t(descKey as any) || ''}</span>
+                    <Icon className={isActive ? 'w-4 h-4 text-blue-600' : 'w-4 h-4 text-neutral-600'} />
+                    <span className={isActive ? 'text-xs font-semibold text-blue-600' : 'text-xs font-semibold text-neutral-800'}>{label}</span>
+                    <span className="text-neutral-700 leading-tight text-center line-clamp-2">{t(descKey as any) || ''}</span>
                   </button>
                 )
               })}
@@ -205,18 +205,18 @@ export function CompressionControls() {
           </div>
           </div>
 
-          <div className="space-y-3 border-slate-700/50 pt-4">
+          <div className="space-y-3 border-gray-200/50 pt-4">
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <label className="font-medium text-slate-400 text-xs sm:text-sm">{t('controls.quality')}</label>
-                <span className="font-semibold text-slate-200 flex items-center gap-1 text-xs sm:text-sm">
+                <label className="font-medium text-neutral-700 text-xs sm:text-sm">{t('controls.quality')}</label>
+                <span className="font-semibold text-neutral-900 flex items-center gap-1 text-xs sm:text-sm">
                 {options.quality}%
-                {previewLoading && <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
+                {previewLoading && <Loader2 className="w-3 h-3 animate-spin text-neutral-700" />}
                 {!previewLoading && previewSize && (
-                  <span className="text-green-400 hidden sm:inline">→ {formatFileSize(previewSize)}</span>
+                  <span className="text-blue-500 hidden sm:inline">→ {formatFileSize(previewSize)}</span>
                 )}
                 {!previewLoading && !previewSize && firstPendingFile && (
-                  <span className="text-slate-400 hidden sm:inline">{estimateSize(avgOriginalSize, options.quality)}</span>
+                  <span className="text-neutral-700 hidden sm:inline">{estimateSize(avgOriginalSize, options.quality)}</span>
                 )}
               </span>
               </div>
@@ -224,14 +224,14 @@ export function CompressionControls() {
                 type="range" min={10} max={100} step={5}
                 value={options.quality}
                 onChange={(e) => { const val = Number(e.target.value); setOptions({ quality: val, targetKB: 0 }) }}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-cyan-500"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <label className="font-medium text-slate-400 text-xs sm:text-sm">{t('controls.speed')}</label>
-                <span className="font-semibold text-slate-200 text-xs sm:text-sm">
+                <label className="font-medium text-neutral-700 text-xs sm:text-sm">{t('controls.speed')}</label>
+                <span className="font-semibold text-neutral-900 text-xs sm:text-sm">
                   {options.speed <= 2 ? t('controls.speed.best') : options.speed <= 5 ? t('controls.speed.balanced') : t('controls.speed.fast')}
                 </span>
               </div>
@@ -239,7 +239,7 @@ export function CompressionControls() {
                 type="range" min={1} max={10} step={1}
                 value={options.speed}
                 onChange={(e) => { const val = Number(e.target.value); setOptions({ speed: val }) }}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-cyan-500"
               />
             </div>
 
@@ -250,7 +250,7 @@ export function CompressionControls() {
                   onChange={(e) => setOptions({ lossless: e.target.checked })}
                   className="w-3.5 h-3.5 rounded accent-brand-600"
                 />
-                <span className="text-slate-400">{t('controls.lossless')}</span>
+                <span className="text-neutral-700">{t('controls.lossless')}</span>
               </label>
 
               <label className="flex items-center gap-2 text-xs cursor-pointer">
@@ -259,8 +259,8 @@ export function CompressionControls() {
                   onChange={(e) => setOptions({ stripMetadata: e.target.checked })}
                   className="w-3.5 h-3.5 rounded accent-brand-600"
                 />
-                <span className="text-slate-400">{t('controls.stripMeta')}</span>
-                <span className="text-slate-500 hidden sm:inline">{t('controls.stripMetaHint')}</span>
+                <span className="text-neutral-700">{t('controls.stripMeta')}</span>
+                <span className="text-neutral-700 hidden sm:inline">{t('controls.stripMetaHint')}</span>
               </label>
             </div>
           </div>
@@ -268,15 +268,15 @@ export function CompressionControls() {
       )}
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <label className="text-slate-400 text-xs sm:text-sm">{t('controls.mode')}</label>
-        <div className="flex rounded-md bg-slate-700 p-0.5">
+        <label className="text-neutral-700 text-xs sm:text-sm">{t('controls.mode')}</label>
+        <div className="flex rounded-md bg-gray-100 p-0.5">
           <button
             onClick={() => setOptions({ targetKB: 0 })}
-            className={`px-2 sm:px-2.5 py-1 text-xs rounded font-medium transition-colors ${!options.targetKB ? 'bg-slate-600 text-slate-200 shadow-sm' : 'text-slate-400'}`}
+            className={`px-2 sm:px-2.5 py-1 text-xs rounded font-medium transition-colors ${!options.targetKB ? 'bg-gray-50 text-neutral-900 shadow-sm' : 'text-neutral-700'}`}
           >{t('controls.mode.quality')}</button>
           <button
             onClick={() => setOptions({ targetKB: 50 })}
-            className={`px-2 sm:px-2.5 py-1 text-xs rounded font-medium transition-colors ${options.targetKB ? 'bg-slate-600 text-slate-200 shadow-sm' : 'text-slate-400'}`}
+            className={`px-2 sm:px-2.5 py-1 text-xs rounded font-medium transition-colors ${options.targetKB ? 'bg-gray-50 text-neutral-900 shadow-sm' : 'text-neutral-700'}`}
           >{t('controls.mode.target')}</button>
         </div>
       </div>
@@ -284,24 +284,24 @@ export function CompressionControls() {
       {options.targetKB && (
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-sm">
-            <label className="text-slate-400">{t('controls.targetSize')}</label>
+            <label className="text-neutral-700">{t('controls.targetSize')}</label>
             <div className="flex items-center gap-1">
               <input
                 type="number" min={1} max={50000}
                 value={options.targetKB || 100}
                 onChange={(e) => setOptions({ targetKB: Math.max(1, Number(e.target.value)) })}
-                className="w-20 px-2 py-1 text-center rounded border border-slate-600 bg-slate-700 text-slate-100 focus:border-brand-500 focus:ring-brand-500 outline-none"
+                className="w-20 px-2 py-1 text-center rounded border border-gray-300 bg-gray-100 text-neutral-900 focus:border-blue-500 focus:ring-blue-500 outline-none"
               />
-              <span className="text-slate-400">{t('controls.kb')}</span>
+              <span className="text-neutral-700">{t('controls.kb')}</span>
             </div>
           </div>
-          <p className="text-slate-500">{t('controls.targetHint')}</p>
+          <p className="text-neutral-600">{t('controls.targetHint')}</p>
         </div>
       )}
 
       {/* 尺寸调整 */}
-      <div className="border-slate-700/50 pt-3 space-y-2">
-        <div className="flex items-center gap-2 font-medium text-slate-300 text-sm">
+      <div className="border-gray-200/50 pt-3 space-y-2">
+        <div className="flex items-center gap-2 font-medium text-neutral-800 text-sm">
           <Crop className="w-4 h-4" />
           <span>{t('resize.section')}</span>
         </div>
@@ -313,18 +313,18 @@ export function CompressionControls() {
               value={options.resizeWidth || ''}
               onChange={(e) => setOptions({ resizeWidth: Math.max(0, Number(e.target.value) || 0) })}
               placeholder={t('resize.width')}
-              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500"
+              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
-            <span className="text-slate-400 text-xs">×</span>
+            <span className="text-neutral-700 text-xs">×</span>
             <input
               type="number"
               min={0} max={99999} step={1}
               value={options.resizeHeight || ''}
               onChange={(e) => setOptions({ resizeHeight: Math.max(0, Number(e.target.value) || 0) })}
               placeholder={t('resize.height')}
-              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500"
+              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
-            <span className="text-slate-400 hidden sm:inline text-xs">px</span>
+            <span className="text-neutral-700 hidden sm:inline text-xs">px</span>
           </div>
 
           {/* 快捷比例按钮 */}
@@ -344,8 +344,8 @@ export function CompressionControls() {
                 onClick={() => { setOptions({ resizeWidth: tw, resizeHeight: th }) }}
                 className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
                   options.resizeWidth === tw && options.resizeHeight === th
-                    ? 'border-brand-500 bg-brand-900/30 text-brand-300'
-                    : 'border-slate-600 text-slate-400 hover:border-slate-500'
+                    ? 'border-blue-500 bg-brand-900/30 text-blue-600'
+                    : 'border-gray-300 text-neutral-700 hover:border-gray-300'
                 }`}
               >
                 {p.label}
@@ -363,8 +363,8 @@ export function CompressionControls() {
               onClick={() => { setOptions({ resizeWidth: p.w, resizeHeight: p.h }) }}
               className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
                 options.resizeWidth === p.w && options.resizeHeight === p.h
-                  ? 'border-brand-500 bg-brand-900/30 text-brand-300'
-                  : 'border-slate-600 text-slate-400 hover:border-slate-500'
+                  ? 'border-blue-500 bg-brand-900/30 text-blue-600'
+                  : 'border-gray-300 text-neutral-700 hover:border-gray-300'
               }`}
             >
               {p.label}
@@ -380,7 +380,7 @@ export function CompressionControls() {
             </span>
             <button
               onClick={() => setOptions({ resizeWidth: 0, resizeHeight: 0 })}
-              className="text-slate-400 hover:text-red-500 underline"
+              className="text-neutral-700 hover:text-red-500 underline"
             >
               {locale === 'zh' ? '清除' : 'Clear'}
             </button>
@@ -389,7 +389,7 @@ export function CompressionControls() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-slate-400">{t('controls.outputFormat')}</label>
+        <label className="text-neutral-700">{t('controls.outputFormat')}</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {FORMATS.map(({ value, label, desc, icon: Icon, color }) => {
             const isActive = effectiveFormat === value
@@ -408,9 +408,9 @@ export function CompressionControls() {
                 className={[
                   'relative flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all duration-200 group',
                   avifLocked
-                    ? 'border-dashed border-slate-600 bg-slate-800/30 text-slate-500 cursor-pointer hover:border-amber-500 hover:bg-amber-900/10'
+                    ? 'border-dashed border-gray-300 bg-gray-50 text-neutral-700 cursor-pointer hover:border-amber-500 hover:bg-amber-900/10'
                     : isActive
-                      ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10 scale-[1.02]'
+                      ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/10 scale-[1.02]'
                       : `${color} border bg-opacity-50 hover:scale-[1.02]`,
                 ].join(' ')}
               >
@@ -424,9 +424,9 @@ export function CompressionControls() {
                     <Lock className="w-3 h-3" />
                   </span>
                 )}
-                <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-cyan-400' : avifLocked ? 'text-slate-500' : ''}`} />
-                <span className={`font-semibold text-sm ${avifLocked ? 'text-slate-500' : ''}`}>{label}</span>
-                <span className={`text-[10px] leading-tight text-center ${avifLocked ? 'text-slate-500' : 'opacity-60'}`}>
+                <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-blue-600' : avifLocked ? 'text-neutral-600' : ''}`} />
+                <span className={`font-semibold text-sm ${avifLocked ? 'text-neutral-600' : ''}`}>{label}</span>
+                <span className={`text-[10px] leading-tight text-center ${avifLocked ? 'text-neutral-600' : 'opacity-60'}`}>
                   {avifLocked ? (isZh ? 'Pro 专属' : 'Pro Only') : desc}
                 </span>
               </button>
@@ -434,10 +434,10 @@ export function CompressionControls() {
           })}
         </div>
         {losingTransparency && (
-          <div className="flex items-start gap-2 p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-sm">
+          <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
             <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-            <span className="text-amber-300">
-              PNG/GIF/SVG images may have transparent backgrounds. Converting to JPEG will replace transparency with a white background.
+            <span className="text-neutral-900">
+              PNG/GIF/SVG 图片可能含有透明背景，转换为 JPEG 后透明部分将被替换为白色背景。
             </span>
           </div>
         )}
@@ -453,10 +453,10 @@ export function CompressionControls() {
                     <Lock className="w-3 h-3" /> Pro
                   </span>
                 </div>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-neutral-700 leading-relaxed">
                   {t('controls.format.avifWhat')}
                 </p>
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 border border-amber-700">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-100 border border-amber-700">
                   <span className="text-lg">⭐</span>
                   <div className="flex-1">
                     <p className="font-semibold text-amber-300">
@@ -473,7 +473,7 @@ export function CompressionControls() {
                     {isZh ? '升级 →' : 'Upgrade →'}
                   </a>
                 </div>
-                <p className="text-slate-500">
+                <p className="text-neutral-600">
                   {isZh ? '免费版将使用原格式压缩' : 'Free tier will use original format'}
                 </p>
               </div>
@@ -487,47 +487,47 @@ export function CompressionControls() {
                 </div>
 
                 {/* 简介 */}
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-neutral-700 leading-relaxed">
                   {t('controls.format.avifWhat')}
                 </p>
 
                 {/* 优势卡片 */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-800/50 border border-purple-800/30">
+                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-gray-100 border border-purple-800/30">
                     <span className="text-base flex-shrink-0">📦</span>
                     <div>
                       <p className="font-semibold text-purple-300">
                         {isZh ? '极致压缩' : 'Ultra Compact'}
                       </p>
-                      <p className="text-slate-400">{t('controls.format.avifSize')}</p>
+                      <p className="text-neutral-700">{t('controls.format.avifSize')}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-800/50 border border-purple-800/30">
+                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-gray-100 border border-purple-800/30">
                     <span className="text-base flex-shrink-0">🎨</span>
                     <div>
                       <p className="font-semibold text-purple-300">
                         {isZh ? '专业画质' : 'Pro Quality'}
                       </p>
-                      <p className="text-slate-400">{t('controls.format.avifQuality')}</p>
+                      <p className="text-neutral-700">{t('controls.format.avifQuality')}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-800/50 border border-purple-800/30">
+                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-gray-100 border border-purple-800/30">
                     <span className="text-base flex-shrink-0">🌐</span>
                     <div>
                       <p className="font-semibold text-purple-300">
                         {isZh ? '适用场景' : 'Use Cases'}
                       </p>
-                      <p className="text-slate-400">{t('controls.format.avifUse')}</p>
+                      <p className="text-neutral-700">{t('controls.format.avifUse')}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* 浏览器兼容 */}
                 <div className="space-y-1.5">
-                  <p className="font-semibold text-slate-300">
+                  <p className="font-semibold text-neutral-800">
                     {isZh ? '✅ 浏览器兼容性' : '✅ Browser Support'}
                   </p>
-                  <p className="text-green-400 bg-green-900/20 rounded px-2 py-1">
+                  <p className="text-blue-500 bg-green-900/20 rounded px-2 py-1">
                     {t('controls.format.avifBrowser')}
                   </p>
                   <p className="text-red-400 bg-red-900/20 rounded px-2 py-1">
@@ -548,8 +548,8 @@ export function CompressionControls() {
 
       {/* 自定义预设 — 仅海外版 */}
       {!isCn && (
-      <div className="border-slate-700 pt-4 space-y-3">
-        <div className="flex items-center gap-2 font-medium text-slate-300">
+      <div className="border-gray-200 pt-4 space-y-3">
+        <div className="flex items-center gap-2 font-medium text-neutral-800">
           <Bookmark className="w-4 h-4" />
           <span>{t('preset.section')}</span>
           {!isPro && (
@@ -560,8 +560,8 @@ export function CompressionControls() {
         </div>
 
         {!isPro ? (
-          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/30 border border-slate-600">
-            <span className="text-slate-400">{t('preset.lockedHint')}</span>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-300">
+            <span className="text-neutral-700">{t('preset.lockedHint')}</span>
             <a
               href={`/${locale}/pro`}
               className="font-medium text-brand-400 hover:underline"
@@ -580,7 +580,7 @@ export function CompressionControls() {
                   onChange={(e) => { setPresetName(e.target.value); setPresetFeedback(null) }}
                   placeholder={t('preset.savePlaceholder')}
                   maxLength={20}
-                  className="flex-1 px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500"
+                  className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
                 />
                 <button
                   onClick={() => {
@@ -597,7 +597,7 @@ export function CompressionControls() {
                     }
                   }}
                   disabled={!presetName.trim()}
-                  className="flex items-center gap-1 px-3 py-1.5 font-medium text-white bg-brand-600 hover:bg-brand-700 disabled:bg-slate-600 rounded-lg transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 px-3 py-1.5 font-medium text-white bg-blue-600 hover:bg-blue-600 disabled:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
                 >
                   {presetFeedback === 'ok' ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
                   {presetFeedback === 'ok' ? t('preset.saveOk')
@@ -610,16 +610,16 @@ export function CompressionControls() {
 
             {/* 已保存预设列表 */}
             {presets.length === 0 ? (
-              <p className="text-slate-500 text-center py-2">{t('preset.empty')}</p>
+              <p className="text-neutral-700 text-center py-2">{t('preset.empty')}</p>
             ) : (
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {presets.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-gray-300 transition-colors"
                   >
-                    <span className="flex-1 font-medium text-slate-300 truncate">{p.name}</span>
-                    <span className="text-slate-500 hidden sm:inline">
+                    <span className="flex-1 font-medium text-neutral-800 truncate">{p.name}</span>
+                    <span className="text-neutral-700 hidden sm:inline">
                       {p.options.targetKB
                         ? `${p.options.targetKB}KB`
                         : `Q${p.options.quality}`}
@@ -634,7 +634,7 @@ export function CompressionControls() {
                     </button>
                     <button
                       onClick={() => deletePreset(p.id)}
-                      className="p-1 text-slate-600 hover:text-red-400 rounded transition-colors"
+                      className="p-1 text-neutral-800 hover:text-red-400 rounded transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -644,7 +644,7 @@ export function CompressionControls() {
             )}
 
             {/* Export / Import presets */}
-            <div className="flex items-center gap-2 pt-2 border-slate-700">
+            <div className="flex items-center gap-2 pt-2 border-gray-200">
               <button
                 onClick={() => {
                   const exportData = JSON.stringify(presets, null, 2)
@@ -652,12 +652,12 @@ export function CompressionControls() {
                   saveAs(blob, 'compressfast-presets.json')
                 }}
                 disabled={presets.length === 0}
-                className="flex items-center gap-1 px-2 py-1 text-slate-400 hover:text-brand-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-neutral-700 hover:text-brand-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <Upload className="w-3 h-3" />
                 {isZh ? '导出预设' : 'Export'}
               </button>
-              <label className="flex items-center gap-1 px-2 py-1 text-slate-400 hover:text-brand-400 cursor-pointer transition-colors">
+              <label className="flex items-center gap-1 px-2 py-1 text-neutral-700 hover:text-brand-400 cursor-pointer transition-colors">
                 <Download className="w-3 h-3" />
                 {isZh ? '导入预设' : 'Import'}
                 <input

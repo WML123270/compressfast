@@ -19,10 +19,10 @@ export function Header() {
   }
 
   return (
-    <header className="border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+    <header className="border-b border-gray-200/50 bg-white/70 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href={`/${locale}`} className="flex items-center gap-2.5 font-bold text-slate-100 hover:text-cyan-400 transition-colors group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+        <Link href={`/${locale}`} className="flex items-center gap-2.5 font-bold text-neutral-900 hover:text-blue-600 transition-colors group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
             <ImageIcon className="w-4 h-4 text-white" />
           </div>
           <span>{t('app.name')}</span>
@@ -31,7 +31,7 @@ export function Header() {
           {!isCn && (
             <Link
               href={`/${locale}/pro`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all"
             >
               <Crown className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Pro</span>
@@ -39,7 +39,7 @@ export function Header() {
           )}
           <button
             onClick={switchLang}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-700 bg-white/5 hover:border-slate-500 hover:bg-white/10 hover:text-white transition-all text-xs font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 text-neutral-700 hover:border-gray-400 hover:bg-gray-50 transition-all text-xs font-medium"
             title={t('lang.switch')}
           >
             <Globe className="w-3.5 h-3.5" />

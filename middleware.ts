@@ -25,6 +25,12 @@ const SKIP_PATHS = [
   '/baidu_verify',
   '/verify-file.txt',
   '/google',
+  '/demo-photo',
+  '.png',
+  '.jpg',
+  '.webp',
+  '.gif',
+  '.svg',
 ]
 
 function shouldSkip(pathname: string): boolean {

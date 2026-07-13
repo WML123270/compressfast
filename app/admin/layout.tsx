@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-6 h-6 border-t-transparent rounded-full" />
       </div>
     )
@@ -54,8 +54,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
           <h1 className="font-semibold text-slate-800">管理后台</h1>
           <p className="text-slate-500">请输入管理密钥</p>
           <input
@@ -81,21 +81,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <aside className="w-48 bg-white border-slate-200 flex flex-col shrink-0">
+    <div className="min-h-screen bg-gray-50 flex">
+      <aside className="w-48 bg-white border-gray-200 flex flex-col shrink-0">
         <div className="p-4 border-slate-100">
           <h2 className="font-semibold text-slate-700">极速压图 · 后台</h2>
         </div>
         <nav className="flex-1 p-2 space-y-0.5">
-          <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+          <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-neutral-800 hover:bg-gray-100 rounded-lg">
             数据概览
           </Link>
-          <Link href="/admin/licenses" className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+          <Link href="/admin/licenses" className="flex items-center gap-2 px-3 py-2 text-neutral-800 hover:bg-gray-100 rounded-lg">
             激活码管理
           </Link>
         </nav>
         <div className="p-3 border-slate-100">
-          <button onClick={logout} className="text-slate-400 hover:text-red-500 w-full text-left">
+          <button onClick={logout} className="text-neutral-700 hover:text-red-500 w-full text-left">
             退出
           </button>
         </div>

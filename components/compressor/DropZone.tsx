@@ -88,29 +88,29 @@ export function DropZone() {
         className={[
           'relative border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center cursor-pointer transition-all duration-300',
           isDragActive
-            ? 'border-cyan-400 bg-cyan-500/10 shadow-[0_0_40px_rgba(6,182,212,0.15)] scale-[1.02]'
-            : 'border-slate-700 hover:border-cyan-500/60 hover:bg-white/5',
+            ? 'border-blue-400 bg-blue-50 shadow-[0_0_40px_rgba(59,130,246,0.15)] scale-[1.02]'
+            : 'border-gray-200 hover:border-blue-400 hover:bg-white/5',
           isCompressing ? 'opacity-50 pointer-events-none' : '',
         ].join(' ')}
       >
         <input {...getInputProps()} />
-        <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 flex items-center justify-center">
-          <Upload className="w-8 h-8 text-cyan-400" />
+        <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-300 flex items-center justify-center">
+          <Upload className="w-8 h-8 text-blue-600" />
         </div>
-        <p className="font-semibold text-slate-200 mb-2">
+        <p className="font-semibold text-neutral-900 mb-2">
           {isDragActive ? t('dropzone.dragActive') : t('dropzone.drag')}
         </p>
-        <p className="text-slate-400 max-w-sm mx-auto">
+        <p className="text-neutral-700 max-w-sm mx-auto">
           {isPro
             ? t('dropzone.hintPro', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
             : t('dropzone.hint', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
           }
         </p>
-        <p className="text-slate-500 mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-slate-700">
+        <p className="text-neutral-700 mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200">
           {t('dropzone.paste')}
         </p>
         {remaining < limits.maxFiles && remaining > 0 && (
-          <p className="text-cyan-400 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
+          <p className="text-blue-600 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
         )}
       </div>
 
@@ -119,7 +119,7 @@ export function DropZone() {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-            <p className="text-xs text-slate-500 whitespace-nowrap">{t('dropzone.samples.label')}</p>
+            <p className="text-xs text-neutral-700 whitespace-nowrap">{t('dropzone.samples.label')}</p>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -130,18 +130,18 @@ export function DropZone() {
                   key={sample.name}
                   onClick={() => handleSample(sample)}
                   disabled={isCompressing || sampleLoading !== null}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-slate-800 bg-white/5 hover:bg-white/10 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.08)] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-blue-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.08)] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="text-2xl group-hover:scale-110 transition-transform">
-                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-cyan-400" /> : sample.icon}
+                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-blue-600" /> : sample.icon}
                   </span>
-                  <span className="text-xs font-medium text-slate-300 group-hover:text-cyan-400 transition-colors">
+                  <span className="text-xs font-medium text-neutral-800 group-hover:text-blue-600 transition-colors">
                     {isZh
                       ? { photo: '风景照', screenshot: '截图', design: 'Logo', gradient: '渐变' }[sample.name]
                       : { photo: 'Photo', screenshot: 'Screenshot', design: 'Logo', gradient: 'Gradient' }[sample.name]
                     }
                   </span>
-                  <span className="text-[10px] text-slate-500">{sample.size}</span>
+                  <span className="text-[10px] text-neutral-600">{sample.size}</span>
                 </button>
               )
             })}

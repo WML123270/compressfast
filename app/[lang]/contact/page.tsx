@@ -10,7 +10,7 @@ export default function ContactPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
-      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
+      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-700 hover:text-blue-600 transition-colors">
         <ArrowLeft className="w-4 h-4" /> {isZh ? '返回首页' : 'Back to Home'}
       </Link>
 
@@ -18,7 +18,7 @@ export default function ContactPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">
           {isZh ? '联系我们' : 'Contact Us'}
         </h1>
-        <p className="text-slate-400 mt-3 leading-relaxed">
+        <p className="text-neutral-700 mt-3 leading-relaxed">
           {isZh
             ? '感谢您使用极速压图。无论您遇到问题、有改进建议，还是想进行商务合作，我们都非常欢迎您的来信。我们会在 24 小时内回复您的邮件。'
             : 'Thank you for using CompressFast. Whether you have questions, suggestions, or business inquiries, we are happy to hear from you. We reply within 24 hours.'}
@@ -47,23 +47,23 @@ export default function ContactPage() {
             href: null,
           },
         ].map(({ icon: Icon, title, value, desc, href }) => (
-          <div key={title} className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500/20 transition-all">
-            <Icon className="w-6 h-6 text-cyan-400 mb-3" />
-            <h3 className="font-semibold text-slate-200 text-sm mb-1">{title}</h3>
+          <div key={title} className="p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:border-blue-200 transition-all">
+            <Icon className="w-6 h-6 text-blue-600 mb-3" />
+            <h3 className="font-semibold text-neutral-900 text-sm mb-1">{title}</h3>
             {href ? (
-              <a href={href} className="text-cyan-400 hover:underline text-sm break-all">{value}</a>
+              <a href={href} className="text-blue-600 hover:underline text-sm break-all">{value}</a>
             ) : (
-              <span className="text-slate-300 text-sm">{value}</span>
+              <span className="text-neutral-800 text-sm">{value}</span>
             )}
-            <p className="text-xs text-slate-500 mt-2">{desc}</p>
+            <p className="text-xs text-neutral-700 mt-2">{desc}</p>
           </div>
         ))}
       </section>
 
       {/* Common inquiry types */}
-      <section className="p-6 rounded-2xl bg-white/5 border border-white/10">
+      <section className="p-6 rounded-2xl bg-gray-50 border border-gray-200">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-cyan-400" />
+          <Shield className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-bold text-slate-100">
             {isZh ? '常见咨询类型' : 'Common Inquiries'}
           </h2>
@@ -78,17 +78,17 @@ export default function ContactPage() {
             { q: isZh ? '功能建议' : 'Feature Request', a: isZh ? '希望新增的格式支持、批量功能、集成方案等' : 'New format support, batch features, integration ideas, etc.' },
           ].map(({ q, a }) => (
             <div key={q} className="flex items-start gap-2 p-3 rounded-lg bg-white/5">
-              <span className="text-cyan-400 font-semibold shrink-0">{q}：</span>
-              <span className="text-slate-400 leading-relaxed">{a}</span>
+              <span className="text-blue-600 font-semibold shrink-0">{q}：</span>
+              <span className="text-neutral-700 leading-relaxed">{a}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Site info */}
-      <section className="p-6 rounded-2xl bg-white/5 border border-white/10">
+      <section className="p-6 rounded-2xl bg-gray-50 border border-gray-200">
         <div className="flex items-center gap-2 mb-4">
-          <Globe className="w-5 h-5 text-cyan-400" />
+          <Globe className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-bold text-slate-100">
             {isZh ? '站点信息' : 'Site Information'}
           </h2>
@@ -110,7 +110,7 @@ export default function ContactPage() {
           </div>
           <div>
             <span className="text-slate-500">ICP{isZh ? '备案' : ' Filing'}：</span>
-            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">
+            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
               湘ICP备2026026910号
             </a>
           </div>
@@ -130,15 +130,15 @@ export default function ContactPage() {
       </section>
 
       {/* Bottom nav */}
-      <div className="border-t border-white/10 pt-6 text-center">
+      <div className="border-t border-gray-200 pt-6 text-center">
         <div className="flex flex-wrap justify-center gap-3 text-sm">
-          <Link href={`/${locale}`} className="px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors font-medium">
+          <Link href={`/${locale}`} className="px-4 py-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors font-medium">
             🏠 {isZh ? '返回首页' : 'Home'}
           </Link>
-          <Link href={`/${locale}/help`} className="px-4 py-2 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 transition-colors font-medium">
+          <Link href={`/${locale}/help`} className="px-4 py-2 rounded-full bg-gray-50 text-neutral-700 hover:bg-gray-100 transition-colors font-medium">
             📖 {isZh ? '帮助中心' : 'Help Center'}
           </Link>
-          <Link href={`/${locale}/about`} className="px-4 py-2 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 transition-colors font-medium">
+          <Link href={`/${locale}/about`} className="px-4 py-2 rounded-full bg-gray-50 text-neutral-700 hover:bg-gray-100 transition-colors font-medium">
             ℹ️ {isZh ? '关于我们' : 'About Us'}
           </Link>
         </div>

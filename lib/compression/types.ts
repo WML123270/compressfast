@@ -93,7 +93,7 @@ export function getQualityTier(originalSize: number, compressedSize: number): Qu
 }
 
 export const QUALITY_TIER_COLORS: Record<QualityTier, string> = {
-  excellent: 'bg-green-900/30 text-green-400',
+  excellent: 'bg-green-900/30 text-blue-500',
   good: 'bg-blue-900/30 text-blue-400',
   ok: 'bg-amber-900/30 text-amber-400',
   overcompressed: 'bg-red-900/30 text-red-400',

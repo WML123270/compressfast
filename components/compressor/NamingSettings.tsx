@@ -24,20 +24,20 @@ export function NamingSettings() {
   const isZh = locale === 'zh'
 
   return (
-    <div className="border border-slate-700 rounded-xl bg-slate-800 overflow-hidden">
+    <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 font-medium text-slate-300 hover:bg-slate-700/50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 font-medium text-neutral-800 hover:bg-gray-50/50 transition-colors"
       >
         <span className="flex items-center gap-2">
-          <FileText className="w-4 h-4 text-slate-400" />
+          <FileText className="w-4 h-4 text-neutral-700" />
           {isZh ? '下载文件名设置' : 'Download Filename Settings'}
         </span>
         {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 space-y-3 border-slate-700 pt-3">
+        <div className="px-4 pb-4 space-y-3 border-gray-200 pt-3">
           {/* Pattern selector */}
           <div className="grid grid-cols-2 gap-1.5">
             {PATTERNS.map(p => {
@@ -48,8 +48,8 @@ export function NamingSettings() {
                   onClick={() => setNaming({ pattern: p.value })}
                   className={`text-left px-3 py-2 rounded-lg border text-xs transition-colors ${
                     active
-                      ? 'border-brand-500 bg-brand-900/30 text-brand-300'
-                      : 'border-slate-600 text-slate-400 hover:border-slate-500'
+                      ? 'border-blue-500 bg-brand-900/30 text-blue-600'
+                      : 'border-gray-300 text-neutral-700 hover:border-gray-300'
                   }`}
                 >
                   <span className="font-medium block">{isZh ? p.labelZh : p.labelEn}</span>
@@ -61,7 +61,7 @@ export function NamingSettings() {
 
           {/* Numbering options */}
           <div className="flex items-center gap-3 flex-wrap">
-            <label className="flex items-center gap-1.5 text-slate-400">
+            <label className="flex items-center gap-1.5 text-neutral-700">
               <input
                 type="checkbox"
                 checked={naming.numberPadding > 0}
@@ -72,7 +72,7 @@ export function NamingSettings() {
             </label>
             {naming.numberPadding > 0 && (
               <>
-                <span className="text-slate-400">
+                <span className="text-neutral-700">
                   {isZh ? '位数:' : 'Digits:'}
                 </span>
                 {[1, 2, 3].map(n => (
@@ -81,22 +81,22 @@ export function NamingSettings() {
                     onClick={() => setNaming({ numberPadding: n })}
                     className={`px-1.5 py-0.5 text-xs rounded ${
                       naming.numberPadding === n
-                        ? 'bg-brand-900/50 text-brand-300 font-medium'
-                        : 'bg-slate-100 bg-slate-700 text-slate-500'
+                        ? 'bg-brand-900/50 text-blue-600 font-medium'
+                        : 'bg-gray-100 bg-gray-100 text-neutral-600'
                     }`}
                   >
                     {`0`.repeat(n)}
                   </button>
                 ))}
-                <span className="text-slate-400 mx-1">
+                <span className="text-neutral-700 mx-1">
                   {isZh ? '位置:' : 'Pos:'}
                 </span>
                 <button
                   onClick={() => setNaming({ numberPosition: 'prefix' })}
                   className={`px-1.5 py-0.5 text-xs rounded ${
                     naming.numberPosition === 'prefix'
-                      ? 'bg-brand-900/50 text-brand-300 font-medium'
-                      : 'bg-slate-100 bg-slate-700 text-slate-500'
+                      ? 'bg-brand-900/50 text-blue-600 font-medium'
+                      : 'bg-gray-100 bg-gray-100 text-neutral-600'
                   }`}
                 >
                   {isZh ? '前缀' : 'Prefix'}
@@ -105,8 +105,8 @@ export function NamingSettings() {
                   onClick={() => setNaming({ numberPosition: 'suffix' })}
                   className={`px-1.5 py-0.5 text-xs rounded ${
                     naming.numberPosition === 'suffix'
-                      ? 'bg-brand-900/50 text-brand-300 font-medium'
-                      : 'bg-slate-100 bg-slate-700 text-slate-500'
+                      ? 'bg-brand-900/50 text-blue-600 font-medium'
+                      : 'bg-gray-100 bg-gray-100 text-neutral-600'
                   }`}
                 >
                   {isZh ? '后缀' : 'Suffix'}
@@ -123,9 +123,9 @@ export function NamingSettings() {
                 value={naming.customTemplate}
                 onChange={(e) => setNaming({ customTemplate: e.target.value })}
                 placeholder={isZh ? '如: {original}_v2_{date}' : 'e.g. {original}_v2_{date}'}
-                className="w-full px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500"
+                className="w-full px-3 py-1.5 rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500"
               />
-              <p className="text-slate-400 mt-1">
+              <p className="text-neutral-700 mt-1">
                 {isZh
                   ? '可用: {original}=原名 {n}=序号 {date}=日期 {ext}=扩展名'
                   : 'Available: {original} {n} {date} {ext}'}
@@ -134,9 +134,9 @@ export function NamingSettings() {
           )}
 
           {/* Preview */}
-          <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700">
-            <p className="text-slate-400 mb-1">{isZh ? '预览示例:' : 'Preview:'}</p>
-            <p className="text-slate-300 font-mono break-all">
+          <div className="p-2 rounded-lg bg-gray-100 border border-gray-200">
+            <p className="text-neutral-700 mb-1">{isZh ? '预览示例:' : 'Preview:'}</p>
+            <p className="text-neutral-800 font-mono break-all">
               {naming.pattern === 'custom'
                 ? naming.customTemplate
                     .replace(/\{original\}/g, 'photo')

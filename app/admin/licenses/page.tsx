@@ -87,11 +87,11 @@ export default function AdminLicensesPage() {
       {filtered.length === 0 ? (
         <p className="text-slate-400">{search ? '无匹配结果' : '暂无激活码'}</p>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-slate-400 bg-slate-50 border-slate-200">
+                <tr className="text-left text-neutral-700 bg-gray-50 border-slate-200">
                   <th className="px-4 py-3 font-medium">激活码</th><th className="px-4 py-3 font-medium">邮箱</th>
                   <th className="px-4 py-3 font-medium">购买时间</th><th className="px-4 py-3 font-medium">金额</th>
                   <th className="px-4 py-3 font-medium">设备数</th><th className="px-4 py-3 font-medium">状态</th>
@@ -100,7 +100,7 @@ export default function AdminLicensesPage() {
               </thead>
               <tbody>
                 {filtered.map((l, i) => (
-                  <tr key={i} className="border-slate-50 hover:bg-slate-50/50">
+                  <tr key={i} className="border-slate-50 hover:bg-gray-50">
                     <td className="px-4 py-3 font-mono text-xs">{l.code}</td>
                     <td className="px-4 py-3 text-xs">{l.email}</td>
                     <td className="px-4 py-3 text-xs">{new Date(l.created_at).toLocaleDateString('zh-CN')}</td>
@@ -108,7 +108,7 @@ export default function AdminLicensesPage() {
                     <td className="px-4 py-3 text-xs"><span className={l.devices.length >= 5 ? 'text-red-500' : 'text-slate-500'}>{l.devices?.length || 0} / 5</span></td>
                     <td className="px-4 py-3">
                       {l.active
-                        ? <span className="text-green-600">有效</span>
+                        ? <span className="text-blue-600">有效</span>
                         : <span className="text-red-500">已撤销</span>}
                     </td>
                     <td className="px-4 py-3">
@@ -118,7 +118,7 @@ export default function AdminLicensesPage() {
                             className="text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">撤销</button>
                         )}
                         <button onClick={() => handleAction('reset-devices', l.code, l.email)}
-                          className="text-slate-400 hover:text-blue-600 px-2 py-1 rounded hover:bg-blue-50">重置设备</button>
+                          className="text-neutral-700 hover:text-blue-600 px-2 py-1 rounded hover:bg-blue-50">重置设备</button>
                       </div>
                     </td>
                   </tr>

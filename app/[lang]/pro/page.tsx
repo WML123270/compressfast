@@ -148,14 +148,14 @@ export default function ProPage() {
         <h1 className="font-bold text-slate-200">
           {locale === 'zh' ? '国内版完全免费' : 'Free in China Region'}
         </h1>
-        <p className="text-slate-400 max-w-md mx-auto">
+        <p className="text-neutral-700 max-w-md mx-auto">
           {locale === 'zh'
             ? '极速压图国内版永久免费，无需付费解锁。批量压缩、格式转换、尺寸调整等全部功能免费使用。'
             : 'CompressFast domestic version is permanently free. All features including batch compression, format conversion, and resizing are free to use.'}
         </p>
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-600 text-white font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           {locale === 'zh' ? '开始压缩' : 'Start Compressing'}
@@ -166,7 +166,7 @@ export default function ProPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
-      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-slate-400 hover:text-brand-400">
+      <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-700 hover:text-brand-400">
         <ArrowLeft className="w-4 h-4" /> {t('vs.back')}
       </Link>
 
@@ -176,25 +176,25 @@ export default function ProPage() {
           <Crown className="w-3 h-3" /> {t('pro.heading')}
         </div>
         <h1 className="sm:text-3xl font-bold text-slate-100">{t('pro.heading')}</h1>
-        <p className="text-slate-400 mt-2">{t('pro.subtitle')}</p>
+        <p className="text-neutral-700 mt-2">{t('pro.subtitle')}</p>
       </section>
 
       {/* Feature Comparison Table */}
       {!isPro && (
       <section className="max-w-2xl mx-auto">
-        <h2 className="font-bold text-slate-200 text-center mb-5">
+        <h2 className="font-bold text-neutral-900 text-center mb-5">
           {locale === 'zh' ? '功能对比' : 'Feature Comparison'}
         </h2>
 
         {/* 表头 */}
-        <div className="grid grid-cols-[1fr_100px_100px] gap-px bg-slate-700 rounded-xl overflow-hidden text-sm">
-          <div className="bg-slate-800 p-3 font-semibold text-slate-400">
+        <div className="grid grid-cols-[1fr_100px_100px] gap-px bg-gray-100 rounded-xl overflow-hidden text-sm">
+          <div className="bg-white p-3 font-semibold text-slate-400">
             {locale === 'zh' ? '功能' : 'Feature'}
           </div>
-          <div className="bg-slate-800 p-3 font-semibold text-center text-slate-400">
+          <div className="bg-white p-3 font-semibold text-center text-slate-400">
             {t('pro.freePlan')}
           </div>
-          <div className="bg-brand-900/20 p-3 font-semibold text-center text-brand-300">
+          <div className="bg-brand-900/20 p-3 font-semibold text-center text-blue-600">
             <span className="flex items-center justify-center gap-1">
               <Crown className="w-3.5 h-3.5" /> Pro
             </span>
@@ -219,8 +219,8 @@ export default function ProPage() {
               const bg = row.highlight
                 ? 'bg-purple-50/50 bg-purple-900/5'
                 : i % 2 === 0
-                  ? 'bg-slate-800/50'
-                  : 'bg-slate-50/50 bg-slate-800/30'
+                  ? 'bg-gray-100'
+                  : 'bg-gray-50 bg-gray-50'
               return (
                 <div key={i} className={`contents text-xs`}>
                   <div className={`${bg} p-3 flex items-center gap-2 font-medium text-slate-300`}>
@@ -231,10 +231,10 @@ export default function ProPage() {
                     )}
                   </div>
                   <div className={`${bg} p-3 text-center text-slate-400`}>
-                    {row.free === true ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : typeof row.free === 'string' ? row.free : <X className="w-4 h-4 text-slate-600 mx-auto" />}
+                    {row.free === true ? <Check className="w-4 h-4 text-blue-500 mx-auto" /> : typeof row.free === 'string' ? row.free : <X className="w-4 h-4 text-neutral-800 mx-auto" />}
                   </div>
                   <div className={`${bg} p-3 text-center`}>
-                    {row.pro === true ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : typeof row.pro === 'string' ? <span className="font-semibold text-brand-300">{row.pro}</span> : <Minus className="w-4 h-4 text-slate-300 mx-auto" />}
+                    {row.pro === true ? <Check className="w-4 h-4 text-blue-500 mx-auto" /> : typeof row.pro === 'string' ? <span className="font-semibold text-blue-600">{row.pro}</span> : <Minus className="w-4 h-4 text-neutral-800 mx-auto" />}
                   </div>
                 </div>
               )
@@ -246,7 +246,7 @@ export default function ProPage() {
         <div className="mt-6 text-center space-y-3">
           <div>
             <span className="font-bold text-slate-100">{t('pro.price')}</span>
-            <span className="text-slate-400 ml-2">{t('pro.priceLabel')}</span>
+            <span className="text-neutral-700 ml-2">{t('pro.priceLabel')}</span>
           </div>
           <p className="text-slate-500">
             {locale === 'zh'
@@ -259,13 +259,13 @@ export default function ProPage() {
               value={buyEmail}
               onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
               placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
-              className="w-full px-4 py-2.5 text-center rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500"
+              className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
             {buyError && <p className="text-red-500">{buyError}</p>}
             <button
               onClick={handleBuy}
               disabled={buyLoading}
-              className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-600 disabled:bg-blue-400 font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2"
             >
               {buyLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -287,18 +287,18 @@ export default function ProPage() {
 
       {/* Pro Active Banner */}
       {isPro && (
-        <section className="max-w-md mx-auto pt-8 border-slate-700">
+        <section className="max-w-md mx-auto pt-8 border-gray-200">
           <div className="bg-green-900/20 border border-green-800 rounded-xl p-5 text-center">
-            <Crown className="w-8 h-8 text-green-500 mx-auto mb-2" />
+            <Crown className="w-8 h-8 text-blue-500 mx-auto mb-2" />
             <h2 className="font-bold text-green-300">{t('pro.active')}</h2>
-            <p className="text-green-400 mt-1">{t('pro.activeDesc')}</p>
+            <p className="text-blue-500 mt-1">{t('pro.activeDesc')}</p>
           </div>
         </section>
       )}
 
       {/* Activate */}
-      <section className="max-w-md mx-auto pt-8 border-slate-700">
-        <h2 className="font-semibold text-slate-200 mb-4 text-center">
+      <section className="max-w-md mx-auto pt-8 border-gray-200">
+        <h2 className="font-semibold text-neutral-900 mb-4 text-center">
           {isPro ? (locale === 'zh' ? '管理激活码' : 'Manage License') : t('pro.activate.title')}
         </h2>
         <div className="flex gap-2">
@@ -307,18 +307,18 @@ export default function ProPage() {
             value={activateCode}
             onChange={(e) => setActivateCode(e.target.value)}
             placeholder={t('pro.activate.input')}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500 font-mono"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500 font-mono"
           />
           <button
             onClick={handleActivate}
             disabled={activating || activateCode.length < 8}
-            className="px-4 py-2.5 bg-slate-600 rounded-lg font-medium text-sm hover:bg-slate-500 disabled:opacity-50 transition-colors"
+            className="px-4 py-2.5 bg-gray-50 rounded-lg font-medium text-sm hover:bg-slate-500 disabled:opacity-50 transition-colors"
           >
             {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : t('pro.activate.button')}
           </button>
         </div>
         {activateResult === 'success' && (
-          <p className="mt-2 text-green-400">{t('pro.activate.success')}</p>
+          <p className="mt-2 text-blue-500">{t('pro.activate.success')}</p>
         )}
         {activateResult === 'invalid' && (
           <p className="mt-2 text-red-400">{t('pro.activate.invalid')}</p>
@@ -328,8 +328,8 @@ export default function ProPage() {
         )}
 
         {/* Forgot code */}
-        <div className="mt-6 pt-4 border-slate-700/50">
-          <p className="text-slate-400 mb-2">
+        <div className="mt-6 pt-4 border-gray-200/50">
+          <p className="text-neutral-700 mb-2">
             {locale === 'zh' ? '忘记激活码？输入购买邮箱直接查' : 'Forgot your code? Look it up with your email'}
           </p>
           <div className="flex gap-2">
@@ -338,12 +338,12 @@ export default function ProPage() {
               value={forgotEmail}
               onChange={(e) => { setForgotEmail(e.target.value); setFoundCode(''); setResendResult(null) }}
               placeholder={t('pro.forgot.email')}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-600 bg-slate-700 text-slate-100 outline-none focus:border-brand-500 focus:ring-brand-500"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
             <button
               onClick={handleLookup}
               disabled={resending || !forgotEmail.includes('@')}
-              className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 rounded-lg font-medium text-sm transition-colors"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 disabled:bg-blue-400 rounded-lg font-medium text-sm transition-colors"
             >
               {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : (locale === 'zh' ? '查找' : 'Look Up')}
             </button>
@@ -355,24 +355,24 @@ export default function ProPage() {
                 {locale === 'zh' ? '🎉 找到你的激活码：' : '🎉 Your activation code:'}
               </p>
               <div className="flex items-center gap-2 justify-center">
-                <code className="px-4 py-2 bg-slate-800 rounded-lg font-bold tracking-widest text-slate-100 border border-slate-700 select-all">
+                <code className="px-4 py-2 bg-white rounded-lg font-bold tracking-widest text-neutral-900 border border-gray-200 select-all">
                   {foundCode}
                 </code>
                 <button
                   onClick={handleCopyCode}
-                  className="px-3 py-2 font-medium bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors"
+                  className="px-3 py-2 font-medium bg-blue-600 hover:bg-blue-600 text-white rounded-lg transition-colors"
                 >
                   {codeCopied ? (locale === 'zh' ? '已复制' : 'Copied!') : (locale === 'zh' ? '复制' : 'Copy')}
                 </button>
               </div>
-              <p className="text-green-400 mt-2">
+              <p className="text-blue-500 mt-2">
                 {locale === 'zh' ? '复制后回到上方激活框粘贴即可' : 'Copy and paste it in the activation box above'}
               </p>
             </div>
           )}
 
           {!foundCode && resendResult === 'success' && (
-            <p className="mt-2 text-green-400">{t('pro.forgot.success')}</p>
+            <p className="mt-2 text-blue-500">{t('pro.forgot.success')}</p>
           )}
           {resendResult === 'pending' && (
             <div className="mt-3 p-3 bg-blue-900/20 border border-blue-800 rounded-lg text-center">

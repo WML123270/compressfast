@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --background: 2 6 23;
-    --foreground: 248 250 252;
-    --muted: 15 23 42;
-    --muted-foreground: 148 163 184;
-    --border: 30 41 59;
-    --ring: 6 182 212;
-    --accent-start: #06b6d4;
-    --accent-end: #3b82f6;
+    --background: 250 250 252;
+    --foreground: 15 23 42;
+    --muted: 248 250 252;
+    --muted-foreground: 71 85 105;
+    --border: 226 232 240;
+    --ring: 59 130 246;
+    --accent-start: #3b82f6;
+    --accent-end: #8b5cf6;
   }
 
   * {
@@ -23,13 +23,21 @@
   }
 
   body {
-    @apply bg-[#0b1420] text-slate-100 antialiased;
+    @apply text-slate-800 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: #fafafc;
+    background-image:
+      radial-gradient(circle, rgba(148,163,184,0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
   }
 }
 
 @layer components {
-  /* Section divider with gradient line */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-white shadow-sm;
+  }
+
   .section-divider {
     @apply relative;
   }
@@ -40,9 +48,9 @@
     left: 50%;
     transform: translateX(-50%);
     width: 60px;
-    height: 3px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
   }
 }
 
@@ -51,20 +59,18 @@
     text-wrap: balance;
   }
 
-  /* Gradient text */
   .text-gradient {
-    @apply bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent;
   }
   .text-gradient-warm {
-    @apply bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent;
   }
 
-  /* Background gradients */
   .bg-glow-top {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6,182,212,0.15), transparent);
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.08), transparent);
   }
   .bg-glow-bottom {
-    background: radial-gradient(ellipse 60% 50% at 50% 120%, rgba(59,130,246,0.1), transparent);
+    background: radial-gradient(ellipse 60% 50% at 50% 120%, rgba(139,92,246,0.06), transparent);
   }
 }
 
