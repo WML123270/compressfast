@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 800px;
+    background: #0b1420;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+  .title {
+    position: absolute; top: 28px; width: 100%; text-align: center;
+    color: #e2e8f0; font-size: 28px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .subtitle-row {
+    position: absolute; top: 72px; width: 100%;
+    display: flex; justify-content: center; gap: 200px;
+  }
+  .badge-orig { color: #94a3b8; font-size: 14px; font-weight: 600; background: #1e293b; padding: 4px 16px; border-radius: 4px; }
+  .badge-comp { color: #2dd4bf; font-size: 14px; font-weight: 600; background: #134e4a; padding: 4px 16px; border-radius: 4px; }
+  .images { position: absolute; top: 110px; left: 30px; right: 30px; display: flex; gap: 16px; justify-content: center; align-items: flex-start; }
+  .img-box { flex: 1; max-width: 562px; overflow: hidden; border-radius: 8px; border: 1px solid #1e293b; }
+  .img-box img { width: 100%; display: block; }
+  .divider { position: absolute; top: 110px; left: 50%; width: 2px; height: 375px; border-left: 2px dashed #1e293b; }
+  .bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 70px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 10px; gap: 0; }
+  .stat { display: flex; flex-direction: column; align-items: center; width: 280px; }
+  .stat .num { font-size: 28px; font-weight: 700; }
+  .stat .label { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .num.before { color: #f87171; }
+  .num.after { color: #4ade80; }
+  .savings {
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #059669; border-radius: 20px;
+    padding: 6px 24px; color: #4ade80; font-size: 18px; font-weight: 700;
+    margin: 0 20px;
+  }
+  .brand { position: absolute; bottom: 8px; width: 100%; text-align: center; color: #475569; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="accent"></div>
+  <div class="title">Can you spot the difference?</div>
+  <div class="subtitle-row">
+    <span class="badge-orig">ORIGINAL</span>
+    <span class="badge-comp">COMPRESSED</span>
+  </div>
+  <div class="images">
+    <div class="img-box"><img id="left" src=""></div>
+    <div class="img-box"><img id="right" src=""></div>
+  </div>
+  <div class="divider"></div>
+  <div class="bottom">
+    <div class="stat"><span class="num before" id="sizeBefore">--</span><span class="label">Before</span></div>
+    <div class="savings" id="savingsBadge">--</div>
+    <div class="stat"><span class="num after" id="sizeAfter">--</span><span class="label">After</span></div>
+  </div>
+  <div class="brand">compressfast.site — 100% browser-side, zero uploads</div>
+
+  <script>
+    // Load images and set sizes
+    const srcImg = new Image();
+    srcImg.onload = function() {
+      const srcSize = srcImg.src.length > 1000 ? Math.round(new Blob([srcImg.src]).size || 1354398) : 1354398;
+      document.getElementById('left').src = srcImg.src;
+      document.getElementById('sizeBefore').textContent = Math.round(srcSize / 1024) + ' KB';
+
+      // Create compressed canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = srcImg.naturalWidth;
+      canvas.height = srcImg.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(srcImg, 0, 0);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.35);
+      document.getElementById('right').src = compressedDataUrl;
+
+      const compSize = Math.round(compressedDataUrl.length * 0.75); // base64 → approx bytes
+      document.getElementById('sizeAfter').textContent = Math.round(compSize / 1024) + ' KB';
+
+      const srcKB = Math.round(srcSize / 1024);
+      const cmpKB = Math.round(compSize / 1024);
+      const pct = Math.round((1 - cmpKB / srcKB) * 100);
+      document.getElementById('savingsBadge').textContent = '{ ' + pct + '% smaller }';
+    };
+    srcImg.src = 'file:///C:/Users/Administrator/png-compressor/test-results/tweet-source.jpg';
+  </script>
+</body>
+</html>
