@@ -43,6 +43,11 @@ function getLocaleFromPath(pathname: string): string | null {
 function getLocaleFromRequest(request: NextRequest): string {
   const hostname = request.nextUrl.hostname
 
+  // 0. Build-time deploy target — highest priority
+  // When DEPLOY_TARGET=cn, force zh regardless of hostname/headers
+  // This fixes Baidu Union review: ECS proxy may cause hostname mismatch
+  if (process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn') return 'zh'
+
   // 1. Check cookie
   const cookieLocale = request.cookies.get('lang')?.value
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as typeof SUPPORTED_LOCALES[number])) {
@@ -87,15 +92,19 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  // Rewrite root path to detected locale (no redirect — preserves HTML for crawlers)
-  // For other paths without locale prefix, redirect as before
+  // Rewrite to detected locale (no redirect — preserves HTML for crawlers)
+  // For CN deployment or root path: always rewrite to avoid redirects
+  // For non-CN, non-root paths without locale: redirect as before
   const locale = getLocaleFromRequest(request)
   const newUrl = new URL(`/${locale}${pathname}`, request.url)
   newUrl.search = request.nextUrl.search
 
-  if (pathname === '/') {
-    // Internal rewrite: serves the locale page content at the root URL
-    // This is critical for Baidu Union verification which checks the root domain
+  const isCn = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+
+  if (pathname === '/' || isCn) {
+    // Internal rewrite: serves the locale page content at the original URL
+    // CN deployment uses rewrite for all paths — avoids 307 redirects that
+    // could confuse Baidu's crawler during Union review
     const response = NextResponse.rewrite(newUrl)
     response.cookies.set('lang', locale, { maxAge: 365 * 24 * 60 * 60 })
     return response
