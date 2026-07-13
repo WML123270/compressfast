@@ -319,6 +319,14 @@ function HomeContent({ compressCount, totalBytesSaved, trustBadges, steps, local
       {/* ===== Rich Content ===== */}
       <div className="space-y-8 sm:space-y-12 pt-4 sm:pt-8">
 
+        {/* Product Intro */}
+        <section>
+          <h2 className="font-bold text-slate-100 mb-3 text-lg">{t('home.intro.title')}</h2>
+          <p className="text-sm sm:text-base text-slate-400 leading-relaxed bg-white/5 border border-white/10 rounded-xl p-5 sm:p-6">
+            {t('home.intro.text')}
+          </p>
+        </section>
+
         {/* Format Guide */}
         <section>
           <h2 className="font-bold text-slate-100 mb-1 sm:mb-2 text-lg">{t('home.formats.title')}</h2>
@@ -350,6 +358,25 @@ function HomeContent({ compressCount, totalBytesSaved, trustBadges, steps, local
           </div>
         </section>
 
+        {/* Tech Advantages */}
+        <section>
+          <h2 className="font-bold text-slate-100 mb-1 sm:mb-2 text-lg">{t('home.tech.title')}</h2>
+          <p className="text-sm sm:text-base text-slate-400 mb-4">{t('home.tech.intro')}</p>
+          <div className="space-y-2 sm:space-y-3">
+            {(['canvas', 'worker', 'oxipng', 'local'] as const).map((key) => (
+              <div key={key} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-white/5 border border-white/10 transition-all hover:border-cyan-500/20">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-sm font-bold text-cyan-400">{key === 'canvas' ? '①' : key === 'worker' ? '②' : key === 'oxipng' ? '③' : '④'}</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-xs sm:text-sm">{t(`home.tech.${key}`)}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">{t(`home.tech.${key}Desc`)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Scenarios */}
         <section>
           <h2 className="font-bold text-slate-100 mb-1 sm:mb-2 text-lg">{t('home.scenarios.title')}</h2>
@@ -361,6 +388,20 @@ function HomeContent({ compressCount, totalBytesSaved, trustBadges, steps, local
                   <h3 className="font-semibold text-xs sm:text-sm">{t(`home.scenarios.${key}`)}</h3>
                   <p className="text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed">{t(`home.scenarios.${key}Desc`)}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Updates */}
+        <section>
+          <h2 className="font-bold text-slate-100 mb-3 text-lg">{t('home.updates.title')}</h2>
+          <p className="text-sm text-slate-400 mb-3">{t('home.updates.intro')}</p>
+          <div className="space-y-2">
+            {([1, 2, 3, 4, 5] as const).map((n) => (
+              <div key={n} className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                <span className="text-cyan-400 text-sm mt-0.5 shrink-0">✦</span>
+                <span className="text-sm text-slate-300">{t(`home.updates.item${n}`)}</span>
               </div>
             ))}
           </div>
