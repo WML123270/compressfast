@@ -277,6 +277,37 @@ export const TOOLS: Record<string, ToolPageData> = {
     ],
     relatedTools: ['compress-images', 'compress-png', 'compress-jpeg'],
   },
+
+  'compress-svg': {
+    slug: 'compress-svg',
+    titleEn: 'Compress SVG Online Free — Reduce SVG File Size | CompressFast',
+    titleZh: '在线SVG压缩 — 免费减小SVG文件体积 | 极速压图',
+    descriptionEn: 'Compress SVG files online for free. 100% browser-based text optimization — remove comments, whitespace, and metadata without changing how your SVG looks. Batch support.',
+    descriptionZh: '免费在线压缩SVG文件，100%浏览器本地文本优化——清除注释、空白和元数据，不改变SVG外观。支持批量处理。',
+    keywords: ['compress svg', 'svg compressor', 'compress svg online', 'reduce svg size', 'svg minifier', 'svg optimizer', 'minify svg', 'optimize svg for web', 'free svg compressor'],
+    heroTitleEn: 'Compress SVG Files Online',
+    heroTitleZh: '在线压缩SVG文件',
+    heroSubEn: 'Free, private, lossless. Remove bloat from your SVGs — text-based optimization right in your browser.',
+    heroSubZh: '免费、隐私安全、无损。清除SVG中的冗余内容——浏览器内文本级优化。',
+    targetFormat: 'original',
+    defaultSettings: { quality: 100, outputFormat: 'original', speed: 10, lossless: true },
+    benefits: [
+      { icon: '✂️', titleEn: 'Lossless Text Optimization', titleZh: '无损文本优化', descEn: 'SVG is text-based XML. We strip comments, whitespace, and editor metadata — your SVG renders exactly the same, just leaner.', descZh: 'SVG是文本格式的XML。我们清除注释、空白和编辑器元数据——渲染效果完全不变，文件更小。' },
+      { icon: '🔒', titleEn: '100% Local Processing', titleZh: '100%本地处理', descEn: 'Your SVG source code never leaves your browser. No upload to any server — safe for proprietary icons and logos.', descZh: 'SVG源码不会离开你的浏览器，不上传任何服务器——适合私有的图标和Logo。' },
+      { icon: '📦', titleEn: 'Batch SVG Compression', titleZh: '批量SVG压缩', descEn: 'Compress up to 30 SVG files at once for free. ZIP download all results in one click. Ideal for icon sets.', descZh: '免费一次压缩最多30个SVG文件，一键ZIP打包下载，非常适合图标集。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Drop or Select SVG Files', titleZh: '拖入或选择SVG文件', descEn: 'Drag SVG files into the upload area, click to browse, or paste from clipboard. Multiple files supported.', descZh: '将SVG文件拖入上传区、点击选择、或Ctrl+V粘贴，支持多文件。' },
+      { step: 2, titleEn: 'Auto-Optimize', titleZh: '自动优化', descEn: 'CompressFast automatically strips unnecessary data: XML comments, indentation whitespace, editor metadata, and redundant attributes.', descZh: '极速压图自动清除冗余数据：XML注释、缩进空白、编辑器元数据和多余属性。' },
+      { step: 3, titleEn: 'Download Optimized SVGs', titleZh: '下载优化后的SVG', descEn: 'Each optimized SVG keeps the .svg extension. Download individually or batch ZIP. Compare before/after sizes.', descZh: '优化后的SVG保持.svg后缀，逐张下载或批量ZIP，对比压缩前后大小。' },
+    ],
+    faqs: [
+      { qEn: 'Does SVG compression change how my image looks?', qZh: 'SVG压缩会改变图像外观吗？', aEn: 'No — SVG compression is lossless. We only remove invisible data: XML comments, whitespace, and editor metadata. Your SVG renders pixel-perfect identical.', aZh: '不会——SVG压缩是完全无损的。我们只删除不可见数据：XML注释、空白和编辑器元数据。你的SVG渲染效果像素级别完全一致。' },
+      { qEn: 'Is my SVG source code uploaded to a server?', qZh: '我的SVG源码会被上传到服务器吗？', aEn: 'Never. All optimization happens locally in your browser. Your SVG code stays on your device — safe for proprietary icons, brand logos, and commercial assets.', aZh: '绝不会。所有优化在浏览器本地完成，SVG代码留在你的设备上——适合私有的图标、品牌Logo和商业素材。' },
+      { qEn: 'Can I compress multiple SVGs at once?', qZh: '可以同时压缩多个SVG吗？', aEn: 'Yes — compress up to 30 SVGs at once for free (500 with Pro). Perfect for icon sets, illustration packs, and design system assets.', aZh: '可以——免费版一次压缩最多30个SVG（Pro版500个）。非常适合图标集、插画包和设计系统资源。' },
+    ],
+    relatedTools: ['compress-images', 'compress-png', 'convert-to-webp'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)
