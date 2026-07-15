@@ -46,18 +46,44 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <h1 className="font-bold text-slate-800">数据概览</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { label: '总 PV', value: stats?.totalPV ?? 0, color: 'bg-blue-50 text-blue-600 border-blue-100' },
+          { label: '总 UV', value: stats?.totalUV ?? 0, color: 'bg-green-50 text-green-600 border-green-100' },
           { label: '总压缩次数', value: stats?.totalCompressions ?? 0, color: 'bg-amber-50 text-amber-600 border-amber-100' },
-          { label: 'Pro 购买数', value: stats?.totalPurchases ?? 0, color: 'bg-blue-50 text-blue-600 border-blue-100' },
-          { label: '总收入', value: '$' + (stats?.totalRevenue ?? 0).toFixed(2), color: 'bg-purple-50 text-purple-600 border-purple-100' },
+          { label: 'Pro 购买数', value: stats?.totalPurchases ?? 0, color: 'bg-purple-50 text-purple-600 border-purple-100' },
+          { label: '总收入', value: '$' + (stats?.totalRevenue ?? 0).toFixed(2), color: 'bg-pink-50 text-pink-600 border-pink-100' },
         ].map(({ label, value, color }) => (
           <div key={label} className={`bg-white rounded-xl border border-gray-200 p-4`}>
             <p className="text-slate-400">{label}</p>
             <p className="font-bold text-slate-800">{value}</p>
           </div>
         ))}
+      </div>
+
+      {/* 每日 PV / UV 趋势 */}
+      <h2 className="font-semibold text-slate-700 mt-4">每日 PV · UV（近7天）</h2>
+      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
+        {stats?.dailyPV?.map((d: any, i: number) => {
+          const uv = stats?.dailyUV?.[i]?.value ?? 0
+          const pv = d.value ?? 0
+          const maxVal = Math.max(...(stats?.dailyPV ?? []).map((x: any) => x.value || 0), 1)
+          return (
+            <div key={d.date} className="flex items-center gap-3 text-xs">
+              <span className="w-20 text-neutral-600 tabular-nums">{d.date.slice(5)}</span>
+              <span className="w-8 text-right tabular-nums font-medium text-blue-600">{pv}</span>
+              <span className="w-8 text-right tabular-nums font-medium text-green-600">{uv}</span>
+              <div className="flex-1 flex gap-0.5 h-4">
+                <div className="bg-blue-200 rounded-r" style={{ width: `${(pv / maxVal) * 100}%`, maxWidth: '100%' }} />
+                <div className="bg-green-300 rounded-r" style={{ width: `${(uv / maxVal) * 100}%`, maxWidth: '100%', marginLeft: '-100%' }} />
+              </div>
+            </div>
+          )
+        })}
+        <div className="flex items-center gap-6 text-xs text-neutral-500 pt-1 border-t border-gray-100">
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-200 inline-block" /> PV (页面浏览)</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-300 inline-block" /> UV (独立访客)</span>
+        </div>
       </div>
 
       <h2 className="font-semibold text-slate-700 mt-4">最近购买</h2>

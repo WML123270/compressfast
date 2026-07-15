@@ -43,6 +43,38 @@ async function getCounter(key: string): Promise<number> {
   return memCounters.get(key) || 0
 }
 
+async function pfadd(key: string, value: string): Promise<void> {
+  const r = getRedis()
+  if (r) {
+    await r.pfadd(key, value)
+    return
+  }
+  // 内存降级：用 Set 模拟
+  if (!memCounters.has(`set:${key}`)) {
+    memCounters.set(`set:${key}`, 0)
+  }
+  // 简单计数（内存模式无法真正去重，近似统计）
+  const setKey = `set:v:${key}`
+  if (!memValues.has(setKey)) memValues.set(setKey, new Set())
+  const s = memValues.get(setKey)!
+  if (!s.has(value)) {
+    s.add(value)
+    memCounters.set(`set:${key}`, s.size)
+  }
+}
+
+async function pfcount(key: string): Promise<number> {
+  const r = getRedis()
+  if (r) {
+    return r.pfcount(key)
+  }
+  const setKey = `set:v:${key}`
+  return memValues.get(setKey)?.size || 0
+}
+
+// 内存降级 Set 存储
+const memValues = new Map<string, Set<string>>()
+
 function todayKey(prefix: string): string {
   const d = new Date()
   const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -55,6 +87,15 @@ export async function incrementPageView(): Promise<void> {
   await Promise.all([
     incr('stats:pageviews:total'),
     incr(todayKey('stats:pageviews:daily')),
+  ])
+}
+
+export async function trackUniqueVisitor(visitorId: string): Promise<void> {
+  if (!visitorId) return
+  const today = todayKey('stats:uv:daily').split(':').pop()!
+  await Promise.all([
+    pfadd('stats:uv:total', visitorId),
+    pfadd(`stats:uv:daily:${today}`, visitorId),
   ])
 }
 
@@ -80,17 +121,20 @@ export interface DailyDataPoint {
 
 export interface DashboardStats {
   totalPV: number
+  totalUV: number
   totalCompressions: number
   totalPurchases: number
   totalRevenue: number
   dailyPV: DailyDataPoint[]
+  dailyUV: DailyDataPoint[]
   dailyCompressions: DailyDataPoint[]
   recentPurchases: LicenseRecord[]
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const [totalPV, totalCompressions, totalPurchases, totalRevenueCents] = await Promise.all([
+  const [totalPV, totalUV, totalCompressions, totalPurchases, totalRevenueCents] = await Promise.all([
     getCounter('stats:pageviews:total'),
+    pfcount('stats:uv:total'),
     getCounter('stats:compressions:total'),
     getCounter('stats:pro_purchases:total'),
     getCounter('stats:pro_revenue:total'),
@@ -104,6 +148,16 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     const val = await getCounter(`stats:pageviews:daily:${date}`)
     dailyPV.push({ date, value: val })
+  }
+
+  // 最近 7 天 UV
+  const dailyUV: DailyDataPoint[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const val = await pfcount(`stats:uv:daily:${date}`)
+    dailyUV.push({ date, value: val })
   }
 
   // 最近 7 天压缩次数
@@ -121,10 +175,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   return {
     totalPV,
+    totalUV,
     totalCompressions,
     totalPurchases,
     totalRevenue: totalRevenueCents / 100,
     dailyPV,
+    dailyUV,
     dailyCompressions,
     recentPurchases,
   }

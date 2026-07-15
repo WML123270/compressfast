@@ -5,15 +5,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor } from '@/lib/stats'
 
 export async function POST(request: NextRequest) {
   try {
-    const { event, count } = await request.json()
+    const { event, count, visitorId } = await request.json()
 
     switch (event) {
       case 'pageview':
-        await incrementPageView()
+        await Promise.all([
+          incrementPageView(),
+          trackUniqueVisitor(visitorId || ''),
+        ])
         break
       case 'compression':
         await incrementCompression(count || 1)

@@ -13,15 +13,17 @@
   'use strict';
 
   const PRODUCT = {
-    name: '极速压图',
-    url: 'https://jisuyatu.com',
-    shortDesc: '纯浏览器端图片压缩工具，文件不上传，支持批量处理，永久免费。',
+    name: 'CompressFast',
+    url: 'https://compressfast.site',
+    shortDesc: 'Privacy-first image compression — zero upload, works offline',
     longDesc:
-      '极速压图是纯浏览器端运行的在线图片压缩工具。所有压缩在本地 Web Worker 中完成，文件不会上传到任何服务器——断网也能正常使用。支持 PNG/JPEG/WebP/GIF/BMP/SVG 六种格式、单次 100 张批量处理、三种预设档位一键压缩、画质实时预览、指定目标大小压缩、格式互转、一键 ZIP 打包下载。完全免费，无广告。',
-    tags: '图片压缩,在线工具,设计工具,效率工具,图片处理',
-    category: '设计工具',
-    email: 'admin@jisuyatu.com',
-    price: '免费',
+      'Free browser-based image compressor. 100% local processing — files never leave your device. Supports PNG, JPEG, WebP, AVIF, GIF, BMP, SVG, HEIC. Batch up to 30 images (500 with Pro). Built-in EXIF removal, watermark, resize, format conversion. Pro $24.99 one-time purchase, no subscription.',
+    tags: 'image-compression, image-optimizer, web-performance, developer-tools, design-tools, privacy, batch-processing, tinypng-alternative',
+    category: 'Developer Tools',
+    email: 'support@compressfast.site',
+    price: 'Free (Pro $24.99 lifetime)',
+    twitter: '@CompressFastApp',
+    competitors: 'TinyPNG, Squoosh, iLoveIMG',
   };
 
   // 字段名 → 值的模糊匹配规则
