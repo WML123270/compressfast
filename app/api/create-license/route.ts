@@ -1,15 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createLicense } from '@/lib/license'
-import { sendLicenseEmail } from '@/lib/email'
+import { Redis } from '@upstash/redis'
 
 const CREEM_CHECKOUT = process.env.NEXT_PUBLIC_CREEM_CHECKOUT_URL
   || 'https://www.creem.io/payment/prod_5RikkPSGxjekn6Tdro7vkw'
 
 // IP 限流：每分钟 3 次（防止刷单）
 const RATE_LIMIT = 3
+// 内存降级用的 Map（Redis 不可用时）
 const rateMap = new Map<string, { count: number; resetAt: number }>()
 
-function checkRateLimit(ip: string): boolean {
+async function checkRateLimit(ip: string): Promise<boolean> {
+  // 优先用 Redis（Vercel 多实例共享）
+  if (process.env.UPSTASH_REDIS_URL && process.env.UPSTASH_REDIS_TOKEN) {
+    try {
+      const redis = new Redis({
+        url: process.env.UPSTASH_REDIS_URL,
+        token: process.env.UPSTASH_REDIS_TOKEN,
+      })
+      const key = `ratelimit:create:${ip}`
+      const count = await redis.incr(key)
+      if (count === 1) await redis.expire(key, 60)
+      return count <= RATE_LIMIT
+    } catch {}
+  }
+
+  // 内存降级
   const now = Date.now()
   const entry = rateMap.get(ip)
   if (!entry || now > entry.resetAt) {
@@ -23,13 +39,16 @@ function checkRateLimit(ip: string): boolean {
 /**
  * POST /api/create-license
  * Body: { email: string, locale?: string }
- * 付款前生成激活码 → 存 Redis → 发邮件 → 返回 Creem 支付链接
+ *
+ * 付款前生成激活码 → 存 Redis（不发邮件）
+ * 邮件由 Creem webhook 在付款成功后统一发送，避免重复
+ * 若 webhook 延迟，用户可通过"忘记激活码"自行查询
  */
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-  // Rate limiting
-  if (!checkRateLimit(ip)) {
+  // Rate limiting (Redis-based on Vercel, memory fallback)
+  if (!(await checkRateLimit(ip))) {
     return NextResponse.json({ error: 'Too many attempts' }, { status: 429 })
   }
 
@@ -47,18 +66,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email too long' }, { status: 400 })
     }
 
-    // 先生成激活码
+    // 生成激活码存入 Redis（不发邮件，等 webhook 确认付款后发）
     const license = await createLicense(email)
-
-    // 发送激活码邮件（Resend 未配置时静默跳过）
-    const sent = await sendLicenseEmail({ to: email, code: license.code, locale })
-    if (!sent) {
-      console.log(`[CreateLicense] Email not sent (Resend not configured). Code: ${license.code} → ${email}`)
-    }
 
     // 构建带邮箱的 Creem 支付链接
     const checkoutUrl = new URL(CREEM_CHECKOUT)
     checkoutUrl.searchParams.set('customer_email', email)
+
+    console.log(`[CreateLicense] Generated ${license.code} for ${email}, awaiting payment`)
 
     return NextResponse.json({
       success: true,

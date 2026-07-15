@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ImageIcon, Globe, Crown } from 'lucide-react'
+import { ImageIcon, Globe, Crown, BookOpen } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 
@@ -28,6 +28,13 @@ export function Header() {
           <span>{t('app.name')}</span>
         </Link>
         <nav className="flex items-center gap-1.5">
+          <Link
+            href={`/${locale}/tool`}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 text-neutral-700 hover:border-gray-400 hover:bg-gray-50 transition-all text-xs font-medium"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>{locale === 'zh' ? '了解更多' : 'Features'}</span>
+          </Link>
           {!isCn && (
             <Link
               href={`/${locale}/pro`}

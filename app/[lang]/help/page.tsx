@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, Zap, Image, Settings, Download } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export default function HelpPage() {
   const { t, locale } = useT()
+  const isCn = useIsCn()
   const isZh = locale === 'zh'
 
   const sections = [
@@ -16,7 +18,8 @@ export default function HelpPage() {
     { id: 'watermark', icon: BookOpen, title: t('help.guide.watermark'), desc: t('help.guide.watermarkDesc') },
     { id: 'resize', icon: Image, title: t('help.guide.resize'), desc: t('help.guide.resizeDesc') },
     { id: 'presets', icon: Zap, title: t('help.guide.presets'), desc: t('help.guide.presetsDesc') },
-    { id: 'pro', icon: Zap, title: t('help.guide.pro'), desc: t('help.guide.proDesc') },
+    // Pro section — only for overseas version
+    ...(isCn ? [] : [{ id: 'pro', icon: Zap, title: t('help.guide.pro'), desc: t('help.guide.proDesc') }]),
   ]
 
   return (
@@ -186,13 +189,14 @@ export default function HelpPage() {
         </div>
       </section>
 
-      {/* Pro Info */}
+      {/* Pro Info — overseas only */}
+      {!isCn && (
       <section id="pro">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-neutral-900 mb-3">{t('help.guide.pro')}</h2>
-        <p className="text-sm text-neutral-700 dark:text-neutral-700 mb-4">{t('help.guide.proDesc')}</p>
+        <h2 className="text-xl font-bold text-slate-900 mb-3">{t('help.guide.pro')}</h2>
+        <p className="text-sm text-neutral-700 mb-4">{t('help.guide.proDesc')}</p>
         <div className="flex flex-wrap gap-2">
           {t('help.guide.proItems').split(' | ').map((item: string) => (
-            <span key={item} className="px-3 py-1.5 rounded-full text-xs font-medium bg-brand-100 dark:bg-brand-900/30 text-blue-600 dark:text-blue-600 border border-brand-200 dark:border-brand-700/50">
+            <span key={item} className="px-3 py-1.5 rounded-full text-xs font-medium bg-brand-100 text-blue-600 border border-brand-200">
               {item}
             </span>
           ))}
@@ -206,6 +210,7 @@ export default function HelpPage() {
           </Link>
         </div>
       </section>
+      )}
 
       {/* Bottom nav */}
       <div className="border-t border-gray-200 dark:border-gray-200 pt-6 text-center">
