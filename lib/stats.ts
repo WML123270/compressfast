@@ -83,19 +83,23 @@ function todayKey(prefix: string): string {
 
 // ---- Public API ----
 
-export async function incrementPageView(): Promise<void> {
+export async function incrementPageView(site: string = 'os'): Promise<void> {
   await Promise.all([
     incr('stats:pageviews:total'),
     incr(todayKey('stats:pageviews:daily')),
+    incr(`stats:pageviews:total:${site}`),
+    incr(todayKey(`stats:pageviews:daily:${site}`)),
   ])
 }
 
-export async function trackUniqueVisitor(visitorId: string): Promise<void> {
+export async function trackUniqueVisitor(visitorId: string, site: string = 'os'): Promise<void> {
   if (!visitorId) return
   const today = todayKey('stats:uv:daily').split(':').pop()!
   await Promise.all([
     pfadd('stats:uv:total', visitorId),
     pfadd(`stats:uv:daily:${today}`, visitorId),
+    pfadd(`stats:uv:total:${site}`, visitorId),
+    pfadd(`stats:uv:daily:${site}:${today}`, visitorId),
   ])
 }
 
@@ -119,6 +123,13 @@ export interface DailyDataPoint {
   value: number
 }
 
+export interface SiteStats {
+  totalPV: number
+  totalUV: number
+  dailyPV: DailyDataPoint[]
+  dailyUV: DailyDataPoint[]
+}
+
 export interface DashboardStats {
   totalPV: number
   totalUV: number
@@ -129,6 +140,8 @@ export interface DashboardStats {
   dailyUV: DailyDataPoint[]
   dailyCompressions: DailyDataPoint[]
   recentPurchases: LicenseRecord[]
+  overseas: SiteStats
+  china: SiteStats
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -173,6 +186,29 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // 最近购买（扫描 Redis license:* keys）
   const recentPurchases = await getRecentPurchases()
 
+  // Helper: build SiteStats for os/cn
+  const buildSiteStats = async (site: string): Promise<SiteStats> => {
+    const [totalPV, totalUV] = await Promise.all([
+      getCounter(`stats:pageviews:total:${site}`),
+      pfcount(`stats:uv:total:${site}`),
+    ])
+    const dailyPV: DailyDataPoint[] = []
+    const dailyUV: DailyDataPoint[] = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      dailyPV.push({ date, value: await getCounter(`stats:pageviews:daily:${site}:${date}`) })
+      dailyUV.push({ date, value: await pfcount(`stats:uv:daily:${site}:${date}`) })
+    }
+    return { totalPV, totalUV, dailyPV, dailyUV }
+  }
+
+  const [overseas, china] = await Promise.all([
+    buildSiteStats('os'),
+    buildSiteStats('cn'),
+  ])
+
   return {
     totalPV,
     totalUV,
@@ -183,6 +219,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     dailyUV,
     dailyCompressions,
     recentPurchases,
+    overseas,
+    china,
   }
 }
 

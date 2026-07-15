@@ -61,29 +61,37 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* 每日 PV / UV 趋势 */}
-      <h2 className="font-semibold text-slate-700 mt-4">每日 PV · UV（近7天）</h2>
-      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
-        {stats?.dailyPV?.map((d: any, i: number) => {
-          const uv = stats?.dailyUV?.[i]?.value ?? 0
-          const pv = d.value ?? 0
-          const maxVal = Math.max(...(stats?.dailyPV ?? []).map((x: any) => x.value || 0), 1)
-          return (
-            <div key={d.date} className="flex items-center gap-3 text-xs">
-              <span className="w-20 text-neutral-600 tabular-nums">{d.date.slice(5)}</span>
-              <span className="w-8 text-right tabular-nums font-medium text-blue-600">{pv}</span>
-              <span className="w-8 text-right tabular-nums font-medium text-green-600">{uv}</span>
-              <div className="flex-1 flex gap-0.5 h-4">
-                <div className="bg-blue-200 rounded-r" style={{ width: `${(pv / maxVal) * 100}%`, maxWidth: '100%' }} />
-                <div className="bg-green-300 rounded-r" style={{ width: `${(uv / maxVal) * 100}%`, maxWidth: '100%', marginLeft: '-100%' }} />
-              </div>
+      {/* 海外 vs 国内 */}
+      <div className="grid grid-cols-2 gap-4">
+        {[
+          { label: '🌍 海外版', data: stats?.overseas, pvColor: 'text-blue-600', uvColor: 'text-blue-500', bg: 'bg-blue-50' },
+          { label: '🇨🇳 国内版', data: stats?.china, pvColor: 'text-red-600', uvColor: 'text-red-500', bg: 'bg-red-50' },
+        ].map(({ label, data, pvColor, uvColor, bg }) => (
+          <div key={label} className="bg-white rounded-xl border border-gray-200 p-4">
+            <h3 className="font-semibold text-sm text-neutral-800 mb-2">{label}</h3>
+            <div className="flex gap-4 mb-3">
+              <div><span className="text-xs text-neutral-500">PV </span><span className={`font-bold text-lg ${pvColor}`}>{data?.totalPV ?? 0}</span></div>
+              <div><span className="text-xs text-neutral-500">UV </span><span className={`font-bold text-lg ${uvColor}`}>{data?.totalUV ?? 0}</span></div>
             </div>
-          )
-        })}
-        <div className="flex items-center gap-6 text-xs text-neutral-500 pt-1 border-t border-gray-100">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-200 inline-block" /> PV (页面浏览)</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-300 inline-block" /> UV (独立访客)</span>
-        </div>
+            <div className="space-y-1">
+              {data?.dailyPV?.map((d: any, i: number) => {
+                const uv = data?.dailyUV?.[i]?.value ?? 0
+                const pv = d.value ?? 0
+                const maxVal = Math.max(...(data?.dailyPV ?? []).map((x: any) => x.value || 0), 1)
+                return (
+                  <div key={d.date} className="flex items-center gap-2 text-[10px]">
+                    <span className="w-14 text-neutral-500 tabular-nums">{d.date.slice(5)}</span>
+                    <span className={`w-6 text-right tabular-nums font-medium ${pvColor}`}>{pv}</span>
+                    <span className={`w-6 text-right tabular-nums ${uvColor}`}>{uv}</span>
+                    <div className="flex-1 h-2.5 rounded-sm overflow-hidden bg-gray-100">
+                      <div className={`h-full rounded-sm ${bg === 'bg-blue-50' ? 'bg-blue-200' : 'bg-red-200'}`} style={{ width: `${(pv / maxVal) * 100}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       <h2 className="font-semibold text-slate-700 mt-4">最近购买</h2>

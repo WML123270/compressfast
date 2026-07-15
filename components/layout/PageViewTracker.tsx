@@ -21,11 +21,12 @@ export function PageViewTracker() {
     fired.current = true
 
     const visitorId = getVisitorId()
+    const host = window.location.hostname
 
     fetch('/api/admin/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event: 'pageview', visitorId }),
+      body: JSON.stringify({ event: 'pageview', visitorId, host }),
     }).catch(() => {
       // 静默失败，不影响用户体验
     })

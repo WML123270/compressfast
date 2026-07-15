@@ -9,13 +9,16 @@ import { incrementPageView, incrementCompression, trackUniqueVisitor } from '@/l
 
 export async function POST(request: NextRequest) {
   try {
-    const { event, count, visitorId } = await request.json()
+    const { event, count, visitorId, host } = await request.json()
+
+    // 按域名区分：jisuyatu.com=国内 / 其他=海外
+    const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
 
     switch (event) {
       case 'pageview':
         await Promise.all([
-          incrementPageView(),
-          trackUniqueVisitor(visitorId || ''),
+          incrementPageView(site),
+          trackUniqueVisitor(visitorId || '', site),
         ])
         break
       case 'compression':

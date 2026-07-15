@@ -58,6 +58,21 @@ function buildOverseasDoc() {
   children.push(bullet('月收入：$0'));
   spacer();
 
+  children.push(h3('本月已完成 ✅'));
+  children.push(bullet('Twitter 账号注册 + Day 1-3 推文已发'));
+  children.push(bullet('产品目录提交 5 个（DevHunt / Uneed / StartupStash / TinyStartups / SideProjectors）'));
+  children.push(bullet('SEO 工具页 9 个全部可交互（新增 compress-svg）'));
+  children.push(bullet('UV 追踪上线（Admin Dashboard）'));
+  children.push(bullet('Indie Hackers 产品页（wml123456）'));
+  children.push(bullet('海外版 + 国内版 Word 获客计划'));
+  spacer();
+
+  children.push(h3('本周待办 ⬜'));
+  children.push(bullet('🔴 AlternativeTo 提交（7/18，权重最高外链）'));
+  children.push(bullet('🟡 SEO 新工具页 1 个（remove-metadata 或 webp-to-png）'));
+  children.push(bullet('🟡 Indie Hackers 发 1 条产品进展（Claude 写文案）'));
+  spacer();
+
   children.push(p('目标（保守估计）：', { bold: true }));
   const goalTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -76,7 +91,7 @@ function buildOverseasDoc() {
   children.push(h1('二、渠道一：SEO 工具页 ⭐⭐⭐（最高 ROI）'));
   children.push(p('为什么排第一：一次开发，永久有流量。工具页转化率 1.49%，是博客文章的 3 倍。Google 对新域名有 3-6 个月"沙盒期"，所以现在就开始铺页面，6 个月后开始稳定来流量。'));
   spacer();
-  children.push(h3('已有工具页（8 个，全部可交互）'));
+  children.push(h3('已有工具页（9 个，全部可交互）'));
   children.push(bullet('/en/tools/compress-png — 在线压缩 PNG'));
   children.push(bullet('/en/tools/compress-jpeg — 在线压缩 JPEG'));
   children.push(bullet('/en/tools/convert-to-webp — 转 WebP'));
@@ -84,6 +99,7 @@ function buildOverseasDoc() {
   children.push(bullet('/en/tools/resize-image — 图片尺寸调整'));
   children.push(bullet('/en/tools/convert-jpg-to-png — JPG 转 PNG'));
   children.push(bullet('/en/tools/compress-gif — GIF 压缩'));
+  children.push(bullet('/en/tools/compress-svg — SVG 压缩 🆕'));
   children.push(bullet('/en/tools/tinypng-alternative — TinyPNG 替代品'));
   spacer();
 
@@ -176,43 +192,54 @@ function buildOverseasDoc() {
   children.push(bullet('Peerlist：流程复杂（需实名验证+每周一发），跳过'));
   spacer();
 
-  // ── 5. Reddit ──
-  children.push(h1('五、渠道四：Reddit 社区 ⭐（长期埋伏）'));
-  children.push(p('策略：前 4 周只帮忙，不提产品。Reddit 用户对推销零容忍。'));
-  children.push(bullet('加入：r/webdev r/web_design r/SEO r/WordPress r/SideProject'));
-  children.push(bullet('每天 15 分钟搜帖 → 有料回复'));
-  children.push(bullet('回复末尾可加："I\'m building an image compression tool, happy to answer questions"'));
-  children.push(bullet('4 周后再发帖正式介绍产品'));
-  children.push(bullet('难度：⭐⭐（中，需要耐心积累社区信用）'));
+  children.push(bullet('更多免费目录（待探索）：ToolJourney / StartupBase / KillerStartups / SaaSWorthy'));
   spacer();
 
-  // ── 6. Daily ──
-  children.push(h1('六、每日执行清单'));
-  children.push(p('每天打开电脑，花 20 分钟先做前 3 件事，再做开发：'));
-  spacer();
-  children.push(p('□ 1. Twitter 发推文（按日历）                     5 min', { bold: true }));
-  children.push(p('□ 2. Twitter 搜关键词回复 3 条                   10 min', { bold: true }));
-  children.push(p('□ 3. 检查 compressfast.site/admin 数据             5 min', { bold: true }));
-  children.push(p('□ 4. 检查产品目录审核状态（特别关注 AlternativeTo）'));
-  children.push(p('□ 5. Reddit 搜帖回复（不提产品，纯帮忙）          15 min'));
-  children.push(p('□ 6. SEO 工具页开发（每 1-2 周 1 个）           30-60 min'));
+  // ── 5. Indie Hackers ──
+  children.push(h1('五、渠道四：Indie Hackers 社区 ⭐⭐'));
+  children.push(p('账号已有：wml123456，产品页已创建。利用这个社区发布产品进展，积累 maker 品牌。'));
+  children.push(p('操作方式：Claude 写英文更新内容 → 你打开 indiehackers.com → 复制粘贴发布。'));
+  children.push(bullet('频率：每周发 1 条产品更新'));
+  children.push(bullet('内容方向：新功能上线、开发日志、周数据复盘'));
+  children.push(bullet('社区里都是独立开发者，互相支持氛围好'));
+  children.push(bullet('难度：⭐（低，我写你贴，不需要自己懂英文）'));
   spacer();
 
-  // ── 7. Not Do ──
-  children.push(h1('七、明确不做的事'));
+  // ── 6. Comparison Articles ──
+  children.push(h1('六、渠道五：SEO 对比文章 ⭐⭐（长期资产）'));
+  children.push(p('写深度对比文章，一篇写好后长期有搜索流量。Claude 负责英文写作，用户负责发布。'));
+  children.push(bullet('选题 1：CompressFast vs TinyPNG — 隐私/批量/价格全方位对比'));
+  children.push(bullet('选题 2：CompressFast vs Squoosh — 批量处理 vs 单张精细调节'));
+  children.push(bullet('选题 3：5 Best Free Image Compressors 2026 — 行业综述'));
+  children.push(bullet('难度：⭐⭐（文章我写，你只需复制到网站或 Medium/Dev.to）'));
+  spacer();
+
+  // ── 7. Daily ──
+  children.push(h1('七、每日执行清单'));
+  children.push(p('每天打开电脑，按这个顺序做：'));
+  spacer();
+  children.push(p('□ 1. Twitter 发推文（按日历，Claude 生成配图）       5 min', { bold: true }));
+  children.push(p('□ 2. 检查 compressfast.site/admin 数据                2 min', { bold: true }));
+  children.push(p('□ 3. 检查产品目录审核状态（🔴 7/18 AlternativeTo）'));
+  children.push(p('□ 4. SEO 工具页开发（每 1-2 周 1 个，Claude 写代码）'));
+  children.push(p('□ 5. Indie Hackers 发进展（每周 1 条，Claude 写文案）'));
+  children.push(p('□ 6. 对比文章 / 更多目录（每月节奏，Claude 写英文）'));
+  spacer();
+
+  // ── 8. Not Do ──
+  children.push(h1('八、明确不做的事'));
   children.push(bullet('❌ 花钱投广告 — 没数据验证前 = 烧钱'));
   children.push(bullet('❌ 涨价 — 保持 $24.99，等有 50+ 付费用户再说'));
   children.push(bullet('❌ WP 插件 / Figma 插件 / Chrome 扩展 — 审核拉锯战，分散精力'));
-  children.push(bullet('❌ 同时追 10 个渠道 — 前 3 个月只聚焦 SEO + Twitter + 目录'));
-  children.push(bullet('❌ Reddit 直接发链接 — 会秒删封号'));
+  children.push(bullet('❌ Reddit / Hacker News — 英文社区不适合非英文用户'));
   children.push(bullet('❌ API 服务 — 没有用户系统基础'));
   spacer();
 
-  // ── 8. Principles ──
-  children.push(h1('八、核心原则'));
+  // ── 9. Principles ──
+  children.push(h1('九、核心原则'));
   children.push(bullet('获客 > 变现。没有流量，一切为零。'));
   children.push(bullet('工具页 > 博客。转化率高 3 倍。'));
-  children.push(bullet('Twitter：80% 帮别人 + 20% 提自己。'));
+  children.push(bullet('你不需要懂英文 — Claude 写所有英文内容，你复制粘贴即可。'));
   children.push(bullet('前 3 个月可能零收入 — 这是正常的，TinyPNG 花了 10 年积累 450 万用户。'));
   children.push(bullet('口号：Zero upload. Zero worry.'));
   children.push(bullet('每天稳定输出 1-2 小时 > 偶尔一天干 8 小时。'));
@@ -270,6 +297,22 @@ function buildCNDoc() {
   children.push(bullet('全免费工具 → 积累流量 → 百度联盟广告变现'));
   children.push(bullet('不做付费功能（国内用户无付费意愿）'));
   children.push(bullet('不额外投入获客精力，靠搜索自然增长'));
+  spacer();
+
+  children.push(h3('本月已完成 ✅'));
+  children.push(bullet('ICP 备案通过'));
+  children.push(bullet('公安备案已提交（审核中）'));
+  children.push(bullet('百度联盟申请被驳回（需流量达标，等 8 月重提）'));
+  children.push(bullet('百度手动提交 URL 22 条（两批）'));
+  children.push(bullet('知乎回答 3 篇已发布'));
+  children.push(bullet('百度统计已接入'));
+  spacer();
+
+  children.push(h3('每周待办 ⬜'));
+  children.push(bullet('百度 ziyuan.baidu.com — 有新页面就手动提交'));
+  children.push(bullet('检查 site:jisuyatu.com — 百度收录了多少'));
+  children.push(bullet('知乎搜"图片压缩" — 有新问题写回答'));
+  children.push(bullet('关注公安备案审核结果'));
   spacer();
 
   // ── 2. Baidu SEO ──
