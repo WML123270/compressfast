@@ -1,0 +1,14 @@
+# Vercel 部署排除 — Vercel 会自动 npm install
+node_modules
+.git
+.env*
+.env.local
+.env.production
+*.tar.gz
+*.zip
+deploy-package-*
+deploy/
+test-results/
+docs/
+scripts/
+dp.tar.gz
