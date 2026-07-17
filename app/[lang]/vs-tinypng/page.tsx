@@ -1,9 +1,13 @@
 'use client'
 
-import { Shield, Zap, Download, ArrowLeft, Check, X } from 'lucide-react'
+import { Shield, Zap, Download, ArrowLeft, Check, X, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
+import { DropZone } from '@/components/compressor/DropZone'
+import { CompressionControls } from '@/components/compressor/CompressionControls'
+import { ImageList } from '@/components/compressor/ImageList'
+import { useState } from 'react'
 
 export default function VsPage() {
   const { t, locale } = useT()
@@ -31,6 +35,8 @@ export default function VsPage() {
     { label: t('vs.row.lossless'), key: 'lossless' as const, bool: true },
   ]
 
+  const [showDemo, setShowDemo] = useState(false)
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
       <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-700 hover:text-brand-400 mb-6">
@@ -40,6 +46,31 @@ export default function VsPage() {
       <section className="text-center mb-10">
         <h1 className="sm:text-3xl font-bold text-slate-100">{t('vs.title')}</h1>
         <p className="text-neutral-700 mt-3 max-w-2xl mx-auto">{t('vs.subtitle')}</p>
+      </section>
+
+      {/* Try It Yourself — interactive demo */}
+      <section className="mb-10 bg-gradient-to-b from-brand-900/10 to-transparent border border-brand-700/30 rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setShowDemo(!showDemo)}
+          className="w-full flex items-center justify-between gap-3 px-6 py-4 text-left hover:bg-brand-900/5 transition-colors"
+        >
+          <div>
+            <h2 className="font-bold text-lg text-slate-100">
+              {locale === 'zh' ? '⚡ 自己试试看' : '⚡ Try It Yourself'}
+            </h2>
+            <p className="text-sm text-neutral-700 mt-0.5">
+              {locale === 'zh' ? '拖张图进来，几秒出结果——不用离开这个页面' : 'Drop an image, see results in seconds — without leaving this page'}
+            </p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-neutral-700 transition-transform ${showDemo ? 'rotate-180' : ''}`} />
+        </button>
+        {showDemo && (
+          <div className="px-4 sm:px-6 pb-6 space-y-4">
+            <DropZone />
+            <CompressionControls />
+            <ImageList />
+          </div>
+        )}
       </section>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
