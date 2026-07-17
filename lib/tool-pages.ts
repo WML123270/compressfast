@@ -278,6 +278,37 @@ export const TOOLS: Record<string, ToolPageData> = {
     relatedTools: ['convert-to-webp', 'convert-jpg-to-png', 'compress-png'],
   },
 
+  'remove-metadata': {
+    slug: 'remove-metadata',
+    titleEn: 'Remove Metadata from Photos Online Free — EXIF, GPS, Location | CompressFast',
+    titleZh: '在线清除照片元数据 — EXIF/GPS/位置信息 | 极速压图',
+    descriptionEn: 'Remove EXIF, GPS location, camera info, and all metadata from your photos online for free. 100% browser-based — your photos never leave your device. Batch strip metadata from 30 photos at once.',
+    descriptionZh: '免费在线清除照片中的EXIF、GPS定位、相机信息等所有元数据。100%浏览器本地处理——照片不会离开你的设备。支持批量30张同时处理。',
+    keywords: ['remove metadata from photo', 'exif remover', 'remove exif data', 'strip metadata', 'remove gps from photo', 'exif cleaner', 'photo metadata remover', 'remove location data', 'clean photo info', 'privacy photo tool'],
+    heroTitleEn: 'Remove Metadata from Photos',
+    heroTitleZh: '清除照片元数据',
+    heroSubEn: 'Strip EXIF, GPS location, camera info & all hidden data. 100% private — your photos never leave your device.',
+    heroSubZh: '清除EXIF、GPS定位、相机信息等所有隐藏数据。100%隐私——照片不离开你的设备。',
+    targetFormat: 'original',
+    defaultSettings: { quality: 100, outputFormat: 'original', speed: 10, stripMetadata: true },
+    benefits: [
+      { icon: '📍', titleEn: 'Remove GPS Location', titleZh: '清除GPS定位', descEn: 'Every smartphone photo embeds GPS coordinates. Strip location data before sharing to protect your home address and travel patterns.', descZh: '每张手机照片都嵌入了GPS坐标。分享前清除定位数据，保护你的家庭地址和行踪轨迹。' },
+      { icon: '📸', titleEn: 'Strip EXIF Camera Info', titleZh: '清除相机信息', descEn: 'Remove camera model, lens type, ISO, aperture, and timestamp. Your photo looks the same — without the hidden data trail.', descZh: '清除相机型号、镜头类型、ISO、光圈、时间戳。照片看起来一样——只是去掉了隐藏的数据痕迹。' },
+      { icon: '🔒', titleEn: '100% Private & Local', titleZh: '100%隐私本地处理', descEn: 'Unlike online metadata removers that upload your photos to a server, everything happens in your browser. Works offline too.', descZh: '不同于那些把照片上传到服务器的元数据清除工具，一切都在你的浏览器里完成。断网也能用。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload Your Photos', titleZh: '上传照片', descEn: 'Drag and drop your photos — up to 30 at once. Supports JPEG, PNG, WebP, HEIC, and all common formats. Pasted from clipboard also works.', descZh: '拖入你的照片——一次最多30张。支持JPEG、PNG、WebP、HEIC及所有常见格式。Ctrl+V粘贴也行。' },
+      { step: 2, titleEn: 'Auto-Strip Metadata', titleZh: '自动清除元数据', descEn: 'CompressFast automatically removes all EXIF, GPS, camera, and timestamp data. "Strip Photo Info" is enabled by default — just click compress.', descZh: '极速压图自动清除所有EXIF、GPS、相机和时间戳数据。"清除照片信息"默认开启——点压缩即可。' },
+      { step: 3, titleEn: 'Download Clean Photos', titleZh: '下载干净的照片', descEn: 'Your photos look exactly the same — just without hidden metadata. Download individually or batch ZIP. Original quality preserved.', descZh: '照片看起来和原来一模一样——只是没了隐藏的元数据。逐张下载或批量ZIP，原始画质保留。' },
+    ],
+    faqs: [
+      { qEn: 'What metadata is removed from my photos?', qZh: '会清除哪些元数据？', aEn: 'Everything: GPS coordinates (latitude/longitude/altitude), camera model and manufacturer, lens type, exposure settings (ISO, aperture, shutter speed), date/time taken, software used, author/copyright fields, and all other EXIF/IPTC/XMP metadata. Your photo pixels stay exactly the same.', aZh: '所有：GPS坐标（经纬度/海拔）、相机型号和制造商、镜头类型、曝光参数（ISO/光圈/快门）、拍摄时间、使用软件、作者/版权字段、所有其他EXIF/IPTC/XMP元数据。照片像素完全不变。' },
+      { qEn: 'Will removing metadata reduce photo quality?', qZh: '清除元数据会影响画质吗？', aEn: 'No — metadata stripping only removes invisible text data attached to your photo file. The actual image pixels and quality are completely untouched. Your photo will look pixel-perfect identical while the file may even become slightly smaller.', aZh: '不会——元数据清除只删除附加在照片文件中的不可见文本数据。实际图像像素和画质完全不受影响。照片像素级别完全一致，文件甚至可能稍微变小。' },
+      { qEn: 'Why should I remove metadata before sharing photos online?', qZh: '为什么分享照片前要清除元数据？', aEn: 'Social media, forums, and messaging apps may preserve and expose your photo metadata. GPS coordinates can reveal your home, workplace, or current location. Camera serial numbers can be used for tracking. Stripping metadata before sharing protects your privacy and safety.', aZh: '社交媒体、论坛和聊天应用可能会保留和暴露你的照片元数据。GPS坐标可能泄露你的家庭地址、工作地点或当前位置。相机序列号可能被用于追踪。分享前清除元数据保护你的隐私和安全。' },
+    ],
+    relatedTools: ['compress-jpeg', 'resize-image', 'compress-images'],
+  },
+
   'tinypng-alternative': {
     slug: 'tinypng-alternative',
     titleEn: 'Best TinyPNG Alternative — Free & Private Image Compressor | CompressFast',
