@@ -120,7 +120,7 @@ export const TOOLS: Record<string, ToolPageData> = {
       { qEn: 'Do all browsers support WebP?', qZh: '所有浏览器都支持WebP吗？', aEn: 'All modern browsers support WebP (Chrome, Firefox, Safari 14+, Edge). For older browsers, use the <picture> tag to provide JPEG fallbacks.', aZh: '所有现代浏览器都支持WebP（Chrome、Firefox、Safari 14+、Edge）。为兼容老旧浏览器，建议用<picture>标签提供JPEG降级方案。' },
       { qEn: 'Can I convert WebP back to PNG or JPEG?', qZh: '能把WebP转回PNG或JPEG吗？', aEn: 'Yes — just upload your WebP file and select PNG or JPEG as the output format. All format conversions are supported.', aZh: '可以——上传WebP文件，输出格式选PNG或JPEG即可，支持所有格式互转。' },
     ],
-    relatedTools: ['compress-png', 'compress-jpeg', 'compress-images'],
+    relatedTools: ['compress-png', 'compress-jpeg', 'webp-to-png'],
   },
 
   'compress-images': {
@@ -244,7 +244,38 @@ export const TOOLS: Record<string, ToolPageData> = {
       { qEn: 'Will the file size increase when converting JPG to PNG?', qZh: 'JPG转PNG文件会变大吗？', aEn: 'Usually yes — PNG is a lossless format so files tend to be larger than compressed JPGs. But you get better quality for editing, screenshots, and images with text or sharp edges.', aZh: '通常会——PNG是无损格式，文件往往比压缩过的JPG大。但你能获得更好的编辑质量，特别适合截图、带文字或锐利边缘的图片。' },
       { qEn: 'Can I convert other formats too?', qZh: '能转换其他格式吗？', aEn: 'Yes — CompressFast supports conversion between PNG, JPEG, WebP, AVIF (Pro), GIF, BMP, and SVG. Use the format selector in the controls panel to choose your output format.', aZh: '可以——极速压图支持PNG、JPEG、WebP、AVIF（Pro专属）、GIF、BMP、SVG之间的互相转换。在控制面板的格式选择器中选输出格式即可。' },
     ],
-    relatedTools: ['compress-jpeg', 'compress-png', 'resize-image'],
+    relatedTools: ['compress-jpeg', 'compress-png', 'webp-to-png'],
+  },
+
+  'webp-to-png': {
+    slug: 'webp-to-png',
+    titleEn: 'Convert WebP to PNG Online Free — No Upload | CompressFast',
+    titleZh: '在线WebP转PNG — 免费格式转换 | 极速压图',
+    descriptionEn: 'Convert WebP to PNG online for free. No upload, 100% browser-based. Batch convert up to 30 WebP images at once. Also supports WebP to JPG and other format conversions.',
+    descriptionZh: '免费在线WebP转PNG，无需上传，100%浏览器本地处理。批量同时转换30张WebP图片。还支持WebP转JPG等更多格式转换。',
+    keywords: ['webp to png', 'convert webp to png', 'webp to png converter', 'webp to png online', 'free webp to png converter', 'change webp to png', 'save webp as png', 'webp to jpg'],
+    heroTitleEn: 'Convert WebP to PNG Online',
+    heroTitleZh: '在线WebP转PNG',
+    heroSubEn: 'Convert WebP to PNG instantly. No upload, batch 30, free forever — works offline too.',
+    heroSubZh: 'WebP瞬间转PNG。无需上传、批量30张、永久免费——断网也能用。',
+    targetFormat: 'png',
+    defaultSettings: { quality: 90, outputFormat: 'png', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🔓', titleEn: 'Universal Compatibility', titleZh: '通用兼容性', descEn: 'PNG works everywhere — in Photoshop, Word, PowerPoint, and all image viewers. WebP often doesn\'t open in desktop apps.', descZh: 'PNG到处都能用——Photoshop、Word、PPT、所有看图软件。WebP在桌面软件里经常打不开。' },
+      { icon: '🎨', titleEn: 'Lossless Quality', titleZh: '无损画质', descEn: 'PNG is a lossless format. Converting WebP to PNG at 90%+ quality preserves all the detail — no new compression artifacts.', descZh: 'PNG是无损格式。90%+画质转换保留所有细节——不会产生新的压缩痕迹。' },
+      { icon: '📦', titleEn: 'Batch Convert 30', titleZh: '批量转换30张', descEn: 'Convert up to 30 WebP images to PNG at once. All processed in parallel. ZIP download all results in one click.', descZh: '同时转换最多30张WebP为PNG，并行处理。一键ZIP下载全部结果。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload WebP Files', titleZh: '上传WebP文件', descEn: 'Drag WebP images into the upload area or click to browse. Batch up to 30 files. You can also paste from clipboard with Ctrl+V.', descZh: '将WebP图片拖入上传区或点击选择，一次最多30张。还支持Ctrl+V粘贴。' },
+      { step: 2, titleEn: 'Select PNG as Output', titleZh: '选择PNG输出', descEn: 'Choose PNG from the output format selector. Adjust quality slider — 90% or higher is recommended for best results.', descZh: '在输出格式中选PNG。调节画质滑块——推荐90%以上以获得最佳效果。' },
+      { step: 3, titleEn: 'Download PNG Files', titleZh: '下载PNG文件', descEn: 'Each converted file downloads as .png. Use batch ZIP download for all results. Compare before/after with the built-in slider.', descZh: '每张转换后以.png格式下载。批量ZIP一键下载全部，用内置对比滑块查看效果。' },
+    ],
+    faqs: [
+      { qEn: 'Why would I convert WebP to PNG?', qZh: '为什么要把WebP转成PNG？', aEn: 'WebP is great for websites but many desktop applications, image editors, and older software don\'t support it. Converting to PNG ensures your image works everywhere — in documents, presentations, social media, and photo editors.', aZh: 'WebP在网页上很好用，但很多桌面软件、图片编辑器和老旧程序不支持它。转成PNG后你的图片在任何地方都能用——文档、PPT、社交媒体、照片编辑器都可以。' },
+      { qEn: 'Does converting WebP to PNG reduce quality?', qZh: 'WebP转PNG会降画质吗？', aEn: 'No — PNG is a lossless format, so converting at 90%+ quality preserves all visible detail. The PNG will look exactly like the original WebP. Note that the file size will likely be larger because PNG doesn\'t use lossy compression.', aZh: '不会——PNG是无损格式，90%+画质转换保留所有可见细节。PNG看起来和原始WebP一模一样。注意文件体积可能会变大，因为PNG不使用有损压缩。' },
+      { qEn: 'Can I convert WebP to JPG instead?', qZh: '能把WebP转成JPG吗？', aEn: 'Yes — CompressFast supports all format conversions. Just select JPEG as the output format instead of PNG. JPG files will be smaller than PNG but without transparency support.', aZh: '可以——极速压图支持所有格式互转。在输出格式中选JPEG即可。JPG文件比PNG小，但不支持透明背景。' },
+    ],
+    relatedTools: ['convert-to-webp', 'convert-jpg-to-png', 'compress-png'],
   },
 
   'tinypng-alternative': {
