@@ -16,21 +16,17 @@ export function FeedbackButton({ locale }: { locale?: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
-  const [mounted, setMounted] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setIsAdmin(window.location.pathname.startsWith('/admin'))
+  }, [])
 
   // 管理后台页面不显示
-  if (mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return null
+  if (isAdmin) return null
 
-  // Chinese detection — locale prop from server, fallback to client checks
-  const isZh = locale ? locale === 'zh' : (
-    typeof window !== 'undefined' && (
-      window.location.pathname.startsWith('/zh') ||
-      document.documentElement.lang === 'zh' ||
-      window.location.hostname === 'jisuyatu.com'
-    )
-  )
+  // Chinese detection — locale prop from server, no SSR/client guessing needed
+  const isZh = locale === 'zh'
 
   const handleSubmit = async () => {
     if (!content.trim()) { setError(isZh ? '请填写反馈内容' : 'Please enter feedback'); return }
@@ -58,11 +54,10 @@ export function FeedbackButton({ locale }: { locale?: string }) {
   return (
     <>
       {/* Floating button */}
-      {mounted && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-          {/* Hint tooltip */}
-          <div className="bg-[#0f1a2e] border border-white/10 text-white/90 text-xs px-3 py-1.5 rounded-lg shadow-lg animate-bounce backdrop-blur-sm">
-            {isZh ? '💬 有建议？反馈给我们' : '💬 Feedback? Let us know'}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {/* Hint tooltip */}
+        <div className="bg-[#0f1a2e] border border-white/10 text-white/90 text-xs px-3 py-1.5 rounded-lg shadow-lg animate-bounce backdrop-blur-sm">
+          {isZh ? '💬 有建议？反馈给我们' : '💬 Feedback? Let us know'}
             <div className="absolute -bottom-1 right-5 w-2 h-2 bg-[#0f1a2e] border-r border-b border-white/10 rotate-45" />
           </div>
           <button
@@ -77,7 +72,6 @@ export function FeedbackButton({ locale }: { locale?: string }) {
             <span className="text-sm font-medium hidden group-hover:inline">{isZh ? '反馈' : 'Feedback'}</span>
           </button>
         </div>
-      )}
 
       {/* Modal */}
       {open && (
