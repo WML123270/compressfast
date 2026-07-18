@@ -50,24 +50,27 @@ function getLocaleFromRequest(request: NextRequest): string {
   const hostname = request.nextUrl.hostname
 
   // 0. Build-time deploy target — highest priority
-  // When DEPLOY_TARGET=cn, force zh regardless of hostname/headers
-  // This fixes Baidu Union review: ECS proxy may cause hostname mismatch
   if (process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn') return 'zh'
 
-  // 1. Check cookie
+  // 1. Cookie (user's explicit choice) — always respect
   const cookieLocale = request.cookies.get('lang')?.value
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as typeof SUPPORTED_LOCALES[number])) {
     return cookieLocale
   }
 
-  // 2. Check Accept-Language header
+  // 2. Overseas domain → always default to English
+  const isOverseas = hostname === 'compressfast.site'
+    || hostname.endsWith('.vercel.app')
+  if (isOverseas) return 'en'
+
+  // 3. Domestic domain → default to zh (with Accept-Language as helper)
+  if (hostname === 'jisuyatu.com' || hostname.endsWith('.cn')) return 'zh'
+
+  // 4. Localhost / unknown → check Accept-Language
   const acceptLang = request.headers.get('accept-language') || ''
   if (acceptLang.includes('zh')) return 'zh'
 
-  // 3. Chinese domestic domain defaults to zh
-  if (hostname === 'jisuyatu.com' || hostname.endsWith('.cn')) return 'zh'
-
-  // 4. Default to English for international version
+  // 5. Fallback to English
   return 'en'
 }
 

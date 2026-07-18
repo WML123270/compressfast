@@ -16,17 +16,14 @@ export function FeedbackButton() {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
-  const [hidden, setHidden] = useState(false)
-  const [isZh, setIsZh] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    // 管理后台页面不显示
-    if (window.location.pathname.startsWith('/admin')) {
-      setHidden(true)
-    }
-    // 检测语言
-    setIsZh(document.documentElement.lang === 'zh' || window.location.pathname.startsWith('/zh'))
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
+
+  // 管理后台页面不显示
+  if (mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return null
+
+  const isZh = mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/zh')
 
   const handleSubmit = async () => {
     if (!content.trim()) { setError(isZh ? '请填写反馈内容' : 'Please enter feedback'); return }
@@ -54,7 +51,7 @@ export function FeedbackButton() {
   return (
     <>
       {/* Floating button */}
-      {!hidden && (
+      {mounted && (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
           {/* Hint tooltip */}
           <div className="bg-[#0f1a2e] border border-white/10 text-white/90 text-xs px-3 py-1.5 rounded-lg shadow-lg animate-bounce backdrop-blur-sm">

@@ -14,7 +14,11 @@ export function Header() {
 
   const switchLang = () => {
     const newLocale = locale === 'zh' ? 'en' : 'zh'
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
+    // pathname might be '/' (middleware rewrites root to /{locale})
+    // or '/zh/...' or '/en/...' (explicit locale prefix)
+    const newPath = pathname.startsWith(`/${locale}`)
+      ? pathname.replace(`/${locale}`, `/${newLocale}`)
+      : `/${newLocale}${pathname === '/' ? '' : pathname}`
     router.push(newPath)
   }
 
