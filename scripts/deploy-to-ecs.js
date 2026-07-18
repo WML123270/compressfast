@@ -19,8 +19,8 @@ const SERVER = {
   },
 };
 
-const localFile = 'deploy-package-20260718-122840.tar.gz';
-const remoteFile = '/home/admin/deploy-package-20260718-122840.tar.gz';
+const localFile = 'deploy-package-20260718-123527.tar.gz';
+const remoteFile = '/home/admin/deploy-package-20260718-123527.tar.gz';
 
 console.log('>>> 连接服务器...');
 const conn = new Client();
