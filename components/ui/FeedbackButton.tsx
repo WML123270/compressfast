@@ -23,7 +23,12 @@ export function FeedbackButton() {
   // 管理后台页面不显示
   if (mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return null
 
-  const isZh = mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/zh')
+  const isZh = mounted && typeof window !== 'undefined' && (
+    window.location.pathname.startsWith('/zh') ||
+    document.documentElement.lang === 'zh' ||
+    window.location.hostname === 'jisuyatu.com' ||
+    process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+  )
 
   const handleSubmit = async () => {
     if (!content.trim()) { setError(isZh ? '请填写反馈内容' : 'Please enter feedback'); return }
