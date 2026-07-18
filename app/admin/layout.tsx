@@ -93,6 +93,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/licenses" className="flex items-center gap-2 px-3 py-2 text-neutral-800 hover:bg-gray-100 rounded-lg">
             激活码管理
           </Link>
+          <Link href="/admin/feedback" className="flex items-center gap-2 px-3 py-2 text-neutral-800 hover:bg-gray-100 rounded-lg">
+            用户反馈
+          </Link>
         </nav>
         <div className="p-3 border-slate-100">
           <button onClick={logout} className="text-neutral-700 hover:text-red-500 w-full text-left">

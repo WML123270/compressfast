@@ -94,9 +94,15 @@ export function Footer() {
           {t('footer.copyright', { year })}
         </p>
 
-        <p className="mt-2 text-neutral-600 text-xs">
-          <a href="https://turbo0.com" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-800 transition-colors">{t('footer.turbo0')}</a>
-        </p>
+        {/* Directory badges */}
+        {mounted && !isCn && (
+          <div className="mt-4 flex items-center justify-center gap-4 flex-wrap">
+            <a href="https://turbo0.com" target="_blank" rel="noopener noreferrer" className="text-neutral-600 text-xs hover:text-neutral-800 transition-colors">{t('footer.turbo0')}</a>
+            <a target="_blank" href="https://tooljourney.com/tool/compressfast" rel="noopener noreferrer">
+              <img src="https://tooljourney.com/assets/images/badge.png" alt="Tool Journey" height="54" loading="lazy" />
+            </a>
+          </div>
+        )}
       </div>
     </footer>
   )
