@@ -8,7 +8,7 @@ const CATEGORIES = [
   { value: 'other', label: '💬 Other', labelZh: '💬 其他' },
 ]
 
-export function FeedbackButton() {
+export function FeedbackButton({ locale }: { locale?: string }) {
   const [open, setOpen] = useState(false)
   const [category, setCategory] = useState('suggestion')
   const [content, setContent] = useState('')
@@ -23,11 +23,13 @@ export function FeedbackButton() {
   // 管理后台页面不显示
   if (mounted && typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return null
 
-  const isZh = mounted && typeof window !== 'undefined' && (
-    window.location.pathname.startsWith('/zh') ||
-    document.documentElement.lang === 'zh' ||
-    window.location.hostname === 'jisuyatu.com' ||
-    process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+  // Chinese detection — locale prop from server, fallback to client checks
+  const isZh = locale ? locale === 'zh' : (
+    typeof window !== 'undefined' && (
+      window.location.pathname.startsWith('/zh') ||
+      document.documentElement.lang === 'zh' ||
+      window.location.hostname === 'jisuyatu.com'
+    )
   )
 
   const handleSubmit = async () => {

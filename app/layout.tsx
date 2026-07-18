@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Analytics } from '@/components/layout/Analytics'
 import { LangDetector } from '@/components/layout/LangDetector'
-import { FeedbackButton } from '@/components/ui/FeedbackButton'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -78,7 +77,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LangDetector />
         {children}
         <Analytics />
-        <FeedbackButton />
       </body>
     </html>
   )
