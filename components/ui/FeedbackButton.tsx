@@ -52,17 +52,24 @@ export function FeedbackButton() {
     <>
       {/* Floating button */}
       {mounted && (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[#0b1420] border border-white/10 text-white shadow-lg shadow-black/30 hover:scale-105 transition-all flex items-center justify-center"
-          title={isZh ? '反馈' : 'Feedback'}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            <line x1="9" y1="10" x2="15" y2="10"/>
-            <line x1="12" y1="7" x2="12" y2="13"/>
-          </svg>
-        </button>
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+          {/* Hint tooltip */}
+          <div className="bg-[#0f1a2e] border border-white/10 text-white/90 text-xs px-3 py-1.5 rounded-lg shadow-lg animate-bounce backdrop-blur-sm">
+            {isZh ? '💬 有建议？反馈给我们' : '💬 Feedback? Let us know'}
+            <div className="absolute -bottom-1 right-5 w-2 h-2 bg-[#0f1a2e] border-r border-b border-white/10 rotate-45" />
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all group"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <line x1="9" y1="10" x2="15" y2="10"/>
+              <line x1="12" y1="7" x2="12" y2="13"/>
+            </svg>
+            <span className="text-sm font-medium hidden group-hover:inline">{isZh ? '反馈' : 'Feedback'}</span>
+          </button>
+        </div>
       )}
 
       {/* Modal */}
