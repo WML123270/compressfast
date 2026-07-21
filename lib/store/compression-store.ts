@@ -151,9 +151,9 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       const res = await fetch('/api/quota')
       const data = await res.json()
       if (!data.allowed) {
-        set({ serverQuotaExceeded: true, monthlyUsed: data.used || MONTHLY_FREE_QUOTA })
+        set({ serverQuotaExceeded: true, monthlyUsed: data.used ?? MONTHLY_FREE_QUOTA })
       } else {
-        set({ serverQuotaExceeded: false, monthlyUsed: data.used || get().monthlyUsed })
+        set({ serverQuotaExceeded: false, monthlyUsed: data.used ?? get().monthlyUsed })
       }
     } catch {
       // Fail open — don't block on network error
@@ -171,8 +171,10 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     if (!isPro && !IS_CN) {
       const q = getMonthlyQuota()
       const usedThisMonth = q.count
-      // Refresh state
-      set({ monthlyUsed: usedThisMonth })
+      // Use the higher of localStorage vs server-synced value for display
+      if (usedThisMonth > get().monthlyUsed) {
+        set({ monthlyUsed: usedThisMonth })
+      }
       if (usedThisMonth >= MONTHLY_FREE_QUOTA) {
         // Quota exceeded — let the UI handle the prompt
         return
