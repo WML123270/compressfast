@@ -53,6 +53,8 @@ export async function GET(request: NextRequest) {
       used,
       limit: MONTHLY_LIMIT,
       allowed: used < MONTHLY_LIMIT,
+      ip: process.env.NODE_ENV === 'development' ? ip : undefined,
+      key: process.env.NODE_ENV === 'development' ? key : undefined,
     })
   } catch {
     // Fail open — don't block users if Redis is down
