@@ -65,8 +65,10 @@ interface CompressionState {
   watermark: WatermarkOptions
   monthlyUsed: number
   monthlyQuota: number
+  serverQuotaExceeded: boolean
 
   checkProStatus: () => Promise<void>
+  syncServerQuota: () => Promise<void>
   addFiles: (newFiles: File[]) => void
   removeFile: (id: string) => void
   clearFiles: () => void
@@ -101,6 +103,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   watermark: readStored(WATERMARK_STORAGE_KEY, DEFAULT_WATERMARK),
   monthlyUsed: typeof window !== 'undefined' ? getMonthlyQuota().count : 0,
   monthlyQuota: MONTHLY_FREE_QUOTA,
+  serverQuotaExceeded: false,
 
   checkProStatus: async () => {
     // 国内版：无 Pro，直接返回免费
@@ -137,6 +140,23 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       // 网络错误，信任 localStorage
       const code = localStorage.getItem('pro_license')
       set({ isPro: !!code, proLoading: false })
+    }
+  },
+
+  /** Check server-side quota (IP-based, Redis). Call before compression. */
+  syncServerQuota: async () => {
+    const { isPro } = get()
+    if (isPro || IS_CN) return
+    try {
+      const res = await fetch('/api/quota')
+      const data = await res.json()
+      if (!data.allowed) {
+        set({ serverQuotaExceeded: true, monthlyUsed: data.used || MONTHLY_FREE_QUOTA })
+      } else {
+        set({ serverQuotaExceeded: false, monthlyUsed: data.used || get().monthlyUsed })
+      }
+    } catch {
+      // Fail open — don't block on network error
     }
   },
 
@@ -236,9 +256,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   compressAll: () => {
-    const { files, options, watermark, isPro } = get()
+    const { files, options, watermark, isPro, serverQuotaExceeded } = get()
     const pendingFiles = files.filter(f => f.status === 'pending')
     if (pendingFiles.length === 0) return
+
+    // Server-side quota check (non-pro, non-CN)
+    if (!isPro && !IS_CN && serverQuotaExceeded) return
 
     // AVIF 仅 Pro 可用，非 Pro 回退到原格式
     const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
@@ -321,6 +344,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         if (!get().isPro && !IS_CN) {
           incrementQuota(pendingCount)
           set({ monthlyUsed: getMonthlyQuota().count })
+          // Also increment server-side (fire-and-forget)
+          fetch('/api/quota', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ count: pendingCount }),
+          }).catch(() => {})
         }
       }
 
@@ -400,9 +429,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   compressOne: (id: string) => {
-    const { options, isPro } = get()
+    const { options, isPro, serverQuotaExceeded } = get()
     const file = get().files.find(f => f.id === id)
     if (!file) return
+
+    // Server-side quota check
+    if (!isPro && !IS_CN && serverQuotaExceeded) return
 
     // AVIF 仅 Pro 可用
     const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
@@ -451,6 +483,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         if (!get().isPro && !IS_CN) {
           incrementQuota(1)
           set({ monthlyUsed: getMonthlyQuota().count })
+          // Also increment server-side
+          fetch('/api/quota', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ count: 1 }),
+          }).catch(() => {})
         }
       }
 

@@ -21,11 +21,17 @@ export default function HomePage() {
 
   const { t, locale } = useT()
   const isCn = useIsCn()
-  const { files, addFiles, isPro, checkProStatus, monthlyUsed, monthlyQuota } = useCompressionStore()
+  const { files, addFiles, isPro, checkProStatus, monthlyUsed, monthlyQuota, serverQuotaExceeded, syncServerQuota } = useCompressionStore()
 
   const hasFiles = files.length > 0
 
-  useEffect(() => { checkProStatus() }, [checkProStatus])
+  useEffect(() => {
+    checkProStatus().then(() => {
+      // After Pro status resolved, check server quota
+      const { isPro } = useCompressionStore.getState()
+      if (!isPro) useCompressionStore.getState().syncServerQuota()
+    })
+  }, [checkProStatus])
 
   const handlePaste = useCallback((e: ClipboardEvent) => {
     const items = e.clipboardData?.items
@@ -191,8 +197,8 @@ export default function HomePage() {
 
       {/* Monthly quota indicator (free users, overseas only) */}
       {!isPro && !isCn && (
-        <div className="max-w-2xl mx-auto px-1">
-          {monthlyUsed >= monthlyQuota ? (
+        <div className="max-w-2xl mx-auto">
+          {monthlyUsed >= monthlyQuota || serverQuotaExceeded ? (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
               <p className="font-semibold text-amber-800">{t('pro.quotaExceeded')}</p>
               <p className="text-amber-700 text-sm mt-1">{t('pro.quotaExceededDesc')}</p>
@@ -201,10 +207,26 @@ export default function HomePage() {
               </Link>
             </div>
           ) : (
-            <div className="flex items-center justify-between text-xs text-neutral-500 px-2">
-              <span>{locale === 'zh' ? '本月免费额度' : 'Free this month'}: {monthlyUsed} / {monthlyQuota}</span>
-              <Link href={`/${locale}/pro`} className="text-blue-600 hover:text-blue-700 font-medium">
-                {locale === 'zh' ? '升级 Pro 无限' : 'Unlock Pro'}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 flex items-center gap-3">
+              <span className="text-lg">📊</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-semibold text-blue-800">
+                    {locale === 'zh' ? '本月免费额度' : 'Free this month'}
+                  </span>
+                  <span className="text-sm font-bold text-blue-700 tabular-nums">
+                    {monthlyUsed} <span className="text-blue-400 font-normal">/ {monthlyQuota}</span>
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min((monthlyUsed / monthlyQuota) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+              <Link href={`/${locale}/pro`} className="flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
+                {locale === 'zh' ? '升级 Pro' : 'Go Pro'}
               </Link>
             </div>
           )}
