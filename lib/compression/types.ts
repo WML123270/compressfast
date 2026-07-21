@@ -55,12 +55,19 @@ export interface Limits {
   maxSizePerFile: number
 }
 
+/** 海外免费用户 */
 export const FREE_LIMITS: Limits = {
   maxFiles: 20,
   maxSizePerFile: 25 * 1024 * 1024, // 25MB
 }
 
-/** 免费用户每月总压缩张数 */
+/** 国内版（永久免费，无限制） */
+export const CN_LIMITS: Limits = {
+  maxFiles: 100,
+  maxSizePerFile: 50 * 1024 * 1024, // 50MB
+}
+
+/** 免费用户每月总压缩张数（仅海外） */
 export const MONTHLY_FREE_QUOTA = 400
 
 export const QUOTA_STORAGE_KEY = 'png-compressor-monthly-quota'
@@ -90,9 +97,13 @@ export const PRO_LIMITS: Limits = {
   maxSizePerFile: 50 * 1024 * 1024, // 50MB
 }
 
+const IS_CN = typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+
 /** 根据 Pro 状态返回对应限制 */
 export function getLimits(isPro: boolean): Limits {
-  return isPro ? PRO_LIMITS : FREE_LIMITS
+  if (isPro) return PRO_LIMITS
+  if (IS_CN) return CN_LIMITS
+  return FREE_LIMITS
 }
 
 /** 用户保存的自定义预设 */

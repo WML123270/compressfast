@@ -33,7 +33,7 @@ export default function TermsPage() {
           <p>{isZh ? '极速压图（CompressFast）是一款在线图片压缩工具，提供纯浏览器端的图片压缩、格式转换、尺寸调整、水印添加等功能。' : 'CompressFast is an online image compression tool providing browser-side image compression, format conversion, resizing, watermarking, and more.'}</p>
           <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.1 免费版' : '1.1 Free Tier'}</h3>
           <ul className="space-y-1">
-            <li>{isZh ? '每次最多 30 张图片' : 'Up to 30 images per batch'}</li>
+            <li>{isZh ? '每次最多 20 张图片，月免费额度 400 张' : 'Up to 20/batch, 400 free/month'}</li>
             <li>{isZh ? '单张不超过 25MB' : 'Max 25MB per file'}</li>
             <li>{isZh ? '支持 PNG / JPEG / WebP 输出格式' : 'PNG / JPEG / WebP output formats'}</li>
             <li>{isZh ? '核心压缩、尺寸调整、格式转换功能免费' : 'Core compression, resizing, and format conversion free'}</li>
