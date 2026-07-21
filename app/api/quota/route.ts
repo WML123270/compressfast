@@ -87,7 +87,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, reset: true })
     }
 
-    await r.incrby(key, count || 1)
+    const n = Math.max(1, Math.min(Number(count) || 1, 500))
+    await r.incrby(key, n)
     await r.expire(key, QUOTA_TTL)
 
     return NextResponse.json({ success: true })
