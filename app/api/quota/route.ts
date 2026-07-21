@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
 
     const ip = getIP(request)
     const key = getKey(ip)
-    const used = parseInt(String(await r.get(key)) || '0', 10)
+    const raw = await r.get(key)
+    const used = typeof raw === 'number' ? raw : parseInt(String(raw ?? '0'), 10) || 0
 
     return NextResponse.json({
       used,
