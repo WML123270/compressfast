@@ -27,9 +27,16 @@ function getRedis(): Redis | null {
 }
 
 function getIP(request: NextRequest): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || '127.0.0.1'
+  // Vercel behind Cloudflare: x-forwarded-for contains Cloudflare IPs, not real client
+  // Try cf-connecting-ip first (Cloudflare), then x-real-ip
+  const cf = request.headers.get('cf-connecting-ip')
+  if (cf) return cf.trim()
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp.trim()
+  // Fallback: first IP in x-forwarded-for
+  const xff = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  if (xff) return xff
+  return '0.0.0.0'
 }
 
 function getKey(ip: string): string {
