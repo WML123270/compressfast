@@ -340,10 +340,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
 
       // 统计压缩次数（只计本轮新压缩的，避免重复计数）
       if (pendingCount > 0) {
+        // Collect file sizes for analytics
+        const compressedSizes = pendingFiles.map(f => f.originalSize)
         fetch('/api/admin/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: pendingCount, host: window.location.hostname }),
+          body: JSON.stringify({ event: 'compression', count: pendingCount, host: window.location.hostname, sizes: compressedSizes }),
         }).catch(() => {})
         // 免费用户更新月度配额
         if (!get().isPro && !IS_CN) {

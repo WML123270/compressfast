@@ -58,7 +58,7 @@ export interface Limits {
 /** 海外免费用户 */
 export const FREE_LIMITS: Limits = {
   maxFiles: 20,
-  maxSizePerFile: 25 * 1024 * 1024, // 25MB
+  maxSizePerFile: 10 * 1024 * 1024, // 10MB
 }
 
 /** 国内版（永久免费，无限制） */

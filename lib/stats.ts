@@ -290,3 +290,28 @@ export async function getAllLicenses(): Promise<LicenseRecord[]> {
     return []
   }
 }
+
+/** Bucket file sizes for analytics */
+function sizeBucket(bytes: number): string {
+  const mb = bytes / (1024 * 1024)
+  if (mb <= 1) return '0-1MB'
+  if (mb <= 5) return '1-5MB'
+  if (mb <= 10) return '5-10MB'
+  if (mb <= 25) return '10-25MB'
+  return '25MB+'
+}
+
+/** Record file size distribution from compression events */
+export async function recordFileSizes(sizes: number[], site: string) {
+  const r = getRedis()
+  if (!r) return
+  try {
+    const date = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+    for (const size of sizes) {
+      const bucket = sizeBucket(size)
+      const key = `filesize:${site}:${date}:${bucket}`
+      await r.incr(key)
+      await r.expire(key, 90 * 24 * 3600) // 90 day TTL
+    }
+  } catch {}
+}
