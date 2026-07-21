@@ -33,13 +33,13 @@ export function QuotaBanner() {
             {locale === 'zh' ? '本月免费额度' : 'Free this month'}
           </span>
           <span className="text-sm font-bold text-blue-700 tabular-nums">
-            {monthlyUsed} <span className="text-blue-400 font-normal">/ {monthlyQuota}</span>
+            {Math.max(0, monthlyUsed)} <span className="text-blue-400 font-normal">/ {monthlyQuota}</span>
           </span>
         </div>
         <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-600 rounded-full transition-all duration-500"
-            style={{ width: `${Math.min((monthlyUsed / monthlyQuota) * 100, 100)}%` }}
+            style={{ width: `${Math.max(0, Math.min((monthlyUsed / monthlyQuota) * 100, 100))}%` }}
           />
         </div>
       </div>

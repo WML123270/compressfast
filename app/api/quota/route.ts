@@ -54,7 +54,10 @@ export async function GET(request: NextRequest) {
     const ip = getIP(request)
     const key = getKey(ip)
     const raw = await r.get(key)
-    const used = typeof raw === 'number' ? raw : parseInt(String(raw ?? '0'), 10) || 0
+    let used = typeof raw === 'number' ? raw : parseInt(String(raw ?? '0'), 10) || 0
+    // Clamp to prevent negative values from corrupted data
+    if (used < 0) used = 0
+    if (used > MONTHLY_LIMIT * 2) used = MONTHLY_LIMIT
 
     return NextResponse.json({
       used,

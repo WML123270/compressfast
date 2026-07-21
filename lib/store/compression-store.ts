@@ -151,9 +151,9 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       const res = await fetch('/api/quota')
       const data = await res.json()
       if (!data.allowed) {
-        set({ serverQuotaExceeded: true, monthlyUsed: data.used ?? MONTHLY_FREE_QUOTA })
+        set({ serverQuotaExceeded: true, monthlyUsed: Math.max(0, data.used ?? MONTHLY_FREE_QUOTA) })
       } else {
-        set({ serverQuotaExceeded: false, monthlyUsed: data.used ?? get().monthlyUsed })
+        set({ serverQuotaExceeded: false, monthlyUsed: Math.max(0, data.used ?? get().monthlyUsed) })
       }
     } catch {
       // Fail open — don't block on network error
