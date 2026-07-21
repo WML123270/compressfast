@@ -74,8 +74,8 @@ interface CompressionState {
   clearFiles: () => void
   reorderFiles: (fromIndex: number, toIndex: number) => void
   setOptions: (options: Partial<CompressionOptions>) => void
-  compressAll: () => void
-  compressOne: (id: string) => void
+  compressAll: () => Promise<void>
+  compressOne: (id: string) => Promise<void>
   loadPresets: () => void
   savePreset: (name: string) => boolean
   deletePreset: (id: string) => void
@@ -255,13 +255,16 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     set({ options: { ...get().options, ...newOptions } })
   },
 
-  compressAll: () => {
+  compressAll: async () => {
     const { files, options, watermark, isPro, serverQuotaExceeded } = get()
     const pendingFiles = files.filter(f => f.status === 'pending')
     if (pendingFiles.length === 0) return
 
-    // Server-side quota check (non-pro, non-CN)
-    if (!isPro && !IS_CN && serverQuotaExceeded) return
+    // Server-side quota check before compression (non-pro, non-CN)
+    if (!isPro && !IS_CN) {
+      await get().syncServerQuota()
+      if (get().serverQuotaExceeded) return
+    }
 
     // AVIF 仅 Pro 可用，非 Pro 回退到原格式
     const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
@@ -428,13 +431,16 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     })
   },
 
-  compressOne: (id: string) => {
-    const { options, isPro, serverQuotaExceeded } = get()
+  compressOne: async (id: string) => {
+    const { options, isPro } = get()
     const file = get().files.find(f => f.id === id)
     if (!file) return
 
-    // Server-side quota check
-    if (!isPro && !IS_CN && serverQuotaExceeded) return
+    // Server-side quota check before compression
+    if (!isPro && !IS_CN) {
+      await get().syncServerQuota()
+      if (get().serverQuotaExceeded) return
+    }
 
     // AVIF 仅 Pro 可用
     const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
