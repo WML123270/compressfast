@@ -60,8 +60,6 @@ export async function GET(request: NextRequest) {
       used,
       limit: MONTHLY_LIMIT,
       allowed: used < MONTHLY_LIMIT,
-      _ip: ip,
-      _key: key,
     })
   } catch {
     // Fail open — don't block users if Redis is down
@@ -72,12 +70,23 @@ export async function GET(request: NextRequest) {
 /** POST — increment usage counter after compression */
 export async function POST(request: NextRequest) {
   try {
-    const { count } = await request.json()
+    const { count, reset } = await request.json()
     const r = getRedis()
     if (!r) return NextResponse.json({ success: true })
 
     const ip = getIP(request)
     const key = getKey(ip)
+
+    if (reset) {
+      // Admin reset (requires admin key)
+      const adminKey = request.headers.get('x-admin-key')
+      if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'compressfast2026') {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+      }
+      await r.del(key)
+      return NextResponse.json({ success: true, reset: true })
+    }
+
     await r.incrby(key, count || 1)
     await r.expire(key, QUOTA_TTL)
 
