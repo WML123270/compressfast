@@ -6,7 +6,8 @@ import { ImageList } from '@/components/compressor/ImageList'
 import { CompressionControls } from '@/components/compressor/CompressionControls'
 import { WatermarkSettings } from '@/components/compressor/WatermarkSettings'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { getLimits, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY, type MonthlyQuota } from '@/lib/compression/types'
+import { getLimits } from '@/lib/compression/types'
+import { QuotaBanner } from '@/components/compressor/QuotaBanner'
 import { formatFileSize } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
@@ -21,7 +22,7 @@ export default function HomePage() {
 
   const { t, locale } = useT()
   const isCn = useIsCn()
-  const { files, addFiles, isPro, checkProStatus, monthlyUsed, monthlyQuota, serverQuotaExceeded, syncServerQuota } = useCompressionStore()
+  const { files, addFiles, isPro, checkProStatus, syncServerQuota } = useCompressionStore()
 
   const hasFiles = files.length > 0
 
@@ -195,43 +196,9 @@ export default function HomePage() {
       {/* Upload & Tool Area */}
       <DropZone />
 
-      {/* Monthly quota indicator (free users, overseas only) */}
-      {!isPro && !isCn && (
-        <div className="max-w-2xl mx-auto">
-          {monthlyUsed >= monthlyQuota || serverQuotaExceeded ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-              <p className="font-semibold text-amber-800">{t('pro.quotaExceeded')}</p>
-              <p className="text-amber-700 text-sm mt-1">{t('pro.quotaExceededDesc')}</p>
-              <Link href={`/${locale}/pro`} className="inline-block mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors">
-                {locale === 'zh' ? '升级 Pro · $24.99 永久' : 'Upgrade to Pro · $24.99 Lifetime'}
-              </Link>
-            </div>
-          ) : (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 flex items-center gap-3">
-              <span className="text-lg">📊</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-semibold text-blue-800">
-                    {locale === 'zh' ? '本月免费额度' : 'Free this month'}
-                  </span>
-                  <span className="text-sm font-bold text-blue-700 tabular-nums">
-                    {monthlyUsed} <span className="text-blue-400 font-normal">/ {monthlyQuota}</span>
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min((monthlyUsed / monthlyQuota) * 100, 100)}%` }}
-                  />
-                </div>
-              </div>
-              <Link href={`/${locale}/pro`} className="flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
-                {locale === 'zh' ? '升级 Pro' : 'Go Pro'}
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="max-w-2xl mx-auto">
+        <QuotaBanner />
+      </div>
 
       <CompressionControls />
       <WatermarkSettings />
