@@ -487,7 +487,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         fetch('/api/admin/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: 1, host: window.location.hostname }),
+          body: JSON.stringify({ event: 'compression', count: 1, host: window.location.hostname, sizes: [file.file.size] }),
         }).catch(() => {})
         // 免费用户更新月度配额
         if (!get().isPro && !IS_CN) {

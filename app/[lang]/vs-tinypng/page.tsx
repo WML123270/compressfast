@@ -28,7 +28,7 @@ export default function VsPage() {
       price: isCn ? (locale === 'zh' ? '完全免费' : 'Free') : t('vs.compressfast.price'),
       privacy: t('vs.compressfast.privacy'),
       batch: isCn ? (locale === 'zh' ? '30 张/次' : '30/batch') : '20/batch (Free) / 500/batch (Pro)',
-      maxSize: isCn ? '25MB' : t('vs.compressfast.maxSize'),
+      maxSize: isCn ? '50MB' : t('vs.compressfast.maxSize'),
       formats: t('vs.compressfast.formats'), lossless: true, highlight: true },
     { name: 'TinyPNG', url: 'https://tinypng.com', price: t('vs.tinypng.price'), privacy: t('vs.tinypng.privacy'), batch: t('vs.tinypng.batch'), maxSize: t('vs.tinypng.maxSize'), formats: t('vs.tinypng.formats'), lossless: false },
     { name: 'Squoosh', url: 'https://squoosh.app', price: t('vs.squoosh.price'), privacy: t('vs.squoosh.privacy'), batch: t('vs.squoosh.batch'), maxSize: t('vs.squoosh.maxSize'), formats: t('vs.squoosh.formats'), lossless: true },
