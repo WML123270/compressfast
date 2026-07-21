@@ -56,8 +56,33 @@ export interface Limits {
 }
 
 export const FREE_LIMITS: Limits = {
-  maxFiles: 30,
+  maxFiles: 20,
   maxSizePerFile: 25 * 1024 * 1024, // 25MB
+}
+
+/** 免费用户每月总压缩张数 */
+export const MONTHLY_FREE_QUOTA = 400
+
+export const QUOTA_STORAGE_KEY = 'png-compressor-monthly-quota'
+
+export interface MonthlyQuota {
+  count: number      // 本月已压缩张数
+  month: string      // YYYY-MM
+}
+
+/** Read monthly quota from localStorage */
+export function getMonthlyQuota(): MonthlyQuota {
+  if (typeof window === 'undefined') return { count: 0, month: '' }
+  try {
+    const raw = localStorage.getItem(QUOTA_STORAGE_KEY)
+    if (raw) {
+      const q = JSON.parse(raw) as MonthlyQuota
+      const now = new Date()
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+      if (q.month === currentMonth) return q
+    }
+  } catch {}
+  return { count: 0, month: '' }
 }
 
 export const PRO_LIMITS: Limits = {

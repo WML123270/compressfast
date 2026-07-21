@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions } from '@/lib/compression/types'
-import { DEFAULT_OPTIONS, getLimits, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY } from '@/lib/compression/types'
+import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions, MonthlyQuota } from '@/lib/compression/types'
+import { DEFAULT_OPTIONS, getLimits, getMonthlyQuota, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY } from '@/lib/compression/types'
 
 const IS_CN = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
@@ -39,6 +39,21 @@ function getWorker(): Worker {
   return worker
 }
 
+/** Increment monthly quota counter (called after each successful compression) */
+function incrementQuota(n: number = 1) {
+  if (typeof window === 'undefined') return
+  try {
+    const now = new Date()
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    const q = getMonthlyQuota()
+    const updated: MonthlyQuota = {
+      count: q.month === currentMonth ? q.count + n : n,
+      month: currentMonth,
+    }
+    localStorage.setItem(QUOTA_STORAGE_KEY, JSON.stringify(updated))
+  } catch {}
+}
+
 interface CompressionState {
   files: ImageFile[]
   options: CompressionOptions
@@ -48,6 +63,8 @@ interface CompressionState {
   presets: SavedPreset[]
   naming: NamingOptions
   watermark: WatermarkOptions
+  monthlyUsed: number
+  monthlyQuota: number
 
   checkProStatus: () => Promise<void>
   addFiles: (newFiles: File[]) => void
@@ -82,6 +99,8 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   presets: [],
   naming: readStored(NAMING_STORAGE_KEY, DEFAULT_NAMING),
   watermark: readStored(WATERMARK_STORAGE_KEY, DEFAULT_WATERMARK),
+  monthlyUsed: typeof window !== 'undefined' ? getMonthlyQuota().count : 0,
+  monthlyQuota: MONTHLY_FREE_QUOTA,
 
   checkProStatus: async () => {
     // 国内版：无 Pro，直接返回免费
@@ -127,7 +146,23 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     const remaining = limits.maxFiles - files.length
     if (remaining <= 0) return
 
-    const toAdd = newFiles.slice(0, remaining).filter(f => {
+    // Monthly quota check for free users
+    let allowFiles = newFiles
+    if (!isPro && !IS_CN) {
+      const q = getMonthlyQuota()
+      const usedThisMonth = q.count
+      // Refresh state
+      set({ monthlyUsed: usedThisMonth })
+      if (usedThisMonth >= MONTHLY_FREE_QUOTA) {
+        // Quota exceeded — let the UI handle the prompt
+        return
+      }
+      // Limit how many can be added within quota
+      const quotaRemaining = MONTHLY_FREE_QUOTA - usedThisMonth
+      allowFiles = newFiles.slice(0, Math.min(remaining, quotaRemaining))
+    }
+
+    const toAdd = allowFiles.slice(0, remaining).filter(f => {
       if (!f.type.startsWith('image/')) return false
       if (f.size > limits.maxSizePerFile) return false
       return true
@@ -263,6 +298,8 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       }
     }
 
+    const pendingCount = pendingFiles.length
+
     const checkDone = () => {
       const allFiles = get().files
       const stillRunning = allFiles.some(f => f.status === 'pending' || f.status === 'compressing')
@@ -273,14 +310,18 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         _compressAllCleanup = null
       }
 
-      // 统计压缩次数
-      const doneCount = allFiles.filter(f => f.status === 'done').length
-      if (doneCount > 0) {
+      // 统计压缩次数（只计本轮新压缩的，避免重复计数）
+      if (pendingCount > 0) {
         fetch('/api/admin/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: doneCount, host: window.location.hostname }),
+          body: JSON.stringify({ event: 'compression', count: pendingCount, host: window.location.hostname }),
         }).catch(() => {})
+        // 免费用户更新月度配额
+        if (!get().isPro && !IS_CN) {
+          incrementQuota(pendingCount)
+          set({ monthlyUsed: getMonthlyQuota().count })
+        }
       }
 
       set({ isCompressing: false })
@@ -406,6 +447,11 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ event: 'compression', count: 1, host: window.location.hostname }),
         }).catch(() => {})
+        // 免费用户更新月度配额
+        if (!get().isPro && !IS_CN) {
+          incrementQuota(1)
+          set({ monthlyUsed: getMonthlyQuota().count })
+        }
       }
 
       if (type === 'error') {

@@ -6,7 +6,7 @@ import { ImageList } from '@/components/compressor/ImageList'
 import { CompressionControls } from '@/components/compressor/CompressionControls'
 import { WatermarkSettings } from '@/components/compressor/WatermarkSettings'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { getLimits } from '@/lib/compression/types'
+import { getLimits, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY, type MonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ export default function HomePage() {
 
   const { t, locale } = useT()
   const isCn = useIsCn()
-  const { files, addFiles, isPro, checkProStatus } = useCompressionStore()
+  const { files, addFiles, isPro, checkProStatus, monthlyUsed, monthlyQuota } = useCompressionStore()
 
   const hasFiles = files.length > 0
 
@@ -188,6 +188,29 @@ export default function HomePage() {
 
       {/* Upload & Tool Area */}
       <DropZone />
+
+      {/* Monthly quota indicator (free users, overseas only) */}
+      {!isPro && !isCn && (
+        <div className="max-w-2xl mx-auto px-1">
+          {monthlyUsed >= monthlyQuota ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+              <p className="font-semibold text-amber-800">{t('pro.quotaExceeded')}</p>
+              <p className="text-amber-700 text-sm mt-1">{t('pro.quotaExceededDesc')}</p>
+              <Link href={`/${locale}/pro`} className="inline-block mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors">
+                {locale === 'zh' ? '升级 Pro · $24.99 永久' : 'Upgrade to Pro · $24.99 Lifetime'}
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-xs text-neutral-500 px-2">
+              <span>{locale === 'zh' ? '本月免费额度' : 'Free this month'}: {monthlyUsed} / {monthlyQuota}</span>
+              <Link href={`/${locale}/pro`} className="text-blue-600 hover:text-blue-700 font-medium">
+                {locale === 'zh' ? '升级 Pro 无限' : 'Unlock Pro'}
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
       <CompressionControls />
       <WatermarkSettings />
       <ImageList />

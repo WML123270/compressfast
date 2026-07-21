@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
 import { Upload, AlertCircle, Loader2 } from 'lucide-react'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { getLimits } from '@/lib/compression/types'
+import { getLimits, MONTHLY_FREE_QUOTA, getMonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
 import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
@@ -47,6 +47,14 @@ export function DropZone() {
       if (available <= 0) {
         setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
         return
+      }
+      // Monthly quota check for free users (overseas only)
+      if (!isPro && process.env.NEXT_PUBLIC_DEPLOY_TARGET !== 'cn') {
+        const q = getMonthlyQuota()
+        if (q.count >= MONTHLY_FREE_QUOTA) {
+          setError(t('pro.quotaExceeded'))
+          return
+        }
       }
       if (imageFiles.length > available) {
         setError(t('dropzone.remaining', { n: available }))
