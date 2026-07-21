@@ -72,6 +72,7 @@ export default function AdminDashboardPage() {
             <div className="flex gap-4 mb-3">
               <div><span className="text-xs text-neutral-500">PV </span><span className={`font-bold text-lg ${pvColor}`}>{data?.totalPV ?? 0}</span></div>
               <div><span className="text-xs text-neutral-500">UV </span><span className={`font-bold text-lg ${uvColor}`}>{data?.totalUV ?? 0}</span></div>
+              <div><span className="text-xs text-neutral-500">压缩 </span><span className={`font-bold text-lg ${pvColor}`}>{data?.totalCompressions ?? 0}</span></div>
             </div>
             <div className="space-y-1">
               {data?.dailyPV?.map((d: any, i: number) => {

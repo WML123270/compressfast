@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         ])
         break
       case 'compression':
-        await incrementCompression(count || 1)
+        await incrementCompression(count || 1, site)
         break
       default:
         return NextResponse.json({ error: '未知事件' }, { status: 400 })

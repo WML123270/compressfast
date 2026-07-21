@@ -103,11 +103,13 @@ export async function trackUniqueVisitor(visitorId: string, site: string = 'os')
   ])
 }
 
-export async function incrementCompression(count: number): Promise<void> {
+export async function incrementCompression(count: number, site: string = 'os'): Promise<void> {
   if (count <= 0) return
   await Promise.all([
     incr('stats:compressions:total', count),
     incr(todayKey('stats:compressions:daily'), count),
+    incr(`stats:compressions:total:${site}`, count),
+    incr(todayKey(`stats:compressions:daily:${site}`), count),
   ])
 }
 
@@ -126,8 +128,10 @@ export interface DailyDataPoint {
 export interface SiteStats {
   totalPV: number
   totalUV: number
+  totalCompressions: number
   dailyPV: DailyDataPoint[]
   dailyUV: DailyDataPoint[]
+  dailyCompressions: DailyDataPoint[]
 }
 
 export interface DashboardStats {
@@ -188,20 +192,23 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // Helper: build SiteStats for os/cn
   const buildSiteStats = async (site: string): Promise<SiteStats> => {
-    const [totalPV, totalUV] = await Promise.all([
+    const [totalPV, totalUV, totalCompressions] = await Promise.all([
       getCounter(`stats:pageviews:total:${site}`),
       pfcount(`stats:uv:total:${site}`),
+      getCounter(`stats:compressions:total:${site}`),
     ])
     const dailyPV: DailyDataPoint[] = []
     const dailyUV: DailyDataPoint[] = []
+    const dailyCompressions: DailyDataPoint[] = []
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
       d.setDate(d.getDate() - i)
       const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       dailyPV.push({ date, value: await getCounter(`stats:pageviews:daily:${site}:${date}`) })
       dailyUV.push({ date, value: await pfcount(`stats:uv:daily:${site}:${date}`) })
+      dailyCompressions.push({ date, value: await getCounter(`stats:compressions:daily:${site}:${date}`) })
     }
-    return { totalPV, totalUV, dailyPV, dailyUV }
+    return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
   const [overseas, china] = await Promise.all([

@@ -279,7 +279,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         fetch('/api/admin/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: doneCount }),
+          body: JSON.stringify({ event: 'compression', count: doneCount, host: window.location.hostname }),
         }).catch(() => {})
       }
 
@@ -400,6 +400,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
               : f
           ),
         })
+        // 统计压缩次数（单文件）
+        fetch('/api/admin/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'compression', count: 1, host: window.location.hostname }),
+        }).catch(() => {})
       }
 
       if (type === 'error') {

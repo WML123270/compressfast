@@ -101,6 +101,9 @@ export function Footer() {
             <a target="_blank" href="https://tooljourney.com/tool/compressfast" rel="noopener noreferrer">
               <img src="https://tooljourney.com/assets/images/badge.png" alt="Tool Journey" height="54" loading="lazy" />
             </a>
+            <a href="https://fazier.com/launches/compressfast.site" target="_blank" rel="noopener noreferrer">
+              <img src="https://fazier.com/api/v1/public/badges/launch_badges.svg?badge_type=launched&theme=light" width="120" alt="Fazier badge" loading="lazy" />
+            </a>
           </div>
         )}
       </div>
