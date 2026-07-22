@@ -4,16 +4,18 @@ import { useState, useCallback } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
-import { Zap, Download, Trash2 } from 'lucide-react'
+import { Zap, Download, Trash2, ArrowRight, Dna } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export function ImageList() {
-  const { t } = useT()
-  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming } = useCompressionStore()
+  const { t, locale } = useT()
+  const isCn = useIsCn()
+  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro } = useCompressionStore()
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
 
@@ -146,6 +148,27 @@ export function ImageList() {
           </div>
         ))}
       </div>
+
+      {/* AVIF comparison hint — shown after all compressions complete for non-Pro non-CN users */}
+      {allProcessed && !isPro && !isCn && options.outputFormat !== 'avif' && doneCount > 0 && (
+        <div className="mt-4 p-4 rounded-xl border border-purple-700/30 bg-gradient-to-r from-purple-900/10 to-indigo-900/10">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Dna className="w-5 h-5 text-purple-400 flex-shrink-0" />
+              <span className="text-sm text-neutral-800">
+                {t('list.avifHint', { current: options.outputFormat === 'original' ? 'PNG/JPEG' : options.outputFormat.toUpperCase() })}
+              </span>
+            </div>
+            <a
+              href={`/${locale}/pro`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors flex-shrink-0"
+            >
+              {t('list.avifHintTry')}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
