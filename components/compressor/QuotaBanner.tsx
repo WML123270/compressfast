@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useT } from '@/lib/i18n/context'
+import { isCnDeploy } from '@/lib/utils'
 
-const IS_CN = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+const IS_CN = isCnDeploy()
 
 export function QuotaBanner() {
   const { t, locale } = useT()

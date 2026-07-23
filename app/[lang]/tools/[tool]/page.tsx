@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation'
 import { TOOLS, TOOL_SLUGS } from '@/lib/tool-pages'
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
-import { Upload, Shield, Zap, Check, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import { ToolJsonLd } from '@/components/seo/ToolJsonLd'
 
 // Client component for the interactive tool area
 const ToolClient = dynamic(() => import('./ToolClient'), { ssr: false })
@@ -61,6 +62,9 @@ export default function ToolPage({ params }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
+      {/* JSON-LD Structured Data */}
+      <ToolJsonLd tool={tool} lang={params.lang} siteUrl={siteUrl} />
+
       {/* Hero */}
       <section className="text-center space-y-3 pb-2">
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100">
@@ -73,6 +77,18 @@ export default function ToolPage({ params }: Props) {
 
       {/* Interactive Tool Area */}
       <ToolClient defaultSettings={tool.defaultSettings} />
+
+      {/* Content Intro — explains what this tool does with SEO-rich text */}
+      <section className="prose prose-sm max-w-none text-neutral-700 leading-relaxed space-y-3">
+        <p>
+          {isZh ? tool.descriptionZh : tool.descriptionEn}
+        </p>
+        <p>
+          {isZh
+            ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
+            : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.'}
+        </p>
+      </section>
 
       {/* Benefits */}
       <section className="pt-4">

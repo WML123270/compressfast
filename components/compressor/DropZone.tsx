@@ -7,6 +7,7 @@ import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits, MONTHLY_FREE_QUOTA, getMonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
+import { isCnDeploy } from '@/lib/utils'
 import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
 
 const ACCEPT = {
@@ -49,7 +50,7 @@ export function DropZone() {
         return
       }
       // Monthly quota check for free users (overseas only)
-      if (!isPro && process.env.NEXT_PUBLIC_DEPLOY_TARGET !== 'cn') {
+      if (!isPro && !isCnDeploy()) {
         const q = getMonthlyQuota()
         if (q.count >= MONTHLY_FREE_QUOTA) {
           setError(t('pro.quotaExceeded'))

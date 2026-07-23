@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions, MonthlyQuota } from '@/lib/compression/types'
 import { DEFAULT_OPTIONS, getLimits, getMonthlyQuota, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY } from '@/lib/compression/types'
+import { isCnDeploy } from '@/lib/utils'
 
-const IS_CN = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+const IS_CN = isCnDeploy()
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
 
 /** SSR-safe localStorage reader */

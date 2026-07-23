@@ -40,3 +40,15 @@ export function getOutputFileName(
 export function getExtensionFromType(mimeType: string): string {
   return MIME_TO_EXT[mimeType] || '.png'
 }
+
+/**
+ * 是否为国内版部署
+ * 构建时：NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+ * Worker 中 process 不可用，安全返回 false
+ */
+export function isCnDeploy(): boolean {
+  return (
+    typeof process !== 'undefined' &&
+    process.env?.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+  )
+}

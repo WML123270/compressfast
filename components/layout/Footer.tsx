@@ -3,23 +3,21 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
+import { isCnDeploy } from '@/lib/utils'
 
 export function Footer() {
   const { t, locale } = useT()
   const year = new Date().getFullYear()
   const isZh = locale === 'zh'
   const [mounted, setMounted] = useState(false)
-  const [isCn, setIsCn] = useState(
-    process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn',
-  )
+  const [isCn, setIsCn] = useState(isCnDeploy())
 
   useEffect(() => {
     setMounted(true)
     const hostname = window.location.hostname
-    const deployTarget = process.env.NEXT_PUBLIC_DEPLOY_TARGET
     const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)
     const isVercel = hostname.includes('vercel.app')
-    const cn = (deployTarget === 'cn' || isIp) && !isVercel
+    const cn = (isCnDeploy() || isIp) && !isVercel
     if (cn !== isCn) setIsCn(cn)
   }, [isCn])
 

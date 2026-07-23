@@ -11,7 +11,7 @@ import { QuotaBanner } from '@/components/compressor/QuotaBanner'
 import { formatFileSize } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
-import { Shield, Zap, Image, Crown, Upload } from 'lucide-react'
+import { Shield, Zap, Image, Crown } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 import { AdSlot } from '@/components/layout/AdSlot'
@@ -109,38 +109,22 @@ export default function HomePage() {
     { icon: Zap, label: t('trust.batch') },
   ]
 
-  // SSR static placeholder for crawlers
+  // SSR placeholder for crawlers — minimal structure, key content visible
   if (!mounted) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-5">
-        <section className="text-center space-y-3 sm:space-y-4 pb-2 sm:pb-4 pt-2 sm:pt-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium mb-1 sm:mb-2">
-            <Shield className="w-3 h-3" /> {t('hero.badge')}
-          </div>
-          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight max-w-2xl mx-auto px-2">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-5" aria-busy="true">
+        <section className="text-center space-y-3 pb-2 pt-2">
+          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto px-2">
             <span className="text-neutral-900">{t('hero.title')}</span>{' '}
             <span className="text-gradient">{t('hero.highlight')}</span>
           </h1>
           <p className="text-sm sm:text-lg max-w-lg mx-auto text-neutral-700">
             {t('hero.subtitle')}
           </p>
-          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2">
-            {(isCn
-              ? ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
-              : ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
-            ).map(f => (
-              <span key={f} className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border border-gray-300 text-neutral-700">
-                {f}
-              </span>
-            ))}
-          </div>
         </section>
-        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-10 text-center bg-gray-50/50">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center">
-            <Upload className="w-8 h-8 text-blue-500" />
-          </div>
-          <p className="font-semibold text-neutral-800 mb-2">{t('dropzone.drag')}</p>
-          <p className="text-neutral-600">{t('dropzone.paste')}</p>
+        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-10 text-center">
+          <p className="font-semibold text-neutral-800">{t('dropzone.drag')}</p>
+          <p className="text-neutral-600 mt-2">{t('dropzone.paste')}</p>
         </div>
         <AdSlot />
       </div>

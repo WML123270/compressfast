@@ -437,7 +437,7 @@ export function CompressionControls() {
           <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
             <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <span className="text-neutral-900">
-              PNG/GIF/SVG 图片可能含有透明背景，转换为 JPEG 后透明部分将被替换为白色背景。
+              {t('controls.transparencyWarning')}
             </span>
           </div>
         )}

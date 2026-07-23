@@ -157,7 +157,9 @@ I gated AVIF behind Pro — it's a clear value proposition. Users can SEE the si
 
 **[compressfast.site](https://compressfast.site)** — free for 30 images/batch, Pro for $24.99 lifetime.
 
-Source available on request. Happy to answer questions in the comments!
+Source code: **[github.com/WML123270/compressfast](https://github.com/WML123270/compressfast)** — MIT licensed, contributions welcome!
+
+Happy to answer questions in the comments!
 
 ---
 

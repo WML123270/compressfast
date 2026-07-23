@@ -415,39 +415,82 @@ async function compressToTarget(
   lossless: boolean,
   outMime: string,
 ): Promise<{ buf: ArrayBuffer; size: number; currentKB: number }> {
-  const qualities = getKBQualityLevels(speed)
   const scales = getKBScales(speed)
 
   let bestBuf: ArrayBuffer = new ArrayBuffer(0)
   let bestSize = Infinity
 
+  // PNG 输出：Canvas 忽略 quality 参数，改用缩放 + 颜色缩减 + oxipng 策略
+  // 非 PNG 输出：迭代 quality + scale
+  const isPngOut = isPNG(outMime)
+
   for (const scale of scales) {
     const src = scale === 1 ? img : scaleImageFast(img, scale)
-    for (const q of qualities) {
-      let buf: ArrayBuffer
-      if (outMime === 'image/avif') {
-        buf = await encodeAvif(src, q, speed, lossless)
-      } else {
+
+    if (isPngOut && !lossless) {
+      // PNG: quality iteration is wasted (canvas ignores it for PNG).
+      // Instead: try different color bit-depths, then oxipng.
+      for (const bits of [8, 6, 4, 2]) {
         let workImg = src
-        if (!lossless) {
-          const bits = q2bits(q)
-          if (bits < 8) workImg = reduceColors(workImg, bits)
+        if (bits < 8) workImg = reduceColors(workImg, bits)
+        let buf = await encodeImage(workImg, outMime, 80)
+        // Try oxipng on top
+        try {
+          const oxipng = await import('@jsquash/oxipng')
+          const optimized = await oxipng.optimise(new Uint8Array(buf)) as unknown as ArrayBuffer
+          buf = optimized
+        } catch { /* use unoptimized */ }
+        const size = buf.byteLength
+
+        self.postMessage({
+          id, type: 'progress',
+          triedQuality: bits * 10, // fake quality for progress display
+          currentKB: Math.round(size / 1024), targetKB: Math.round(targetBytes / 1024),
+        } as WRes)
+
+        if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
+          bestBuf = buf; bestSize = size
         }
-        buf = await encodeImage(workImg, outMime, q)
+        if (size <= targetBytes * 1.1 && size >= targetBytes * 0.9) break
       }
-      const size = buf.byteLength
+    } else {
+      // JPEG / WebP / AVIF / lossless-PNG: quality-based iteration works
+      const qualities = getKBQualityLevels(speed)
+      for (const q of qualities) {
+        let buf: ArrayBuffer
+        if (outMime === 'image/avif') {
+          buf = await encodeAvif(src, q, speed, lossless)
+        } else {
+          let workImg = src
+          if (!lossless) {
+            const bits = q2bits(q)
+            if (bits < 8) workImg = reduceColors(workImg, bits)
+          }
+          buf = await encodeImage(workImg, outMime, q)
+          // Apply oxipng for PNG lossless mode
+          if (lossless && isPngOut) {
+            try {
+              const oxipng = await import('@jsquash/oxipng')
+              const optimized = await oxipng.optimise(new Uint8Array(buf)) as unknown as ArrayBuffer
+              buf = optimized
+            } catch { /* use unoptimized */ }
+          }
+        }
+        const size = buf.byteLength
 
-      self.postMessage({
-        id, type: 'progress',
-        triedQuality: q, currentKB: Math.round(size / 1024), targetKB: Math.round(targetBytes / 1024),
-      } as WRes)
+        self.postMessage({
+          id, type: 'progress',
+          triedQuality: q, currentKB: Math.round(size / 1024), targetKB: Math.round(targetBytes / 1024),
+        } as WRes)
 
-      if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
-        bestBuf = buf; bestSize = size
+        if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
+          bestBuf = buf; bestSize = size
+        }
+        // 误差 10% 以内，满意
+        if (size <= targetBytes * 1.1 && size >= targetBytes * 0.9) break
       }
-      // 误差 10% 以内，满意
-      if (size <= targetBytes * 1.1 && size >= targetBytes * 0.9) break
     }
+
     if (bestSize <= targetBytes * 1.15) break
   }
 

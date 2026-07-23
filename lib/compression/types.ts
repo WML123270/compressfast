@@ -97,7 +97,9 @@ export const PRO_LIMITS: Limits = {
   maxSizePerFile: 50 * 1024 * 1024, // 50MB
 }
 
-const IS_CN = typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+import { isCnDeploy } from '@/lib/utils'
+
+const IS_CN = isCnDeploy()
 
 /** 根据 Pro 状态返回对应限制 */
 export function getLimits(isPro: boolean): Limits {

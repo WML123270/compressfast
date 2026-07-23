@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { isCnDeploy } from '@/lib/utils'
 
 export function FilingBanner() {
   const { t } = useT()
@@ -10,10 +11,9 @@ export function FilingBanner() {
 
   useEffect(() => {
     const hostname = window.location.hostname
-    const deployTarget = process.env.NEXT_PUBLIC_DEPLOY_TARGET
     // Only show on Chinese servers (IP access or explicitly cn)
     const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)
-    const isCn = deployTarget === 'cn' || isIp
+    const isCn = isCnDeploy() || isIp
     // Don't show on Vercel / English deployment
     const isVercel = hostname.includes('vercel.app')
     setShouldShow(isCn && !isVercel)

@@ -4,6 +4,14 @@ import type { NextRequest } from 'next/server'
 const SUPPORTED_LOCALES = ['en', 'zh'] as const
 const DEFAULT_LOCALE = 'zh'
 
+/** Shared with lib/utils.ts — duplicated here to avoid cross-bundle dependency in Edge Runtime */
+function isCnDeploy(): boolean {
+  return (
+    typeof process !== 'undefined' &&
+    process.env?.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+  )
+}
+
 // Paths that should NOT be redirected
 const SKIP_PATHS = [
   '/.well-known/',
@@ -50,7 +58,7 @@ function getLocaleFromRequest(request: NextRequest): string {
   const hostname = request.nextUrl.hostname
 
   // 0. Build-time deploy target — highest priority
-  if (process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn') return 'zh'
+  if (isCnDeploy()) return 'zh'
 
   // 1. Cookie (user's explicit choice) — always respect
   const cookieLocale = request.cookies.get('lang')?.value
@@ -108,7 +116,7 @@ export function middleware(request: NextRequest) {
   const newUrl = new URL(`/${locale}${pathname}`, request.url)
   newUrl.search = request.nextUrl.search
 
-  const isCn = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
+  const isCn = isCnDeploy()
 
   if (pathname === '/' || isCn) {
     // Internal rewrite: serves the locale page content at the original URL
