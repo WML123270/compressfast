@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
-import { Zap, Download, Trash2, ArrowRight, Dna } from 'lucide-react'
+import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
@@ -15,7 +15,7 @@ import { useIsCn } from '@/lib/use-is-cn'
 export function ImageList() {
   const { t, locale } = useT()
   const isCn = useIsCn()
-  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro } = useCompressionStore()
+  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro, retryFailed } = useCompressionStore()
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
 
@@ -44,6 +44,7 @@ export function ImageList() {
 
   const pendingCount = files.filter(f => f.status === 'pending').length
   const doneCount = files.filter(f => f.status === 'done').length
+  const errorCount = files.filter(f => f.status === 'error').length
   const hasDone = doneCount > 0
   const allProcessed = allDone()
 
@@ -99,6 +100,16 @@ export function ImageList() {
             <button disabled className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-400 rounded-lg cursor-not-allowed text-xs sm:text-sm flex-1 sm:flex-none justify-center">
               <span className="inline-block w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin" />
               {t('list.compressing')}
+            </button>
+          )}
+
+          {errorCount > 0 && !isCompressing && (
+            <button
+              onClick={retryFailed}
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
+            >
+              <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {t('list.retryFailed', { n: errorCount })}
             </button>
           )}
 

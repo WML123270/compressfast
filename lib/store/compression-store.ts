@@ -76,6 +76,7 @@ interface CompressionState {
   setOptions: (options: Partial<CompressionOptions>) => void
   compressAll: () => Promise<void>
   compressOne: (id: string) => Promise<void>
+  retryFailed: () => Promise<void>
   loadPresets: () => void
   savePreset: (name: string) => boolean
   deletePreset: (id: string) => void
@@ -464,8 +465,21 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     const w = getWorker()
 
     const handler = (e: MessageEvent) => {
-      const { id: msgId, type, compressedBuffer, compressedSize, outputMime, error } = e.data
+      const { id: msgId, type, compressedBuffer, compressedSize, outputMime, error, step, triedQuality, currentKB, targetKB } = e.data
       if (msgId !== id) return
+
+      if (type === 'progress' && triedQuality !== undefined) {
+        set({
+          files: get().files.map(f =>
+            f.id === id
+              ? { ...f, targetProgress: { step, quality: triedQuality, currentKB, targetKB } }
+              : f
+          ),
+        })
+        return
+      }
+
+      if (type === 'progress') return
 
       if (type === 'done') {
         const blobMime = outputMime || file.file.type
@@ -584,6 +598,24 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       w.removeEventListener('message', handler)
       _compressOneCleanups.delete(id)
     })
+  },
+
+  retryFailed: async () => {
+    const { files } = get()
+    const errorFiles = files.filter(f => f.status === 'error')
+    if (errorFiles.length === 0) return
+
+    // Reset error files to pending
+    set({
+      files: files.map(f =>
+        f.status === 'error'
+          ? { ...f, status: 'pending' as const, error: undefined }
+          : f
+      ),
+    })
+
+    // Trigger compression
+    await get().compressAll()
   },
 
   loadPresets: () => {

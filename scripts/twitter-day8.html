@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1200px; height: 900px; background: #0b1420; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
+.title { color: #fff; font-size: 42px; font-weight: bold; margin-top: 60px; }
+.subtitle { color: #94a3b8; font-size: 22px; margin-top: 12px; }
+.cards { display: flex; gap: 30px; margin-top: 60px; }
+.card { width: 240px; height: 300px; background: #1a2332; border-radius: 16px; display: flex; flex-direction: column; align-items: center; padding: 24px 16px; position: relative; border: 2px solid transparent; }
+.c1 { border-color: #10b981; }
+.c2 { border-color: #f59e0b; }
+.c3 { border-color: #3b82f6; }
+.c4 { border-color: #8b5cf6; }
+.icon-circle { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 44px; margin-bottom: 18px; border: 2px solid; }
+.ic1 { background: rgba(16,185,129,0.12); border-color: #10b981; }
+.ic2 { background: rgba(245,158,11,0.12); border-color: #f59e0b; }
+.ic3 { background: rgba(59,130,246,0.12); border-color: #3b82f6; }
+.ic4 { background: rgba(139,92,246,0.12); border-color: #8b5cf6; }
+.fmt-name { font-size: 28px; font-weight: bold; margin-bottom: 8px; }
+.cn1 { color: #10b981; }
+.cn2 { color: #f59e0b; }
+.cn3 { color: #3b82f6; }
+.cn4 { color: #8b5cf6; }
+.fmt-desc { color: #e2e8f0; font-size: 15px; text-align: center; margin-bottom: 16px; line-height: 1.4; }
+.tag { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+.t1 { background: rgba(16,185,129,0.18); color: #10b981; }
+.t2 { background: rgba(245,158,11,0.18); color: #f59e0b; }
+.t3 { background: rgba(59,130,246,0.18); color: #3b82f6; }
+.t4 { background: rgba(139,92,246,0.18); color: #8b5cf6; }
+.bottom-line { width: 400px; height: 1px; background: #1e293b; margin-top: 56px; }
+.bottom-text { color: #64748b; font-size: 20px; margin-top: 14px; }
+.bottom-cta { color: #3b82f6; font-size: 20px; font-weight: bold; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="title">Which Format Should You Use?</div>
+<div class="subtitle">Quick guide to choosing the right image format</div>
+<div class="cards">
+  <div class="card c1">
+    <div class="icon-circle ic1">🖼️</div>
+    <div class="fmt-name cn1">PNG</div>
+    <div class="fmt-desc">Logo, Icon,<br>Screenshot</div>
+    <div class="tag t1">Lossless + Alpha</div>
+  </div>
+  <div class="card c2">
+    <div class="icon-circle ic2">📷</div>
+    <div class="fmt-name cn2">JPEG</div>
+    <div class="fmt-desc">Photos,<br>Works Everywhere</div>
+    <div class="tag t2">Universal + Small</div>
+  </div>
+  <div class="card c3">
+    <div class="icon-circle ic3">🌐</div>
+    <div class="fmt-name cn3">WebP</div>
+    <div class="fmt-desc">Web Images,<br>Modern Sites</div>
+    <div class="tag t3">30% Smaller than JPEG</div>
+  </div>
+  <div class="card c4">
+    <div class="icon-circle ic4">🧬</div>
+    <div class="fmt-name cn4">AVIF</div>
+    <div class="fmt-desc">Smallest File,<br>Next-Gen</div>
+    <div class="tag t4">50% Smaller than JPEG</div>
+  </div>
+</div>
+<div class="bottom-line"></div>
+<div class="bottom-text">Stop overthinking format choice.</div>
+<div class="bottom-cta">compressfast.site</div>
+</body>
+</html>
