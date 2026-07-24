@@ -55,6 +55,11 @@ function incrementQuota(n: number = 1) {
   } catch {}
 }
 
+interface RemovedFileEntry {
+  file: ImageFile
+  index: number  // position where it was removed
+}
+
 interface CompressionState {
   files: ImageFile[]
   options: CompressionOptions
@@ -67,12 +72,14 @@ interface CompressionState {
   monthlyUsed: number
   monthlyQuota: number
   serverQuotaExceeded: boolean
+  undoStack: RemovedFileEntry[]
 
   checkProStatus: () => Promise<void>
   syncServerQuota: () => Promise<void>
   addFiles: (newFiles: File[]) => void
   removeFile: (id: string) => void
   clearFiles: () => void
+  undoRemove: () => void
   reorderFiles: (fromIndex: number, toIndex: number) => void
   setOptions: (options: Partial<CompressionOptions>) => void
   compressAll: () => Promise<void>
@@ -106,6 +113,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   monthlyUsed: typeof window !== 'undefined' ? getMonthlyQuota().count : 0,
   monthlyQuota: MONTHLY_FREE_QUOTA,
   serverQuotaExceeded: false,
+  undoStack: [],
 
   checkProStatus: async () => {
     // 国内版：无 Pro，直接返回免费
@@ -226,15 +234,32 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   removeFile: (id: string) => {
-    const { files } = get()
-    const file = files.find(f => f.id === id)
-    if (file) URL.revokeObjectURL(file.previewUrl)
+    const { files, undoStack } = get()
+    const idx = files.findIndex(f => f.id === id)
+    if (idx === -1) return
+    const file = files[idx]
+    // Don't revoke previewUrl — keep it alive for undo
     const cleanup = _compressOneCleanups.get(id)
     if (cleanup) {
       cleanup()
       _compressOneCleanups.delete(id)
     }
-    set({ files: files.filter(f => f.id !== id) })
+    // Push to undo stack (max 20 entries — keep it bounded)
+    const entry: RemovedFileEntry = { file, index: idx }
+    const newStack = [...undoStack, entry].slice(-20)
+    set({ files: files.filter(f => f.id !== id), undoStack: newStack })
+  },
+
+  undoRemove: () => {
+    const { files, undoStack } = get()
+    if (undoStack.length === 0) return
+    const newStack = [...undoStack]
+    const last = newStack.pop()!
+    // Restore file at its original position (clamped to current files length)
+    const insertIdx = Math.min(last.index, files.length)
+    const updated = [...files]
+    updated.splice(insertIdx, 0, last.file)
+    set({ files: updated, undoStack: newStack })
   },
 
   clearFiles: () => {
@@ -242,7 +267,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     files.forEach(f => URL.revokeObjectURL(f.previewUrl))
     _compressOneCleanups.forEach(cleanup => cleanup())
     _compressOneCleanups.clear()
-    set({ files: [] })
+    set({ files: [], undoStack: [] })
   },
 
   reorderFiles: (fromIndex: number, toIndex: number) => {

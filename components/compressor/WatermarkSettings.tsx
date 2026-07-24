@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useT } from '@/lib/i18n/context'
+import { useToast } from '@/components/ui/Toast'
 import { Image, Type, X, Upload, ChevronDown, ChevronUp } from 'lucide-react'
 import type { WatermarkType, WatermarkPosition } from '@/lib/compression/types'
 
@@ -25,9 +26,11 @@ const TYPES: { value: WatermarkType; labelZh: string; labelEn: string }[] = [
 
 export function WatermarkSettings() {
   const { t, locale } = useT()
+  const { toast } = useToast()
   const { watermark, setWatermark, files } = useCompressionStore()
   const [expanded, setExpanded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [imageError, setImageError] = useState<string | null>(null)
 
   const hasFiles = files.length > 0
   const isZh = locale === 'zh'
@@ -37,10 +40,13 @@ export function WatermarkSettings() {
     if (!file) return
     // 拒绝 SVG 防止 XSS（SVG 可嵌入 <script>）
     if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
-      alert(isZh ? '不支持 SVG 格式水印，请使用 PNG/JPG' : 'SVG watermarks are not supported. Use PNG or JPG.')
+      const msg = isZh ? '不支持 SVG 格式水印，请使用 PNG/JPG' : 'SVG watermarks are not supported. Use PNG or JPG.'
+      setImageError(msg)
+      toast(msg, 'error')
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
+    setImageError(null)
     const reader = new FileReader()
     reader.onload = () => {
       setWatermark({ imageDataUrl: reader.result as string })
@@ -113,36 +119,36 @@ export function WatermarkSettings() {
                     placeholder={isZh ? '水印文字，如 ©2024 YourName' : 'e.g. ©2024 YourName'}
                     className="w-full px-3 py-1.5 rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500"
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="text-neutral-700">{isZh ? '字号' : 'Size'}</label>
+                      <label className="text-neutral-700 text-xs block mb-0.5">{isZh ? '字号' : 'Size'}</label>
                       <input
                         type="range" min={12} max={120}
                         value={watermark.fontSize}
                         onChange={(e) => setWatermark({ fontSize: Number(e.target.value) })}
-                        className="w-full h-1.5 accent-brand-600"
+                        className="w-full h-2 accent-brand-600"
                       />
-                      <span className="text-neutral-700">{watermark.fontSize}px</span>
+                      <span className="text-neutral-700 text-xs">{watermark.fontSize}px</span>
                     </div>
                     <div>
-                      <label className="text-neutral-700">{isZh ? '透明度' : 'Opacity'}</label>
+                      <label className="text-neutral-700 text-xs block mb-0.5">{isZh ? '透明度' : 'Opacity'}</label>
                       <input
                         type="range" min={5} max={100}
                         value={Math.round(watermark.fontOpacity * 100)}
                         onChange={(e) => setWatermark({ fontOpacity: Number(e.target.value) / 100 })}
-                        className="w-full h-1.5 accent-brand-600"
+                        className="w-full h-2 accent-brand-600"
                       />
-                      <span className="text-neutral-700">{Math.round(watermark.fontOpacity * 100)}%</span>
+                      <span className="text-neutral-700 text-xs">{Math.round(watermark.fontOpacity * 100)}%</span>
                     </div>
                     <div>
-                      <label className="text-neutral-700">{isZh ? '旋转' : 'Rotate'}</label>
+                      <label className="text-neutral-700 text-xs block mb-0.5">{isZh ? '旋转' : 'Rotate'}</label>
                       <input
                         type="range" min={-90} max={90}
                         value={watermark.rotation}
                         onChange={(e) => setWatermark({ rotation: Number(e.target.value) })}
-                        className="w-full h-1.5 accent-brand-600"
+                        className="w-full h-2 accent-brand-600"
                       />
-                      <span className="text-neutral-700">{watermark.rotation}°</span>
+                      <span className="text-neutral-700 text-xs">{watermark.rotation}°</span>
                     </div>
                   </div>
                   <div>
@@ -177,28 +183,31 @@ export function WatermarkSettings() {
                       {isZh ? '上传水印图片（建议 PNG 透明底）' : 'Upload watermark (PNG with transparency recommended)'}
                     </button>
                   )}
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} hidden />
+                  <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" onChange={handleImageUpload} hidden />
+                  {imageError && (
+                    <p className="text-red-400 text-xs px-2">{imageError}</p>
+                  )}
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-neutral-700">{isZh ? '透明度' : 'Opacity'}</label>
+                      <label className="text-neutral-700 text-xs block mb-0.5">{isZh ? '透明度' : 'Opacity'}</label>
                       <input
                         type="range" min={5} max={100}
                         value={Math.round(watermark.imageOpacity * 100)}
                         onChange={(e) => setWatermark({ imageOpacity: Number(e.target.value) / 100 })}
-                        className="w-full h-1.5 accent-brand-600"
+                        className="w-full h-2 accent-brand-600"
                       />
-                      <span className="text-neutral-700">{Math.round(watermark.imageOpacity * 100)}%</span>
+                      <span className="text-neutral-700 text-xs">{Math.round(watermark.imageOpacity * 100)}%</span>
                     </div>
                     <div>
-                      <label className="text-neutral-700">{isZh ? '大小' : 'Scale'}</label>
+                      <label className="text-neutral-700 text-xs block mb-0.5">{isZh ? '大小' : 'Scale'}</label>
                       <input
                         type="range" min={5} max={100}
                         value={Math.round(watermark.imageScale * 100)}
                         onChange={(e) => setWatermark({ imageScale: Number(e.target.value) / 100 })}
-                        className="w-full h-1.5 accent-brand-600"
+                        className="w-full h-2 accent-brand-600"
                       />
-                      <span className="text-neutral-700">{Math.round(watermark.imageScale * 100)}%</span>
+                      <span className="text-neutral-700 text-xs">{Math.round(watermark.imageScale * 100)}%</span>
                     </div>
                   </div>
                 </div>
@@ -207,15 +216,15 @@ export function WatermarkSettings() {
               {/* Position grid */}
               <div>
                 <label className="text-neutral-700 block mb-1.5">{isZh ? '位置' : 'Position'}</label>
-                <div className="grid grid-cols-3 gap-1 w-24">
+                <div className="grid grid-cols-3 gap-1.5 w-28">
                   {POSITIONS.map(p => (
                     <button
                       key={p.value}
                       onClick={() => setWatermark({ position: p.value })}
-                      className={`w-7 h-7 flex items-center justify-center rounded text-sm transition-colors ${
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg text-base transition-colors ${
                         watermark.position === p.value
                           ? 'bg-brand-900/50 text-blue-600 ring-1 ring-brand-300'
-                          : 'bg-white text-neutral-700 hover:bg-gray-50'
+                          : 'bg-gray-50 text-neutral-700 hover:bg-gray-100 active:bg-gray-200'
                       }`}
                     >
                       {p.label}
@@ -227,21 +236,21 @@ export function WatermarkSettings() {
               {/* Margin */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-neutral-700">{isZh ? '水平边距(px)' : 'Margin X (px)'}</label>
+                  <label className="text-neutral-700 text-xs">{isZh ? '水平边距(px)' : 'Margin X (px)'}</label>
                   <input
-                    type="number" min={0} max={200}
+                    type="number" inputMode="numeric" pattern="[0-9]*" min={0} max={200}
                     value={watermark.marginX}
                     onChange={(e) => setWatermark({ marginX: Math.max(0, Number(e.target.value) || 0) })}
-                    className="w-full px-2 py-1 rounded border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 rounded border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-neutral-700">{isZh ? '垂直边距(px)' : 'Margin Y (px)'}</label>
+                  <label className="text-neutral-700 text-xs">{isZh ? '垂直边距(px)' : 'Margin Y (px)'}</label>
                   <input
-                    type="number" min={0} max={200}
+                    type="number" inputMode="numeric" pattern="[0-9]*" min={0} max={200}
                     value={watermark.marginY}
                     onChange={(e) => setWatermark({ marginY: Math.max(0, Number(e.target.value) || 0) })}
-                    className="w-full px-2 py-1 rounded border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 rounded border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 text-sm"
                   />
                 </div>
               </div>

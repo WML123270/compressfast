@@ -34,10 +34,11 @@ export function Header() {
         <nav className="flex items-center gap-1.5">
           <Link
             href={`/${locale}/tool`}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 text-neutral-700 hover:border-gray-400 hover:bg-gray-50 transition-all text-xs font-medium"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-gray-300 text-neutral-700 hover:border-gray-400 hover:bg-gray-50 transition-all text-xs font-medium"
+            title={locale === 'zh' ? '了解更多' : 'Features'}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{locale === 'zh' ? '了解更多' : 'Features'}</span>
+            <span className="hidden sm:inline">{locale === 'zh' ? '了解更多' : 'Features'}</span>
           </Link>
           {!isCn && (
             <Link

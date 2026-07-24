@@ -26,14 +26,14 @@ export function QuotaBanner() {
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 flex items-center gap-3">
-      <span className="text-lg">📊</span>
+    <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-3">
+      <span className="text-lg flex-shrink-0">📊</span>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm font-semibold text-blue-800">
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <span className="text-xs sm:text-sm font-semibold text-blue-800 truncate">
             {locale === 'zh' ? '本月免费额度' : 'Free this month'}
           </span>
-          <span className="text-sm font-bold text-blue-700 tabular-nums">
+          <span className="text-xs sm:text-sm font-bold text-blue-700 tabular-nums whitespace-nowrap">
             {Math.max(0, monthlyUsed)} <span className="text-blue-400 font-normal">/ {monthlyQuota}</span>
           </span>
         </div>
@@ -44,7 +44,7 @@ export function QuotaBanner() {
           />
         </div>
       </div>
-      <Link href={`/${locale}/pro`} className="flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
+      <Link href={`/${locale}/pro`} className="flex-shrink-0 px-2.5 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
         {locale === 'zh' ? '升级 Pro' : 'Go Pro'}
       </Link>
     </div>

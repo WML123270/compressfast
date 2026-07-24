@@ -189,45 +189,45 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
       {/* Transform toolbar — only for non-compressing images */}
       {image.status !== 'compressing' && (
         <div className="flex items-center gap-0.5 sm:gap-1 mt-2 pt-2 border-gray-200">
-          <span className="text-neutral-700 mr-0.5 hidden sm:inline text-xs">编辑:</span>
+          <span className="text-neutral-700 mr-0.5 hidden sm:inline text-xs">{t('card.edit')}:</span>
           <button
             onClick={() => rotateImage(image.id, 'ccw')}
-            className="p-1 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 rounded-md transition-colors"
+            className="p-2 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
             title={t('card.rotateCcw')}
           >
-            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <RotateCcw className="w-4 h-4" />
           </button>
           <button
             onClick={() => rotateImage(image.id, 'cw')}
-            className="p-1 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 rounded-md transition-colors"
+            className="p-2 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
             title={t('card.rotateCw')}
           >
-            <RotateCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <RotateCw className="w-4 h-4" />
           </button>
-          <span className="w-px h-4 sm:h-5 bg-gray-50 mx-0.5 sm:mx-1" />
+          <span className="w-px h-5 bg-gray-200 mx-0.5 sm:mx-1" />
           <button
             onClick={() => flipImage(image.id, 'h')}
-            className={`p-1 sm:p-1.5 rounded-md transition-colors ${image.flipH ? 'text-blue-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-neutral-700 hover:text-neutral-900 hover:bg-gray-50'}`}
+            className={`p-2 sm:p-1.5 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center ${image.flipH ? 'text-blue-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100'}`}
             title={t('card.flipH')}
           >
-            <FlipHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <FlipHorizontal className="w-4 h-4" />
           </button>
           <button
             onClick={() => flipImage(image.id, 'v')}
-            className={`p-1 sm:p-1.5 rounded-md transition-colors ${image.flipV ? 'text-blue-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-neutral-700 hover:text-neutral-900 hover:bg-gray-50'}`}
+            className={`p-2 sm:p-1.5 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center ${image.flipV ? 'text-blue-600 bg-brand-900/30 ring-1 ring-brand-800' : 'text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100'}`}
             title={t('card.flipV')}
           >
-            <FlipVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <FlipVertical className="w-4 h-4" />
           </button>
           {(image.rotation !== 0 || image.flipH || image.flipV) && (
             <>
-              <span className="w-px h-4 sm:h-5 bg-gray-50 mx-0.5 sm:mx-1" />
+              <span className="w-px h-5 bg-gray-200 mx-0.5 sm:mx-1" />
               <button
                 onClick={() => resetTransform(image.id)}
-                className="p-1 sm:p-1.5 text-amber-500 hover:text-red-500 hover:bg-red-900/20 rounded-md transition-colors"
+                className="p-2 sm:p-1.5 text-amber-500 hover:text-red-500 hover:bg-red-900/20 active:bg-red-900/30 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
                 title={t('card.rotateReset')}
               >
-                <Undo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <Undo2 className="w-4 h-4" />
               </button>
             </>
           )}

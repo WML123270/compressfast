@@ -14,6 +14,8 @@ import Link from 'next/link'
 import { Shield, Zap, Image, Crown } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
+import { useToast } from '@/components/ui/Toast'
+import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
 
 export default function HomePage() {
@@ -22,7 +24,11 @@ export default function HomePage() {
 
   const { t, locale } = useT()
   const isCn = useIsCn()
+  const { toast } = useToast()
   const { files, addFiles, isPro, checkProStatus, syncServerQuota } = useCompressionStore()
+
+  // Activate keyboard shortcuts
+  useKeyboardShortcuts()
 
   const hasFiles = files.length > 0
 
@@ -52,7 +58,8 @@ export default function HomePage() {
       e.preventDefault()
       const limits = getLimits(isPro)
       if (files.length >= limits.maxFiles) {
-        alert(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
+        const msg = t('dropzone.error.tooMany', { maxFiles: limits.maxFiles })
+        toast(msg, 'error')
         return
       }
       addFiles(imageFiles)
@@ -193,7 +200,7 @@ export default function HomePage() {
       <div className="pt-6 space-y-6">
         {/* Stats */}
         {compressCount > 0 && (
-          <div className="flex items-center justify-center gap-10 py-4">
+          <div className="flex items-center justify-center gap-6 sm:gap-10 py-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-neutral-900 tabular-nums">{compressCount.toLocaleString()}</div>
               <div className="text-xs text-neutral-600 mt-0.5">{locale === 'zh' ? '已压缩' : 'Compressed'}</div>
@@ -218,17 +225,17 @@ export default function HomePage() {
         </div>
 
         {/* Links */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-5 pb-6 border-t border-gray-200">
-          <Link href={`/${locale}/tool`} className="px-5 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-base font-medium shadow-sm">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-5 pb-6 border-t border-gray-200">
+          <Link href={`/${locale}/tool`} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-sm sm:text-base font-medium shadow-sm">
             {locale === 'zh' ? '📖 了解更多功能' : '📖 Learn More'}
           </Link>
-          <Link href={`/${locale}/help`} className="px-5 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-base font-medium shadow-sm">
+          <Link href={`/${locale}/help`} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-sm sm:text-base font-medium shadow-sm">
             {locale === 'zh' ? '🎓 帮助中心' : '🎓 Help'}
           </Link>
-          <Link href={`/${locale}/about`} className="px-5 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-base font-medium shadow-sm">
+          <Link href={`/${locale}/about`} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-sm sm:text-base font-medium shadow-sm">
             {locale === 'zh' ? '💡 关于我们' : '💡 About'}
           </Link>
-          <Link href={`/${locale}/contact`} className="px-5 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-base font-medium shadow-sm">
+          <Link href={`/${locale}/contact`} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-neutral-800 hover:text-blue-600 transition-all text-sm sm:text-base font-medium shadow-sm">
             {locale === 'zh' ? '📬 联系我们' : '📬 Contact'}
           </Link>
         </div>

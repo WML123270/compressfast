@@ -115,8 +115,9 @@ export function DropZone() {
             : t('dropzone.hint', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
           }
         </p>
-        <p className="text-neutral-700 mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200">
+        <p className="text-neutral-700 mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-sm">
           {t('dropzone.paste')}
+          <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-gray-200 text-neutral-700 font-mono">⌘V</kbd>
         </p>
         {remaining < limits.maxFiles && remaining > 0 && (
           <p className="text-blue-600 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
@@ -131,7 +132,7 @@ export function DropZone() {
             <p className="text-xs text-neutral-700 whitespace-nowrap">{t('dropzone.samples.label')}</p>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
           </div>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {SAMPLE_IMAGES.map((sample) => {
               const isLoading = sampleLoading === sample.name
               return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
@@ -15,9 +15,25 @@ import { useIsCn } from '@/lib/use-is-cn'
 export function ImageList() {
   const { t, locale } = useT()
   const isCn = useIsCn()
-  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro, retryFailed } = useCompressionStore()
+  const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro, retryFailed, undoStack, undoRemove } = useCompressionStore()
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
+  const [undoVisible, setUndoVisible] = useState(false)
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Show undo bar when undoStack changes (file removed)
+  useEffect(() => {
+    if (undoStack.length > 0) {
+      setUndoVisible(true)
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current)
+      undoTimeoutRef.current = setTimeout(() => setUndoVisible(false), 8000)
+    } else {
+      setUndoVisible(false)
+    }
+    return () => {
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current)
+    }
+  }, [undoStack.length])
 
   const handleDragStart = useCallback((index: number) => {
     setDragIndex(index)
@@ -93,6 +109,7 @@ export function ImageList() {
             >
               <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {t('list.compressAll', { n: pendingCount })}
+              <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono ml-1">⌘↵</kbd>
             </button>
           )}
 
@@ -132,6 +149,29 @@ export function ImageList() {
           </button>
         </div>
       </div>
+
+      {/* Undo bar — appears after files are removed */}
+      {undoVisible && undoStack.length > 0 && (
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl animate-slide-up">
+          <span className="text-sm text-amber-800">
+            {locale === 'zh'
+              ? `已移除 ${undoStack.length} 个文件`
+              : `${undoStack.length} file${undoStack.length > 1 ? 's' : ''} removed`}
+          </span>
+          <button
+            onClick={() => {
+              // Undo all removals
+              const count = undoStack.length
+              for (let i = 0; i < count; i++) undoRemove()
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            {locale === 'zh' ? '撤销' : 'Undo'}
+            <kbd className="text-[10px] px-1 py-0.5 rounded bg-amber-200 text-amber-700 font-mono hidden sm:inline">⌘Z</kbd>
+          </button>
+        </div>
+      )}
 
       <NamingSettings />
 
@@ -179,6 +219,24 @@ export function ImageList() {
             </a>
           </div>
         </div>
+      )}
+
+      {/* Sticky mobile compress FAB — shown when there are pending files and not compressing */}
+      {pendingCount > 0 && !isCompressing && (
+        <div className="sm:hidden fixed bottom-6 left-4 right-4 z-40 animate-slide-up">
+          <button
+            onClick={compressAll}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all text-base"
+          >
+            <Zap className="w-5 h-5" />
+            {t('list.compressAll', { n: pendingCount })}
+          </button>
+        </div>
+      )}
+
+      {/* Bottom spacer for FAB */}
+      {pendingCount > 0 && !isCompressing && (
+        <div className="sm:hidden h-20" />
       )}
     </div>
   )

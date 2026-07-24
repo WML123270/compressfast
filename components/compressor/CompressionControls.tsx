@@ -173,10 +173,10 @@ export function CompressionControls() {
           {/* 场景预设 */}
           <div className="pt-3 border-t border-gray-200/50">
           <div className="space-y-2">
-            <label className="font-semibold text-neutral-700 uppercase tracking-widest">
+            <label className="text-xs font-semibold text-neutral-700 uppercase tracking-widest">
               {isZh ? '场景预设' : 'Scene Presets'}
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {SCENARIOS.map(({ key, label, icon: Icon, options: sceneOpts, descKey }) => {
                 const isActive = options.quality === sceneOpts.quality
                   && options.speed === sceneOpts.speed
@@ -189,15 +189,17 @@ export function CompressionControls() {
                     onClick={() => setOptions({ ...sceneOpts, targetKB: 0 })}
                     title={t(descKey as any) || ''}
                     className={[
-                      'flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 transition-all duration-200 text-left',
+                      'flex sm:flex-col items-center sm:items-center gap-2 sm:gap-1 p-3 sm:p-2.5 rounded-xl border-2 transition-all duration-200 text-left',
                       isActive
                         ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/10'
                         : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100',
                     ].join(' ')}
                   >
-                    <Icon className={isActive ? 'w-4 h-4 text-blue-600' : 'w-4 h-4 text-neutral-600'} />
-                    <span className={isActive ? 'text-xs font-semibold text-blue-600' : 'text-xs font-semibold text-neutral-800'}>{label}</span>
-                    <span className="text-neutral-700 leading-tight text-center line-clamp-2">{t(descKey as any) || ''}</span>
+                    <Icon className={isActive ? 'w-5 h-5 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0' : 'w-5 h-5 sm:w-4 sm:h-4 text-neutral-600 flex-shrink-0'} />
+                    <div className="sm:text-center">
+                      <span className={isActive ? 'text-sm sm:text-xs font-semibold text-blue-600' : 'text-sm sm:text-xs font-semibold text-neutral-800'}>{label}</span>
+                      <span className="text-neutral-700 leading-tight line-clamp-2 text-xs sm:text-[11px] block mt-0.5">{t(descKey as any) || ''}</span>
+                    </div>
                   </button>
                 )
               })}
@@ -287,10 +289,10 @@ export function CompressionControls() {
             <label className="text-neutral-700">{t('controls.targetSize')}</label>
             <div className="flex items-center gap-1">
               <input
-                type="number" min={1} max={50000}
+                type="number" inputMode="numeric" pattern="[0-9]*" min={1} max={50000}
                 value={options.targetKB || 100}
                 onChange={(e) => setOptions({ targetKB: Math.max(1, Number(e.target.value)) })}
-                className="w-20 px-2 py-1 text-center rounded border border-gray-300 bg-gray-100 text-neutral-900 focus:border-blue-500 focus:ring-blue-500 outline-none"
+                className="w-20 px-2 py-1.5 text-center rounded border border-gray-300 bg-gray-100 text-neutral-900 focus:border-blue-500 focus:ring-blue-500 outline-none text-sm"
               />
               <span className="text-neutral-700">{t('controls.kb')}</span>
             </div>
@@ -305,71 +307,75 @@ export function CompressionControls() {
           <Crop className="w-4 h-4" />
           <span>{t('resize.section')}</span>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-          <div className="flex items-center gap-1 sm:gap-1.5">
+        <div className="space-y-2">
+          {/* Row 1: Width × Height inputs */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={0} max={99999} step={1}
               value={options.resizeWidth || ''}
               onChange={(e) => setOptions({ resizeWidth: Math.max(0, Number(e.target.value) || 0) })}
               placeholder={t('resize.width')}
-              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
+              className="w-[64px] sm:w-[70px] px-2 py-2 text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
-            <span className="text-neutral-700 text-xs">×</span>
+            <span className="text-neutral-700 text-xs font-medium">×</span>
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={0} max={99999} step={1}
               value={options.resizeHeight || ''}
               onChange={(e) => setOptions({ resizeHeight: Math.max(0, Number(e.target.value) || 0) })}
               placeholder={t('resize.height')}
-              className="w-[60px] sm:w-[70px] px-2 py-1.5 text-xs sm:text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
+              className="w-[64px] sm:w-[70px] px-2 py-2 text-sm text-center rounded-lg border border-gray-300 bg-gray-100 text-neutral-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             />
-            <span className="text-neutral-700 hidden sm:inline text-xs">px</span>
+            <span className="text-neutral-700 text-xs hidden sm:inline">px</span>
           </div>
 
-          {/* 快捷比例按钮 */}
-          {[
-            { label: t('resize.preset50'), w: 0, h: 0, pct: 50 },
-            { label: t('resize.preset75'), w: 0, h: 0, pct: 75 },
-          ].map((p) => {
-            // 基于第一张 pending 图片的尺寸来计算
-            const baseFile = files.find(f => f.status === 'pending')
-            const baseW = baseFile?.width || 1920
-            const baseH = baseFile?.height || 1080
-            const tw = Math.round(baseW * p.pct / 100)
-            const th = Math.round(baseH * p.pct / 100)
-            return (
+          {/* Row 2: Quick preset buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { label: t('resize.preset50'), w: 0, h: 0, pct: 50 },
+              { label: t('resize.preset75'), w: 0, h: 0, pct: 75 },
+            ].map((p) => {
+              const baseFile = files.find(f => f.status === 'pending')
+              const baseW = baseFile?.width || 1920
+              const baseH = baseFile?.height || 1080
+              const tw = Math.round(baseW * p.pct / 100)
+              const th = Math.round(baseH * p.pct / 100)
+              return (
+                <button
+                  key={p.label}
+                  onClick={() => { setOptions({ resizeWidth: tw, resizeHeight: th }) }}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border transition-colors min-w-[44px] ${
+                    options.resizeWidth === tw && options.resizeHeight === th
+                      ? 'border-blue-500 bg-brand-900/30 text-blue-600 font-medium'
+                      : 'border-gray-300 text-neutral-700 hover:border-gray-300 active:bg-gray-100'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              )
+            })}
+            {[
+              { label: t('resize.preset1080'), w: 1920, h: 1080 },
+              { label: t('resize.preset720'), w: 1280, h: 720 },
+            ].map((p) => (
               <button
                 key={p.label}
-                onClick={() => { setOptions({ resizeWidth: tw, resizeHeight: th }) }}
-                className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
-                  options.resizeWidth === tw && options.resizeHeight === th
-                    ? 'border-blue-500 bg-brand-900/30 text-blue-600'
-                    : 'border-gray-300 text-neutral-700 hover:border-gray-300'
+                onClick={() => { setOptions({ resizeWidth: p.w, resizeHeight: p.h }) }}
+                className={`px-2.5 py-1.5 text-xs rounded-lg border transition-colors min-w-[44px] ${
+                  options.resizeWidth === p.w && options.resizeHeight === p.h
+                    ? 'border-blue-500 bg-brand-900/30 text-blue-600 font-medium'
+                    : 'border-gray-300 text-neutral-700 hover:border-gray-300 active:bg-gray-100'
                 }`}
               >
                 {p.label}
               </button>
-            )
-          })}
-
-          {/* 预设尺寸按钮 */}
-          {[
-            { label: t('resize.preset1080'), w: 1920, h: 1080 },
-            { label: t('resize.preset720'), w: 1280, h: 720 },
-          ].map((p) => (
-            <button
-              key={p.label}
-              onClick={() => { setOptions({ resizeWidth: p.w, resizeHeight: p.h }) }}
-              className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
-                options.resizeWidth === p.w && options.resizeHeight === p.h
-                  ? 'border-blue-500 bg-brand-900/30 text-blue-600'
-                  : 'border-gray-300 text-neutral-700 hover:border-gray-300'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
+            ))}
+          </div>
         </div>
         {(options.resizeWidth > 0 || options.resizeHeight > 0) && (
           <div className="flex items-center gap-1">
@@ -456,19 +462,19 @@ export function CompressionControls() {
                 <p className="text-neutral-700 leading-relaxed">
                   {t('controls.format.avifWhat')}
                 </p>
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-100 border border-amber-700">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-3 rounded-lg bg-gray-100 border border-amber-700">
                   <span className="text-lg">⭐</span>
                   <div className="flex-1">
                     <p className="font-semibold text-amber-300">
                       {isZh ? '升级 Pro 解锁 AVIF' : 'Upgrade to Pro for AVIF'}
                     </p>
-                    <p className="text-amber-400">
+                    <p className="text-amber-400 text-sm">
                       {isZh ? '一次性买断 $24.99，永久使用' : 'One-time $24.99, lifetime access'}
                     </p>
                   </div>
                   <a
                     href={`/${locale}/pro`}
-                    className="flex-shrink-0 px-3 py-1.5 font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors"
+                    className="flex-shrink-0 px-4 py-2 font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors text-sm sm:text-xs self-stretch sm:self-auto text-center"
                   >
                     {isZh ? '升级 →' : 'Upgrade →'}
                   </a>
@@ -616,27 +622,29 @@ export function CompressionControls() {
                 {presets.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-gray-300 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 transition-colors"
                   >
-                    <span className="flex-1 font-medium text-neutral-800 truncate">{p.name}</span>
-                    <span className="text-neutral-700 hidden sm:inline">
-                      {p.options.targetKB
-                        ? `${p.options.targetKB}KB`
-                        : `Q${p.options.quality}`}
-                      {p.options.outputFormat !== 'original' && ` · ${p.options.outputFormat.toUpperCase()}`}
-                      {p.options.lossless && ' · L'}
+                    <span className="flex-1 min-w-0">
+                      <span className="font-medium text-neutral-800 truncate block text-sm">{p.name}</span>
+                      <span className="text-neutral-700 text-xs">
+                        {p.options.targetKB
+                          ? `${p.options.targetKB}KB`
+                          : `Q${p.options.quality}`}
+                        {p.options.outputFormat !== 'original' && ` · ${p.options.outputFormat.toUpperCase()}`}
+                        {p.options.lossless && ' · L'}
+                      </span>
                     </span>
                     <button
                       onClick={() => applyPreset(p.id)}
-                      className="px-2 py-1 font-medium text-brand-400 hover:bg-brand-900/20 rounded transition-colors"
+                      className="px-2.5 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-900/20 rounded-lg transition-colors min-w-[36px]"
                     >
                       {t('preset.load')}
                     </button>
                     <button
                       onClick={() => deletePreset(p.id)}
-                      className="p-1 text-neutral-800 hover:text-red-400 rounded transition-colors"
+                      className="p-1.5 text-neutral-800 hover:text-red-400 rounded-lg transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -652,14 +660,14 @@ export function CompressionControls() {
                   saveAs(blob, 'compressfast-presets.json')
                 }}
                 disabled={presets.length === 0}
-                className="flex items-center gap-1 px-2 py-1 text-neutral-700 hover:text-brand-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-xs font-medium text-neutral-700 hover:text-brand-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-lg hover:bg-gray-50"
               >
-                <Upload className="w-3 h-3" />
-                {isZh ? '导出预设' : 'Export'}
+                <Upload className="w-3.5 h-3.5" />
+                <span>{isZh ? '导出预设' : 'Export'}</span>
               </button>
-              <label className="flex items-center gap-1 px-2 py-1 text-neutral-700 hover:text-brand-400 cursor-pointer transition-colors">
-                <Download className="w-3 h-3" />
-                {isZh ? '导入预设' : 'Import'}
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-xs font-medium text-neutral-700 hover:text-brand-400 cursor-pointer transition-colors rounded-lg hover:bg-gray-50">
+                <Download className="w-3.5 h-3.5" />
+                <span>{isZh ? '导入预设' : 'Import'}</span>
                 <input
                   type="file"
                   accept=".json"
