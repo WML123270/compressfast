@@ -26,6 +26,8 @@ export interface ToolPageData {
   benefits: { icon: string; titleEn: string; titleZh: string; descEn: string; descZh: string }[]
   howTo: { step: number; titleEn: string; titleZh: string; descEn: string; descZh: string }[]
   faqs: { qEn: string; qZh: string; aEn: string; aZh: string }[]
+  detailedGuideEn?: string   // ~500-800 word usage guide, rendered as rich text
+  detailedGuideZh?: string
   relatedTools: string[]
 }
 
@@ -57,7 +59,35 @@ export const TOOLS: Record<string, ToolPageData> = {
       { qEn: 'Does PNG compression lose quality?', qZh: 'PNG压缩会损失画质吗？', aEn: 'No — CompressFast offers lossless PNG compression powered by oxipng WASM. Your PNG images will be visually identical to the original while being up to 80% smaller.', aZh: '不会——极速压图提供基于oxipng WASM的无损压缩，PNG图片压缩后画质与原始完全一致，体积最多减小80%。' },
       { qEn: 'Are my PNG files uploaded to a server?', qZh: 'PNG文件会被上传到服务器吗？', aEn: 'Never. All compression happens locally in your browser using Web Workers. You can disconnect from the internet and it still works.', aZh: '绝不会。所有压缩在浏览器本地通过Web Worker完成，断开网络照样能使用。' },
       { qEn: 'Can I compress multiple PNG files at once?', qZh: '可以同时压缩多个PNG文件吗？', aEn: 'Yes — compress up to 30 PNGs at once for free (500 with Pro). All processed in parallel for maximum speed.', aZh: '可以——免费版同时压缩最多30张PNG（Pro版500张），并行处理，速度极快。' },
+      { qEn: 'What is oxipng and how does it work?', qZh: 'oxipng是什么？怎么工作的？', aEn: 'oxipng is a lossless PNG optimizer that runs as WebAssembly (WASM) in your browser. It trial-runs multiple compression strategies — zlib, Zopfli, filter combinations — and picks the smallest result. Unlike lossy compression, oxipng guarantees pixel-perfect output every time.', aZh: 'oxipng是一款无损PNG优化器，通过WebAssembly在浏览器中运行。它会尝试多种压缩策略——zlib、Zopfli、不同滤镜组合——并选择体积最小的结果。与有损压缩不同，oxipng每次都保证像素级完美输出。' },
+      { qEn: 'Can I resize PNG images while compressing?', qZh: '压缩PNG的同时可以调整尺寸吗？', aEn: 'Yes. CompressFast includes a resize feature — set target width and height in pixels, or use one-click presets like 50%, 75%, 1080p, or 720p. The resize respects aspect ratio and never upscales small images, preserving quality.', aZh: '可以。极速压图内置尺寸调整功能——设置像素宽高，或用一键预设（50%、75%、1080p、720p）。等比缩放，不会放大小图，确保画质不受损。' },
+      { qEn: 'What file size can I expect after PNG compression?', qZh: 'PNG压缩后文件能减小多少？', aEn: 'Results vary by content: screenshots and UI images typically compress 30-60%, while photographs as PNG may see 10-30% reduction. Images with large solid-color areas (logos, icons) can achieve up to 80% savings. The oxipng engine automatically finds the best strategy for each image.', aZh: '压缩效果因图片内容而异：截图和UI图片通常减小30-60%，照片类PNG可能减小10-30%。大面积纯色的图片（Logo、图标）最高可减小80%。oxipng引擎会为每张图片自动找到最佳策略。' },
+      { qEn: 'Is there a file size limit for PNG compression?', qZh: 'PNG压缩有文件大小限制吗？', aEn: 'Free users can compress PNG files up to 10MB each and 20 files per batch. Pro users get 50MB per file and 500 files per batch. There is also a monthly quota of 400 free compressions — reset at the start of each month.', aZh: '免费用户单文件上限10MB，每次最多20张。Pro用户单文件50MB，每次500张。此外免费用户每月有400次压缩配额，月初重置。' },
+      { qEn: 'Can I add watermarks to my PNG images?', qZh: '可以给PNG图片加水印吗？', aEn: 'Yes — CompressFast supports both text and image watermarks. Position them anywhere in a 9-grid layout, adjust opacity, rotation, and scale. All watermark rendering happens locally in your browser.', aZh: '可以——极速压图支持文字和图片两种水印。九宫格任意定位，可调透明度、旋转角度和大小。所有水印渲染都在浏览器本地完成。' },
     ],
+    detailedGuideEn: `PNG (Portable Network Graphics) is the go-to format when you need lossless quality — screenshots, logos, UI elements, and any image with text or sharp edges. But PNG files are notoriously large. A single screenshot can easily exceed 2-3MB, which slows down your website and eats storage.
+
+CompressFast's PNG compressor tackles this with a two-pronged approach:
+
+1. Lossless optimization via oxipng WASM — This is the star of the show. oxipng runs entirely in your browser as WebAssembly, trying multiple compression strategies (different zlib levels, Zopfli, PNG filter combinations) and automatically picking the smallest result. The output is pixel-perfect — every single pixel matches the original. Typical savings range from 20% to 60% for screenshots and UI images.
+
+2. Lossy compression with color quantization — For cases where you're willing to trade a tiny bit of quality for dramatic size savings, we offer color bit-depth reduction (down to 2 bits per channel) and PNG quantization. A 24-bit PNG with millions of colors can become an 8-bit PNG with virtually no visible difference, slashing the file size by 50-80%.
+
+When you combine these with our built-in resize tool, you can take a 1920×1080 screenshot at 2.5MB and turn it into a 1280×720 optimized PNG at 400KB — that's an 84% reduction, all without uploading a single byte to any server.
+
+Privacy is baked in: every compression, every resize, every watermark runs inside a Web Worker in your browser. You can literally disconnect your internet after loading the page and everything still works. No server ever sees your files.`,
+
+    detailedGuideZh: `PNG（便携式网络图形）是处理需要无损画质的图片时的首选格式——截图、Logo、UI元素、任何包含文字或锐利边缘的图像。但PNG文件通常很大，一张截图动辄2-3MB，拖慢网站速度，占用存储空间。
+
+极速压图的PNG压缩工具采用双管齐下的策略来解决这个问题：
+
+1. 基于oxipng WASM的无损优化——这是核心亮点。oxipng以WebAssembly形式直接在浏览器中运行，尝试多种压缩策略（不同zlib级别、Zopfli算法、PNG滤镜组合），自动选择体积最小的结果。输出结果像素级完美——每一个像素点都与原图完全一致。截图和UI图片通常可减小20%-60%的体积。
+
+2. 色彩量化的有损压缩——如果你愿意用极微小的画质换巨大的体积缩减，我们提供色彩位深降低（最低每通道2比特）和PNG量化功能。一张24位百万色的PNG可以变成8位PNG，肉眼几乎看不出差异，体积却减少50-80%。
+
+结合内置的尺寸调整工具，你可以将一张1920×1080、2.5MB的截图，变成1280×720、400KB的优化PNG——体积减少84%，整个过程无需上传任何文件到任何服务器。
+
+隐私是内建特性：每一次压缩、每一次尺寸调整、每一次水印渲染都在浏览器的Web Worker中完成。加载页面后你可以断网，一切仍然正常工作。任何服务器都无法接触到你的文件。`,
     relatedTools: ['compress-jpeg', 'convert-to-webp', 'compress-images'],
   },
 

@@ -90,6 +90,20 @@ export default function ToolPage({ params }: Props) {
         </p>
       </section>
 
+      {/* Detailed Usage Guide */}
+      {((isZh && tool.detailedGuideZh) || (!isZh && tool.detailedGuideEn)) && (
+        <section className="pt-4">
+          <h2 className="font-bold text-neutral-900 text-lg mb-4">
+            {isZh ? '详细使用指南' : 'Detailed Usage Guide'}
+          </h2>
+          <div className="prose prose-sm max-w-none text-neutral-700 leading-relaxed space-y-4 p-5 rounded-xl bg-gray-50 border border-gray-200">
+            {(isZh ? tool.detailedGuideZh! : tool.detailedGuideEn!).split('\n\n').filter(Boolean).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Benefits */}
       <section className="pt-4">
         <h2 className="font-bold text-neutral-900 text-lg mb-4">
