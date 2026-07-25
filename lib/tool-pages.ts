@@ -118,7 +118,39 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'What quality setting should I use for JPEG?', qZh: 'JPEG压缩用什么画质参数好？', aEn: 'For web images, 65-85% is recommended — files become 50-80% smaller with minimal visual difference. For photography, use 85-95%. For thumbnails, 50-70% is fine.', aZh: '网页图片建议65-85%，体积减小50-80%，肉眼几乎无差异。摄影作品用85-95%，缩略图50-70%即可。' },
       { qEn: 'Can I convert other formats to JPEG?', qZh: '能把其他格式转成JPEG吗？', aEn: 'Yes — upload PNG, WebP, GIF, BMP, SVG, or HEIC files and set output format to JPEG. All conversion happens locally.', aZh: '可以——上传PNG、WebP、GIF、BMP、SVG、HEIC等格式，输出格式选JPEG即可，本地转换。' },
       { qEn: 'Will compression remove my photo metadata?', qZh: '压缩会删除照片元数据吗？', aEn: 'You control this. Enable "Strip Photo Info" to remove EXIF/GPS/camera data for privacy. Disable it to preserve metadata.', aZh: '可以选择开启"清除照片信息"来删除EXIF/GPS/相机数据以保护隐私，也可以关闭以保留元数据。' },
+      { qEn: 'What\'s the difference between JPEG and JPG?', qZh: 'JPEG和JPG有什么区别？', aEn: 'Nothing — they are the same format. JPG is simply a 3-letter extension from the DOS/Windows era when file extensions were limited to 3 characters. CompressFast handles both identically.', aZh: '没有任何区别——它们是同一种格式。JPG只是DOS/Windows时代文件名只能有3个字符扩展名时的缩写。极速压图对两者一视同仁。' },
+      { qEn: 'Does repeated JPEG compression degrade quality?', qZh: '反复压缩JPEG会损失画质吗？', aEn: 'Yes — JPEG is a lossy format, so each save-recompress cycle introduces new artifacts. This is called "generation loss." CompressFast helps avoid this by letting you compress once at the right quality setting, and we recommend keeping original files as masters.', aZh: '会——JPEG是有损格式，每次保存-再压缩循环都会产生新的失真痕迹，这叫做"世代损失"。极速压图让你一次性压到合适画质，建议保留原始文件作为母版。' },
+      { qEn: 'What file size can I expect after JPEG compression?', qZh: 'JPEG压缩后文件能减小多少？', aEn: 'At 85% quality, typical JPEG photos compress 40-60%. At 65%, you can achieve 60-80% reduction. The exact savings depend on image complexity — photos with lots of detail compress less than simple graphics. CompressFast shows live size estimates as you adjust the quality slider.', aZh: '85%画质下，典型JPEG照片能减小40-60%。65%画质下可达60-80%。具体效果取决于图片复杂程度——细节丰富的照片压缩率低于简单图形。极速压图在调节画质滑块时会实时显示估算大小。' },
+      { qEn: 'Can I compress JPEG images in bulk?', qZh: '可以批量压缩JPEG图片吗？', aEn: 'Absolutely. Free users can batch compress up to 20 JPEGs at once (30 for mixed formats). Pro users can process up to 500 files per batch. Use "Download All" to get everything in a single ZIP file.', aZh: '当然可以。免费用户单次最多批量压缩20张JPEG（混合格式30张）。Pro用户每批最多500张。点击"下载全部"一键获取ZIP包。' },
+      { qEn: 'Is there a file size limit for JPEG compression?', qZh: 'JPEG压缩有文件大小限制吗？', aEn: 'Free users can compress JPEG files up to 10MB each. Pro users get 50MB per file. Most smartphone JPEGs are 2-8MB, well within the free tier limit.', aZh: '免费用户每张JPEG最大10MB，Pro用户50MB。大多数手机拍的JPEG照片在2-8MB之间，完全在免费版限制内。' },
     ],
+    detailedGuideEn: `JPEG (Joint Photographic Experts Group) is the most widely used image format on the web and in digital photography. It's been around since 1992, and for good reason — JPEG offers excellent compression ratios with adjustable quality, making it the default choice for photographs, social media posts, e-commerce product images, and any scenario where file size matters more than pixel-perfect reproduction.
+
+    CompressFast's JPEG compressor gives you precise control over the compression-quality tradeoff:
+
+    1. Quality slider (10-100%) — This is your main control. At 85-100%, compression is gentle — file size drops 20-40% and the visual difference is essentially invisible. At 65-85% (the "web sweet spot"), you get 50-70% savings with barely perceptible quality loss — perfect for blog posts, e-commerce listings, and social media. Below 60%, compression becomes aggressive — ideal for thumbnails, email attachments, and preview images where small file size is the priority.
+
+    2. Chroma subsampling — JPEG encodes brightness (luma) at full resolution but color (chroma) at reduced resolution, because human eyes are far more sensitive to brightness changes than color changes. CompressFast applies optimal chroma subsampling automatically based on your quality setting — no need to understand the technical details.
+
+    3. Progressive vs baseline — At higher quality settings, our encoder produces progressive JPEGs that load in waves (blurry → sharp) rather than top-to-bottom. This improves perceived loading speed on websites and gives users instant feedback that an image is loading.
+
+    Combine compression with our built-in resizer and you can take a 4000×3000 smartphone photo at 4.5MB down to a 1200×900 web-ready JPEG at 150KB — a 97% reduction. The resize step is often more impactful than compression alone, especially for images destined for the web where full-resolution files are rarely needed.
+
+    Privacy note: every JPEG you drop into CompressFast stays on your device. The compression runs in a Web Worker — a separate browser thread — so the main page stays responsive. You can compress 20 photos simultaneously without any lag. Disconnect your internet after loading the page and everything still works. We never see your photos, and we never want to.`,
+
+    detailedGuideZh: `JPEG（联合图像专家组）是网页和数码摄影中使用最广泛的图像格式。它自1992年问世以来一直长盛不衰是有原因的——JPEG以可调节的画质提供出色的压缩比，成为照片、社交媒体帖子、电商产品图以及任何文件体积优先于像素级完美复现的场景下的默认选择。
+
+    极速压图的JPEG压缩工具让你精确掌控压缩与画质的平衡：
+
+    1. 画质滑块（10-100%）——这是你的主控开关。85-100%区间，压缩温和——文件体积减小20-40%，视觉差异基本不可见。65-85%区间（"网页甜点区"），体积减小50-70%，画质损失肉眼几乎察觉不到——非常适合博客文章、电商列表和社交媒体。60%以下，压缩变得更激进——适合缩略图、邮件附件和预览图，优先追求小体积。
+
+    2. 色度子采样——JPEG以全分辨率编码亮度信息，但以降低的分辨率编码色彩信息，因为人眼对亮度变化的敏感度远高于色彩变化。极速压图根据你的画质设置自动应用最优色度子采样——你不需要理解这些技术细节。
+
+    3. 渐进式 vs 基线式——在较高画质设置下，我们的编码器生成渐进式JPEG，图片以波浪式加载（模糊→清晰）而非从上到下逐行显示。这能改善网站的感知加载速度，让用户立即知道有图片正在加载。
+
+    将压缩与内置尺寸调整结合，你可以将一张4000×3000、4.5MB的手机照片变成1200×900、150KB的网页级JPEG——体积减小97%。特别是对于网页用途、几乎不需要原始分辨率的场景，尺寸调整往往比单纯压缩效果更显著。
+
+    隐私说明：你拖入极速压图的每一张JPEG都不会离开你的设备。压缩在Web Worker（浏览器独立线程）中运行，主页面保持流畅响应。你可以同时压缩20张照片而没有任何卡顿。加载页面后断开网络，一切仍然正常工作。我们永远看不到你的照片，我们也永远不想看到。`,
     relatedTools: ['compress-png', 'convert-to-webp', 'compress-images'],
   },
 
