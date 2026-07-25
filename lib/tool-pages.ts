@@ -378,7 +378,43 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Does resizing reduce image quality?', qZh: '调整尺寸会降低画质吗？', aEn: 'Minimally. Resizing down (making smaller) preserves quality well. Resizing up (enlarging) may show some softness — CompressFast uses browser-native high-quality scaling to minimize this.', aZh: '影响很小。缩小图片时画质保持良好。放大时可能会有轻微模糊——极速压图使用浏览器原生高质量缩放算法来最小化影响。' },
       { qEn: 'Can I resize images to exact social media sizes?', qZh: '能调到社交媒体需要的精确尺寸吗？', aEn: 'Yes — use the 1080p preset for Instagram/Facebook, 720p for Twitter/X, or enter custom dimensions for any platform.', aZh: '可以——用1080p预设适配Instagram/Facebook，720p适配Twitter/X，或者手动输入任意平台的尺寸要求。' },
       { qEn: 'Is my image data safe during resizing?', qZh: '调整尺寸过程中图片数据安全吗？', aEn: 'Completely. All processing happens in your browser. Your images never leave your device. You can resize offline.', aZh: '绝对安全。所有处理在浏览器中完成，图片不离开你的设备。断网也能正常使用。' },
+      { qEn: 'Can I resize images by percentage instead of pixels?', qZh: '能按百分比而不是像素来调整尺寸吗？', aEn: 'Yes — CompressFast supports both modes. Use 50% to halve dimensions, 75% for a moderate shrink, or 200% to double. The percentage mode is great when you want to scale proportionally without calculating pixel values.', aZh: '可以——极速压图支持两种模式。50%缩小一半、75%适度缩小、200%放大一倍。百分比模式非常适合等比缩放，不用算像素值。' },
+      { qEn: 'What is the maximum image size I can resize?', qZh: '最大能调整多大的图片？', aEn: 'Free users can resize images up to 10MB each (25MB for Pro). Resolution-wise, modern browsers handle images up to 100+ megapixels. CompressFast never upscales small images to avoid quality loss — if you request a larger size than the original, it keeps the original dimensions.', aZh: '免费用户每张最大10MB（Pro版25MB）。分辨率方面，现代浏览器支持高达1亿+像素的图片。极速压图不会放大小图以避免画质损失——如果你要求的尺寸比原图大，它会保持原始尺寸。' },
+      { qEn: 'Can I batch resize multiple images to different sizes?', qZh: '能批量把多张图片调成不同尺寸吗？', aEn: 'Batch resize applies the same dimensions to all selected images. If you need different sizes per image, process them in separate batches — it only takes seconds per batch. For mixed-size needs, the preset buttons (1080p, 720p, etc.) make switching quick.', aZh: '批量调整对所有选中图片应用相同尺寸。如果需要每张不同尺寸，分批处理——每批只需几秒。需要混搭尺寸时，预设按钮（1080p、720p等）让切换很快。' },
+      { qEn: 'What image formats can be resized?', qZh: '支持调整哪些图片格式的尺寸？', aEn: 'PNG, JPEG, WebP, GIF, BMP, SVG, HEIC, AVIF — all 8 input formats. The output format can be the same as the original or converted to a different format during resize. For example, resize a PNG and output as WebP in one step.', aZh: 'PNG、JPEG、WebP、GIF、BMP、SVG、HEIC、AVIF——全部8种输入格式。输出格式可以保持原样，也可以在调整尺寸的同时转换格式。比如把PNG缩小并输出为WebP，一步完成。' },
+      { qEn: 'Does resizing also compress the image?', qZh: '调整尺寸的同时也会压缩图片吗？', aEn: 'Yes — resize and compression happen together. After resizing, the image is re-encoded at your chosen quality setting. This dual optimization often produces the biggest file size reductions: a 4000px JPEG at 4MB resized to 1200px can become 150KB — a 96% reduction from resize + compression combined.', aZh: '是的——尺寸调整和压缩同时进行。调整尺寸后，图片以你选择的画质重新编码。这种双重优化往往能带来最大的体积缩减：一张4000px、4MB的JPEG调到1200px后可能只有150KB——尺寸调整加压缩，体积总共减少96%。' },
+      { qEn: 'Can I lock aspect ratio when resizing?', qZh: '调整尺寸时能锁定宽高比吗？', aEn: 'Yes — CompressFast maintains aspect ratio by default. When you change either width or height, the other dimension adjusts automatically. You can also unlock it for free-form dimensions if you intentionally want to stretch or squash an image.', aZh: '可以——极速压图默认保持宽高比。你改宽度或高度时，另一个维度自动调整。也可以解锁自由输入，如果你有意拉伸或压扁图片的话。' },
     ],
+    detailedGuideEn: `Image resizing is one of the most impactful optimizations you can make — often more effective than compression alone. A 4000×3000 smartphone photo at 4MB, when resized to 1200×900 (perfect for a blog post), becomes just ~150KB after mild compression. That's a 96% reduction, and on a 1920px screen, the resized version looks just as sharp.
+
+    CompressFast's resize tool gives you multiple ways to dial in the perfect dimensions:
+
+    1. Pixel mode — Enter exact width and height. Great when you know your target: 1920×1080 for desktop wallpapers, 1080×1080 for Instagram, 1200×630 for Open Graph meta images, 800×600 for email embeds. The aspect ratio lock keeps proportions correct by default.
+
+    2. Percentage mode — Think "I want this at half the size" instead of calculating pixels. 50% halves both dimensions (resulting in 1/4 the total pixels), 75% is a moderate shrink, 25% is aggressively small. Perfect for creating thumbnails or downsizing entire photo albums.
+
+    3. Preset buttons — One-click shortcuts for the most common sizes: 1080p (social media standard), 720p (Twitter/X optimal), 50% (quick half-size), 75% (moderate shrink). No typing, no math.
+
+    4. Combine with compression — The resize and compression sliders work together. Resize from 4000px to 1200px, then compress at 80% quality. The combination routinely achieves 90%+ file size reduction for web-bound images. This is the secret behind fast-loading portfolio sites and e-commerce product pages.
+
+    5. Format conversion in the same step — Resizing a PNG but need WebP output for your website? Select WebP as the output format and the resize + conversion happen in one pass. No need for separate tools or steps.
+
+    Why resize matters: most images on the web are displayed at 300-1200px wide, but uploaded at 3000-6000px (full camera resolution). The extra pixels consume bandwidth and slow page loads without improving what users see. Resizing before upload is the single highest-ROI optimization for web images.`,
+    detailedGuideZh: `图片尺寸调整是最有效的优化手段之一——往往比单纯压缩效果更显著。一张4000×3000、4MB的手机照片，调到1200×900（适合博客配图），再轻度压缩后只有约150KB。体积减少96%，而在1920px屏幕上，调整后的版本看起来一样清晰。
+
+    极速压图的尺寸调整工具提供多种方式精确设定理想尺寸：
+
+    1. 像素模式——输入精确的宽高值。适合你知道目标尺寸：1920×1080桌面壁纸、1080×1080 Instagram方形、1200×630 Open Graph链接预览图、800×600邮件插图。宽高比锁定默认开启，保持比例正确。
+
+    2. 百分比模式——不用算像素，直接想"我要一半大小"。50%宽高各减半（总像素变为1/4），75%适度缩小，25%激进缩小。非常适合创建缩略图或批量缩小整个相册。
+
+    3. 快捷预设——一键常用尺寸：1080p（社交媒体标准）、720p（Twitter/X最佳）、50%（快速半尺寸）、75%（适度缩小）。不用打字，不用心算。
+
+    4. 与压缩联动——尺寸和压缩滑块协同工作。从4000px调到1200px，再以80%画质压缩。组合拳通常能为网页图片实现90%+的体积缩减。这就是快速加载的作品集网站和电商产品页背后的秘密。
+
+    5. 同一步骤完成格式转换——调整PNG尺寸但需要WebP用于网站？选WebP作为输出格式，尺寸调整和格式转换一次完成。不需要单独的工具或步骤。
+
+    为什么尺寸调整如此重要：网页上大多数图片以300-1200px宽显示，但上传时却是3000-6000px（全相机分辨率）。多余像素消耗带宽、拖慢页面加载，却不改善用户看到的视觉效果。上传前调整尺寸是网页图片投资回报率最高的单项优化。`,
     relatedTools: ['compress-png', 'compress-jpeg', 'convert-jpg-to-png'],
   },
 
@@ -409,7 +445,38 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Is JPG to PNG conversion lossless?', qZh: 'JPG转PNG是无损的吗？', aEn: 'PNG is a lossless format, but JPG source files already have compression artifacts from their original encoding. Converting to PNG preserves the current quality without adding new artifacts — your PNG will look exactly like the JPG you uploaded.', aZh: 'PNG是无损格式，但JPG源文件本身已有压缩痕迹。转换为PNG保留当前画质、不会新增失真——PNG看起来和你上传的JPG一模一样。' },
       { qEn: 'Will the file size increase when converting JPG to PNG?', qZh: 'JPG转PNG文件会变大吗？', aEn: 'Usually yes — PNG is a lossless format so files tend to be larger than compressed JPGs. But you get better quality for editing, screenshots, and images with text or sharp edges.', aZh: '通常会——PNG是无损格式，文件往往比压缩过的JPG大。但你能获得更好的编辑质量，特别适合截图、带文字或锐利边缘的图片。' },
       { qEn: 'Can I convert other formats too?', qZh: '能转换其他格式吗？', aEn: 'Yes — CompressFast supports conversion between PNG, JPEG, WebP, AVIF (Pro), GIF, BMP, and SVG. Use the format selector in the controls panel to choose your output format.', aZh: '可以——极速压图支持PNG、JPEG、WebP、AVIF（Pro专属）、GIF、BMP、SVG之间的互相转换。在控制面板的格式选择器中选输出格式即可。' },
+      { qEn: 'Why would I convert JPG to PNG instead of keeping JPG?', qZh: '为什么要把JPG转成PNG而不是保留JPG？', aEn: 'PNG is better when you need: (1) lossless editing — JPG degrades every time you save, PNG doesn\'t. (2) Transparency — JPG doesn\'t support it, PNG does. (3) Sharp text/graphics — JPG creates fuzzy artifacts around edges, PNG keeps them crisp. (4) Screenshots — text in JPG gets blurry, PNG stays razor-sharp.', aZh: '以下场景PNG更好：(1) 需要反复编辑——JPG每次保存都会劣化，PNG不会。(2) 透明背景——JPG不支持，PNG支持。(3) 文字/图形——JPG在边缘产生模糊伪影，PNG保持锐利。(4) 截图——JPG里的文字会模糊，PNG保持清晰。' },
+      { qEn: 'Can I batch convert multiple JPGs to PNG?', qZh: '能批量把多个JPG转成PNG吗？', aEn: 'Yes — convert up to 30 JPGs to PNG at once for free (500 with Pro). All files are processed in parallel. Use "Download All" to get a ZIP file of all converted PNGs.', aZh: '可以——免费版一次转最多30张JPG为PNG（Pro版500张），全部并行处理。点击"下载全部"获取所有PNG的ZIP包。' },
+      { qEn: 'Does JPG to PNG conversion work offline?', qZh: 'JPG转PNG可以离线使用吗？', aEn: 'Yes — like all CompressFast features, format conversion runs entirely in your browser. Load the page once (or install as PWA) and you can convert JPG to PNG without internet access.', aZh: '可以——和极速压图所有功能一样，格式转换完全在浏览器中运行。加载一次页面（或安装为PWA）后，断网也能转换JPG为PNG。' },
+      { qEn: 'Can I compress the PNG during conversion?', qZh: '转换过程中能同时压缩PNG吗？', aEn: 'Yes — the quality slider works during conversion too. Set quality to 80-90% for a good balance between file size and visual quality. For lossless PNG output, enable lossless mode (uses oxipng WASM) — you\'ll get a smaller PNG than a straight conversion.', aZh: '可以——转换过程中画质滑块同样生效。设80-90%画质可获得体积和观感的良好平衡。如需无损PNG输出，开启无损模式（使用oxipng WASM）——你会得到比直接转换更小的PNG文件。' },
+      { qEn: 'What\'s the difference between converting JPG→PNG vs JPG→WebP?', qZh: 'JPG转PNG和JPG转WebP有什么区别？', aEn: 'JPG→PNG: lossless output, larger file, universal compatibility, supports transparency. Best for editing, archiving, or when you need guaranteed compatibility everywhere. JPG→WebP: smaller file (25-35% less than PNG), still supports transparency, 96% browser support. Best for web use, faster page loads, better SEO. Choose based on your end goal.', aZh: 'JPG→PNG：无损输出、文件较大、通用兼容性、支持透明。适合编辑、存档或需要确保任何地方都能打开的场合。JPG→WebP：文件更小（比PNG小25-35%）、同样支持透明、96%浏览器支持。适合网页使用、更快的页面加载、更好的SEO。根据最终用途选择。' },
     ],
+    detailedGuideEn: `Converting JPG to PNG is one of the most common format conversions — and for good reason. JPG is great for photos on the web, but PNG is essential when you need lossless quality, transparency, or sharp text and graphics.
+
+    CompressFast's JPG to PNG converter handles this in your browser with zero uploads:
+
+    1. Direct conversion — Upload your JPG, select PNG as the output format, and download. The conversion preserves every visible detail from the original. Any compression artifacts present in the JPG source remain as-is (converting to PNG won't magically remove them), but no new artifacts are added.
+
+    2. Quality control during conversion — The quality slider affects how the PNG is encoded. At 90-100%, you get a visually lossless PNG that's pixel-for-pixel identical to the source JPG. At lower settings, the PNG encoder applies its own optimizations (color quantization, PNG filter selection) to produce a smaller file — still PNG, but more aggressively optimized.
+
+    3. Lossless mode for ultimate PNG compression — Enable lossless mode and the oxipng WASM engine kicks in. It trial-runs multiple PNG compression strategies (different zlib levels, Zopfli, filter combinations) and picks the smallest result. The output is mathematically identical to a straight conversion — every pixel matches — but the file is 20-60% smaller than a naive PNG save.
+
+    4. Batch workflow — Drop 30 JPGs, select PNG output, click compress. All files convert in parallel. ZIP download bundles everything. The before/after slider lets you verify each conversion.
+
+    When should you convert JPG to PNG? For logos and icons that need transparency. For screenshots with text (JPG makes text fuzzy). For images you plan to edit further (PNG doesn't accumulate generation loss). For archival copies where you want zero additional compression artifacts. For everything else — especially web use — consider converting to WebP instead for smaller files.`,
+    detailedGuideZh: `JPG 转 PNG 是最常见的格式转换之一——这是有充分理由的。JPG 适合网页照片，但当你需要无损画质、透明背景或锐利的文字与图形时，PNG 不可或缺。
+
+    极速压图的 JPG 转 PNG 转换器在浏览器中完成，零上传：
+
+    1. 直接转换——上传 JPG，选择 PNG 作为输出格式，下载。转换保留原始图片的所有可见细节。JPG 源文件中已有的压缩痕迹保持不变（转 PNG 不会神奇地消除它们），但不会新增任何失真。
+
+    2. 转换过程中的画质控制——画质滑块影响 PNG 的编码方式。90-100% 可获得视觉无损的 PNG，与源 JPG 逐像素一致。较低设置下，PNG 编码器应用自身优化（色彩量化、PNG 滤镜选择）来产生更小的文件——仍然是 PNG，但优化更激进。
+
+    3. 无损模式实现终极 PNG 压缩——开启无损模式，oxipng WASM 引擎启动。它尝试多种 PNG 压缩策略（不同 zlib 级别、Zopfli 算法、滤镜组合），选择体积最小的结果。输出与直接转换数学上完全一致——每个像素都相同——但文件比朴素的 PNG 保存小 20-60%。
+
+    4. 批量工作流——拖入 30 张 JPG，选 PNG 输出，点压缩。所有文件并行转换。ZIP 打包一键下载全部。前后对比滑块让你验证每张转换效果。
+
+    什么时候应该把 JPG 转 PNG？需要透明背景的 Logo 和图标。带文字的截图（JPG 会让文字模糊）。计划继续编辑的图片（PNG 不会累积世代损失）。想要零额外压缩痕迹的存档副本。其他场景——特别是网页使用——建议考虑转 WebP 以获得更小的文件体积。`,
     relatedTools: ['compress-jpeg', 'compress-png', 'webp-to-png'],
   },
 
@@ -440,7 +507,38 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Why would I convert WebP to PNG?', qZh: '为什么要把WebP转成PNG？', aEn: 'WebP is great for websites but many desktop applications, image editors, and older software don\'t support it. Converting to PNG ensures your image works everywhere — in documents, presentations, social media, and photo editors.', aZh: 'WebP在网页上很好用，但很多桌面软件、图片编辑器和老旧程序不支持它。转成PNG后你的图片在任何地方都能用——文档、PPT、社交媒体、照片编辑器都可以。' },
       { qEn: 'Does converting WebP to PNG reduce quality?', qZh: 'WebP转PNG会降画质吗？', aEn: 'No — PNG is a lossless format, so converting at 90%+ quality preserves all visible detail. The PNG will look exactly like the original WebP. Note that the file size will likely be larger because PNG doesn\'t use lossy compression.', aZh: '不会——PNG是无损格式，90%+画质转换保留所有可见细节。PNG看起来和原始WebP一模一样。注意文件体积可能会变大，因为PNG不使用有损压缩。' },
       { qEn: 'Can I convert WebP to JPG instead?', qZh: '能把WebP转成JPG吗？', aEn: 'Yes — CompressFast supports all format conversions. Just select JPEG as the output format instead of PNG. JPG files will be smaller than PNG but without transparency support.', aZh: '可以——极速压图支持所有格式互转。在输出格式中选JPEG即可。JPG文件比PNG小，但不支持透明背景。' },
+      { qEn: 'Is WebP to PNG conversion free?', qZh: 'WebP转PNG免费吗？', aEn: 'Yes — completely free, no limits. Convert WebP to PNG as many times as you want, up to 30 images per batch. No account needed, no watermarks, no hidden fees. Pro ($24.99 lifetime) increases batch to 500.', aZh: '是的——完全免费，无限制。WebP转PNG想转多少次就转多少次，每批最多30张。无需注册、无水印、无隐藏费用。Pro版（$24.99买断）可批量500张。' },
+      { qEn: 'Can I batch convert WebP to PNG?', qZh: '能批量把WebP转PNG吗？', aEn: 'Yes — convert up to 30 WebP files to PNG at once for free. All conversions run in parallel via Web Workers. Use "Download All" for a single ZIP file of all converted PNGs.', aZh: '可以——免费版一次最多转30张WebP为PNG。所有转换通过Web Worker并行运行。点击"下载全部"获取包含所有PNG的单个ZIP文件。' },
+      { qEn: 'Does WebP to PNG conversion preserve transparency?', qZh: 'WebP转PNG会保留透明背景吗？', aEn: 'Yes — both WebP and PNG support alpha channel transparency. When converting a WebP with transparency to PNG, the transparent areas are perfectly preserved. This is a key advantage over converting to JPG, which doesn\'t support transparency.', aZh: '会——WebP和PNG都支持alpha通道透明。将带透明背景的WebP转PNG时，透明区域完美保留。这是相比转JPG（不支持透明）的关键优势。' },
+      { qEn: 'Why are my converted PNG files larger than the original WebP?', qZh: '为什么转换后的PNG比原始WebP大？', aEn: 'WebP uses modern lossy compression (similar to JPEG but better), while PNG uses lossless compression. A WebP that\'s 500KB may become 2-3MB as PNG — this is normal. The trade-off: larger file, but universal compatibility and zero compression artifacts. If you need smaller files for web use, keep it as WebP.', aZh: 'WebP使用现代有损压缩（类似JPEG但更好），而PNG使用无损压缩。一张500KB的WebP转PNG后可能变成2-3MB——这是正常的。代价是文件更大，换来的是通用兼容性和零压缩痕迹。如果需要用于网页的小文件，保持WebP就好。' },
+      { qEn: 'Can I edit a WebP file directly without converting to PNG?', qZh: '不转PNG能直接编辑WebP文件吗？', aEn: 'Many image editors now support WebP natively: Photoshop (2022+), GIMP, Paint.NET, and macOS Preview. But if your software doesn\'t open WebP, converting to PNG is the fastest workaround — and with CompressFast you can do it instantly without installing anything.', aZh: '很多图片编辑器现在已经原生支持WebP：Photoshop（2022+）、GIMP、Paint.NET、macOS预览。但如果你的软件打不开WebP，转PNG是最快的变通方案——用极速压图瞬间完成，无需安装任何东西。' },
     ],
+    detailedGuideEn: `WebP is the web's modern image format — smaller than JPEG, supports transparency like PNG, and now works in 96%+ of browsers. But the offline world hasn't fully caught up. If you've ever tried to open a WebP in an older version of Photoshop, insert one into a Word document, or upload one to a platform that doesn't accept WebP, you know the frustration.
+
+    CompressFast's WebP to PNG converter solves this: instant, browser-based conversion with no upload required.
+
+    1. Direct, lossless-quality conversion — Upload any WebP image (including animated WebP and transparent WebP) and get a PNG that looks identical. The conversion preserves transparency, color depth, and all visible detail. For lossless WebP sources, the output PNG is essentially a format container swap.
+
+    2. Quality-adjustable output — The quality slider (10-100%) controls PNG encoding. At 90-100%, you get visual transparency — no perceptible quality difference from the source. For maximum compatibility with desktop apps, stick with 90%+. If file size matters more, use 70-85% and let the PNG encoder optimize.
+
+    3. Lossless mode for archival — Enable lossless mode and the oxipng WASM engine finds the smallest possible mathematically-lossless PNG. Ideal for archiving WebP images that you need to preserve perfectly. Expect 20-40% smaller files than a straight PNG save.
+
+    4. Batch conversion workflow — Got 30 WebP images from a website export or design handoff? Drop them all at once, select PNG output, and download as a ZIP. Everything runs locally — no upload queue, no server processing delays.
+
+    Common use cases: (a) Designers receiving WebP assets that need to go into Photoshop. (b) Content creators inserting images into Word/PowerPoint documents. (c) Anyone needing to upload an image to a platform that only accepts PNG/JPEG. (d) Archiving WebP images in a universally compatible lossless format.`,
+    detailedGuideZh: `WebP 是网页的现代图像格式——比 JPEG 更小、像 PNG 一样支持透明、96%+ 的浏览器已支持。但离线世界还没有完全跟上。如果你曾尝试在旧版 Photoshop 中打开 WebP、将 WebP 插入 Word 文档、或上传到不接受 WebP 的平台，你就知道这种挫败感。
+
+    极速压图的 WebP 转 PNG 转换器解决了这个问题：即时、浏览器内转换、无需上传。
+
+    1. 直接、无损质量转换——上传任何 WebP 图片（包括动态 WebP 和透明 WebP），获得外观完全相同的 PNG。转换保留透明度、色彩深度和所有可见细节。对于无损 WebP 源文件，输出的 PNG 本质上只是格式容器的切换。
+
+    2. 可调画质的输出——画质滑块（10-100%）控制 PNG 编码。90-100% 时获得视觉透明——与源文件无感知质量差异。为最大化桌面软件兼容性，保持在 90%+。如果文件大小更重要，使用 70-85% 让 PNG 编码器进行优化。
+
+    3. 无损模式用于存档——开启无损模式，oxipng WASM 引擎找到最小的数学上无损的 PNG。非常适合需要完美保存的 WebP 图片归档。通常比直接 PNG 保存小 20-40%。
+
+    4. 批量转换工作流——有 30 张来自网站导出或设计交接的 WebP 图片？一次性全部拖入，选 PNG 输出，以 ZIP 下载。一切本地运行——没有上传队列、没有服务器处理延迟。
+
+    常见场景：(a) 设计师收到需要放入 Photoshop 的 WebP 素材。(b) 内容创作者将图片插入 Word/PPT 文档。(c) 需要上传图片到只接受 PNG/JPEG 的平台。(d) 以通用兼容的无损格式归档 WebP 图片。`,
     relatedTools: ['convert-to-webp', 'convert-jpg-to-png', 'compress-png'],
   },
 
