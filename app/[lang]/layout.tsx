@@ -47,6 +47,26 @@ export async function generateMetadata({
         ? '100%浏览器端处理，文件不上传。批量压缩，始终免费。'
         : '100% browser-side processing, files never uploaded. Batch compression, always free.',
       locale: isZh ? 'zh_CN' : 'en_US',
+      siteName: isZh ? '极速压图' : 'CompressFast',
+      type: 'website',
+      images: [
+        {
+          url: `${SITE_URL}/share-card-og.png`,
+          width: 1200,
+          height: 630,
+          alt: isZh ? '极速压图 - 图片压缩工具' : 'CompressFast - Image Compression Tool',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isZh
+        ? '极速压图 - 免费在线图片压缩'
+        : 'CompressFast - Free Online Image Compression',
+      description: isZh
+        ? '图片不上传服务器，浏览器本地压缩。批量处理，永久免费。'
+        : 'Browser-based image compression. No upload, always free.',
+      images: [`${SITE_URL}/share-card-og.png`],
     },
   }
 }

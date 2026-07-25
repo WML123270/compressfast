@@ -37,18 +37,18 @@ export const metadata: Metadata = {
     siteName: 'CompressFast',
     images: [
       {
-        url: '/icon-512.png',
-        width: 512,
-        height: 512,
-        alt: 'CompressFast',
+        url: '/share-card-og.png',
+        width: 1200,
+        height: 630,
+        alt: 'CompressFast - Image Compression Tool',
       },
     ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'CompressFast - Free Online Image Compression',
     description: 'Browser-based image compression. No upload, always free.',
-    images: ['/icon-512.png'],
+    images: ['/share-card-og.png'],
   },
 }
 
