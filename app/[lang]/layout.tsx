@@ -27,13 +27,13 @@ export async function generateMetadata({
 
   return {
     title: isZh
-      ? '极速压图 - 专业在线图片处理平台'
+      ? '极速压图 - 免费在线图片压缩，拍照就能压'
       : 'CompressFast — Professional Online Image Optimization Platform',
     description: isZh
-      ? '极速压图是一款专业的在线图片处理平台，支持PNG、JPEG、WebP、AVIF等8+格式压缩与转换。纯本地处理保障隐私安全，致力于为用户提供高效免费的图片优化服务。'
+      ? '手机拍照太大发不出去？极速压图一键变小！免费在线图片压缩，不上传服务器，支持30张批量处理，手机电脑都能用。'
       : 'CompressFast is a professional image optimization platform. Supports 8+ formats including PNG, JPEG, WebP, AVIF. All processing is local and private — fast, secure, and free.',
     keywords: isZh
-      ? ['图片压缩', '在线压缩', '免费压缩', '批量压缩', '无损压缩', 'PNG压缩', 'JPEG压缩']
+      ? ['图片压缩', '手机照片压缩', '免费压缩', '在线压缩', '批量压缩', '缩小图片', '照片变小']
       : ['image compression', 'compress images online', 'free image compressor', 'batch image compression', 'lossless compression'],
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
