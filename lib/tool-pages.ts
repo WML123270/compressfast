@@ -181,7 +181,43 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Why should I convert to WebP?', qZh: '为什么要转成WebP？', aEn: 'WebP files are 25-35% smaller than JPEG at the same quality level. For websites, this means faster page loads, better SEO rankings, and lower bandwidth costs.', aZh: '同等画质下WebP比JPEG小25-35%。对网站来说意味着加载更快、SEO排名更好、带宽成本更低。' },
       { qEn: 'Do all browsers support WebP?', qZh: '所有浏览器都支持WebP吗？', aEn: 'All modern browsers support WebP (Chrome, Firefox, Safari 14+, Edge). For older browsers, use the <picture> tag to provide JPEG fallbacks.', aZh: '所有现代浏览器都支持WebP（Chrome、Firefox、Safari 14+、Edge）。为兼容老旧浏览器，建议用<picture>标签提供JPEG降级方案。' },
       { qEn: 'Can I convert WebP back to PNG or JPEG?', qZh: '能把WebP转回PNG或JPEG吗？', aEn: 'Yes — just upload your WebP file and select PNG or JPEG as the output format. All format conversions are supported.', aZh: '可以——上传WebP文件，输出格式选PNG或JPEG即可，支持所有格式互转。' },
+      { qEn: 'What image formats can I convert to WebP?', qZh: '哪些格式可以转成WebP？', aEn: 'PNG, JPEG, GIF, BMP, SVG, HEIC, AVIF — essentially any common image format. CompressFast supports 8 input formats. For animated GIFs, WebP supports animation too (animated WebP), which is typically 60-80% smaller.', aZh: 'PNG、JPEG、GIF、BMP、SVG、HEIC、AVIF——几乎所有常见图片格式都可以。极速压图支持8种输入格式。GIF动图也可以转成动态WebP，通常体积减小60-80%。' },
+      { qEn: 'Does converting to WebP reduce image quality?', qZh: '转WebP会降低画质吗？', aEn: 'At the default 75% quality setting, the quality loss is virtually invisible to the naked eye while file size drops dramatically. For archival purposes, use 90-100% quality. For web use, 70-80% is the sweet spot — smallest file with great visuals. CompressFast shows you a live preview so you can judge for yourself.', aZh: '75%画质设置下，肉眼几乎看不出差异，体积却大幅减小。用于存档可选90-100%，网页使用70-80%是最佳区间——文件最小、观感很好。极速压图提供实时预览，你可以自己判断。' },
+      { qEn: 'Can I batch convert multiple images to WebP?', qZh: '可以批量转WebP吗？', aEn: 'Yes — convert up to 30 images to WebP at once for free (500 with Pro). All files are processed in parallel. Use "Download All" to get a single ZIP file of all converted WebP images.', aZh: '可以——免费版一次转换最多30张为WebP（Pro版500张），全部并行处理。点击"下载全部"一键获取所有WebP的ZIP包。' },
+      { qEn: 'What quality setting should I use for WebP conversion?', qZh: '转WebP用什么画质参数合适？', aEn: '75% is the recommended default — it delivers excellent compression with no visible quality loss. For photos on a portfolio site, 85% gives near-lossless appearance. For blog post images, 65-75% is ideal. For product images where every detail matters, use 90%. The "sweet spot" for most web use is 70-80%.', aZh: '推荐默认75%——压缩率优秀且无可见画质损失。作品集网站的照片用85%，近乎无损。博客配图65-75%即可。产品图细节重要时用90%。大多数网页场景"甜点区间"是70-80%。' },
+      { qEn: 'How much smaller will my images be after converting to WebP?', qZh: '转成WebP后图片能小多少？', aEn: 'Typical results: PNG→WebP: 40-80% smaller (especially with transparency). JPEG→WebP: 25-35% smaller at the same visual quality. The exact savings depend on image content — photos with lots of texture compress less than flat-color graphics. CompressFast shows real-time size estimates.', aZh: '典型效果：PNG→WebP 减小40-80%（尤其带透明通道时）。JPEG→WebP 同等画质减小25-35%。具体效果取决于图片内容——纹理丰富的照片压缩率低于纯色图形。极速压图实时显示大小估算。' },
     ],
+    detailedGuideEn: `WebP is Google's modern image format designed to replace JPEG, PNG, and GIF with a single, more efficient format. Released in 2010, it's now supported by 96%+ of browsers worldwide and is the default format for most performance-conscious websites.
+
+    CompressFast's WebP converter makes the transition painless:
+
+    1. One-click format conversion — Upload any image (PNG, JPEG, GIF, BMP, SVG, HEIC, AVIF) and select WebP as the output format. That's it. No software to install, no command line to learn. The conversion happens instantly in your browser.
+
+    2. Smart quality control — The quality slider (10-100%) lets you dial in the exact balance you need. At 75-85%, WebP delivers JPEG-equivalent quality at 25-35% smaller file sizes. Unlike JPEG, WebP also supports lossless compression and alpha transparency — features previously exclusive to PNG.
+
+    3. Lossless WebP option — Need pixel-perfect preservation? Enable lossless mode. This is ideal for logos, icons, screenshots of text, and any image with sharp edges or transparency. Lossless WebP files are still 26% smaller than PNG on average, according to Google's own benchmarks.
+
+    4. Animated WebP — Have an animated GIF? WebP supports animation too, and animated WebP files are typically 60-80% smaller than the equivalent GIF. Same animation, fraction of the file size. CompressFast preserves animation frames when converting from GIF.
+
+    The real power of WebP shows in bulk. Converting a website's entire image library from PNG/JPEG to WebP can cut total image payload by 40-60% — that's faster page loads, better Core Web Vitals scores, and improved SEO rankings. Google explicitly uses page speed as a ranking factor.
+
+    Privacy note: all conversions happen in your browser. Your original files and converted WebP images never touch a server. Even if you're converting sensitive design mockups or unreleased product photos, everything stays on your device.`,
+
+    detailedGuideZh: `WebP 是 Google 推出的现代图像格式，旨在用单一、更高效的格式替代 JPEG、PNG 和 GIF。自 2010 年发布以来，全球 96%+ 的浏览器已支持 WebP，它已成为大多数注重性能的网站的默认图像格式。
+
+    极速压图的 WebP 转换器让格式迁移变得轻松简单：
+
+    1. 一键格式转换——上传任意图片（PNG、JPEG、GIF、BMP、SVG、HEIC、AVIF），选择 WebP 为输出格式，完成。无需安装软件，无需学习命令行。转换在浏览器中即时完成。
+
+    2. 智能画质控制——画质滑块（10-100%）让你精确掌控平衡点。75-85% 画质下，WebP 以 JPEG 同等观感但体积减小 25-35%。与 JPEG 不同，WebP 还支持无损压缩和透明通道——这些之前只有 PNG 才有。
+
+    3. 无损 WebP 模式——需要像素级保真？开启无损模式。这非常适合 Logo、图标、文字截图及任何有锐利边缘或透明度的图片。根据 Google 官方基准测试，无损 WebP 平均仍比 PNG 小 26%。
+
+    4. 动态 WebP——有 GIF 动图？WebP 同样支持动画，且动态 WebP 通常比等效 GIF 小 60-80%。同样的动画效果，零头大小的文件。极速压图在从 GIF 转换时保留动画帧。
+
+    WebP 在批量场景下的威力才真正展现。将网站整个图片库从 PNG/JPEG 转为 WebP，图片总负载可减少 40-60%——这意味着更快的页面加载、更好的 Core Web Vitals 评分和改善的 SEO 排名。Google 明确将页面速度作为搜索排名因素。
+
+    隐私说明：所有转换在浏览器中完成。原始文件和转换后的 WebP 永远不会触及任何服务器。即使你在转换敏感的设计稿或未发布的产品照片，一切数据都留在你的设备上。`,
     relatedTools: ['compress-png', 'compress-jpeg', 'webp-to-png'],
   },
 
@@ -212,7 +248,43 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Is this image compressor really free?', qZh: '这个图片压缩工具真的免费吗？', aEn: 'Yes — completely free. No hidden fees, no watermarks, no usage limits. Pro version ($24.99 lifetime) adds 500 images/batch, AVIF, and custom presets.', aZh: '是的——完全免费。无隐藏收费、无水印、无使用次数限制。Pro版（$24.99买断）增加500张/次、AVIF输出、自定义预设。' },
       { qEn: 'Do I need to install anything?', qZh: '需要安装吗？', aEn: 'No — CompressFast works entirely in your browser. No download, no installation, no registration required. Even works offline as a PWA.', aZh: '不需要——极速压图完全在浏览器中运行。无需下载、无需安装、无需注册。支持PWA，可安装到桌面离线使用。' },
       { qEn: 'Will my image quality be affected?', qZh: '会影响画质吗？', aEn: 'You control the quality setting (0-100%). At 85%+, the difference is invisible to the naked eye. Lossless mode is also available for PNG compression.', aZh: '画质由你控制（0-100%）。85%以上肉眼几乎看不出差异。PNG还支持无损压缩模式。' },
+      { qEn: 'What image formats can CompressFast compress?', qZh: '极速压图支持压缩哪些图片格式？', aEn: 'Input: PNG, JPEG, WebP, AVIF, GIF, BMP, SVG, HEIC (8 formats). Output: PNG, JPEG, WebP, AVIF (4 formats). Each format uses a different compression engine optimized for that specific type — oxipng WASM for PNG, browser-native codecs for others.', aZh: '输入：PNG、JPEG、WebP、AVIF、GIF、BMP、SVG、HEIC（8种格式）。输出：PNG、JPEG、WebP、AVIF（4种格式）。每种格式使用针对该类型优化的不同压缩引擎——PNG用oxipng WASM，其他格式用浏览器原生编解码器。' },
+      { qEn: 'How does browser-based compression work?', qZh: '浏览器压缩是怎么实现的？', aEn: 'CompressFast uses Web Workers (background threads) and WebAssembly to run compression engines directly in your browser. Images are decoded with the browser\'s built-in codecs, processed in a worker thread (so the UI stays responsive), and re-encoded at your chosen quality. No data ever leaves your device — you can disconnect from the internet and everything still works.', aZh: '极速压图使用Web Worker（后台线程）和WebAssembly直接在浏览器中运行压缩引擎。图片通过浏览器内置编解码器解码，在Worker线程中处理（UI保持流畅），再以你选择的画质重新编码。所有数据不离开你的设备——断网后一切功能照常使用。' },
+      { qEn: 'Can I compress images to a specific file size?', qZh: '能压缩到指定的文件大小吗？', aEn: 'Not directly — compression results depend on image content, so a fixed target size isn\'t always achievable. However, you can use the quality slider with live size estimation to dial in your desired balance. The before/after comparison shows exact byte savings for each image.', aZh: '不能直接指定——压缩结果取决于图片内容，固定目标大小不一定总能实现。但你可以通过画质滑块的实时大小估算来找到理想的平衡点。前后对比会显示每张图片精确的字节节省量。' },
+      { qEn: 'Is there a limit on how many images I can compress?', qZh: '压缩图片有数量限制吗？', aEn: 'Free users can compress up to 30 images per batch (20 for single-format modes) and 400 total compressions per month (resets on the 1st). Pro users get 500 per batch with no monthly limits — $24.99 once, lifetime access.', aZh: '免费用户每批最多30张（单格式模式20张），每月400次压缩（月初重置）。Pro用户每批500张且无月度限制——$24.99一次性买断，终身使用。' },
+      { qEn: 'How does CompressFast compare to other online compressors?', qZh: '极速压图和其他在线压缩工具有什么区别？', aEn: 'Three key differences: (1) Privacy — your files are never uploaded to a server. Most competitors process images in the cloud, meaning they have access to your files. (2) Format coverage — 8 input and 4 output formats, more than most free tools. (3) Pricing — free tier is generous (30/batch, 400/month), Pro is a one-time $24.99, not a subscription like TinyPNG ($25/year).', aZh: '三个关键区别：(1) 隐私——你的文件从不上传服务器。大多数竞品在云端处理图片，意味着它们能访问你的文件。(2) 格式覆盖——8种输入4种输出，比多数免费工具多。(3) 定价——免费版很大方（30张/批，400次/月），Pro版$24.99一次性买断，不像TinyPNG那样$25/年订阅。' },
     ],
+    detailedGuideEn: `CompressFast is a universal image compression tool — drop in any common image format and get a smaller, web-ready file in seconds. Unlike single-format compressors that only handle PNG or JPEG, CompressFast automatically detects your image type and applies the optimal compression strategy for that format.
+
+    Here's how the all-in-one approach works:
+
+    1. Smart format detection — Each image is identified by its actual file signature, not just the extension. This means we catch mislabeled files (e.g., a PNG saved as .jpg) and apply the correct compression engine. No configuration needed on your part.
+
+    2. Format-specific compression engines — PNG gets lossless oxipng WASM optimization. JPEG gets quality-based re-encoding with chroma subsampling. WebP gets both lossy and lossless modes. GIF gets per-frame palette optimization. AVIF (Pro) gets the latest AV1-based compression. Each engine is tuned for that format's strengths.
+
+    3. Cross-format conversion built in — Compressing and converting are the same step. Want to turn your PNG into a WebP? Select WebP output and the compression engine handles both tasks simultaneously. No need for a separate converter tool.
+
+    4. Batch everything — The universal compressor shines brightest in batch mode. Mix PNGs, JPEGs, and WebPs in the same upload. Each gets its own optimal compression. Download results as a single ZIP — every file correctly compressed, every format preserved (or converted if you chose a different output format).
+
+    The universal tool is ideal when you have a folder of mixed images — product photos, screenshots, logos, social media graphics — and just want everything smaller without thinking about formats. For format-specific deep optimization, use the dedicated tool pages (compress-png, compress-jpeg, etc.).
+
+    Privacy remains absolute: whether you compress 1 image or 500, nothing ever leaves your browser. The Web Workers hum away on background threads while you continue browsing or switch tabs. No uploads, no queues, no waiting on a server.`,
+
+    detailedGuideZh: `极速压图是一款通用图片压缩工具——拖入任何常见图片格式，几秒内获得更小、更适合网页的文件。与只处理 PNG 或 JPEG 的单格式压缩器不同，极速压图自动检测你的图片类型，并为该格式应用最优压缩策略。
+
+    以下是"全家桶"方案的工作原理：
+
+    1. 智能格式检测——每张图片通过实际文件签名而非扩展名来识别。这意味着我们能发现标记错误的文件（如一个 PNG 却被保存成 .jpg 的文件），并应用正确的压缩引擎。你无需任何手动配置。
+
+    2. 格式专属压缩引擎——PNG 使用无损 oxipng WASM 优化。JPEG 使用基于画质的重编码配合色度子采样。WebP 同时支持有损和无损模式。GIF 使用逐帧调色板优化。AVIF（Pro 专属）使用最新的 AV1 压缩。每个引擎都针对该格式的优势进行了调优。
+
+    3. 内置跨格式转换——压缩和转换是同一个步骤。想把 PNG 变成 WebP？选 WebP 输出，压缩引擎同时完成压缩和转换两项任务。不需要单独打开转换工具。
+
+    4. 批量全家桶——通用压缩器在批量模式下最为好用。同一批上传中可以混合 PNG、JPEG 和 WebP。每种格式获得各自最优压缩。一键 ZIP 下载所有结果——每个文件正确压缩，每种格式保留（或按你选择的输出格式统一转换）。
+
+    当你的文件夹里图片格式五花八门——产品照片、截图、Logo、社交媒体素材混杂在一起——只想让它们全部变小而不用操心格式，通用工具就是最佳选择。如果需要针对特定格式的深度优化，请使用专属工具页（compress-png、compress-jpeg 等）。
+
+    隐私始终如铁：无论压缩 1 张还是 500 张，没有任何数据离开你的浏览器。Web Worker 在后台线程默默工作，你可以继续浏览或切换标签页。没有上传、没有排队、不用等服务器响应。`,
     relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp'],
   },
 
@@ -243,7 +315,39 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Will compression break my GIF animation?', qZh: '压缩会破坏GIF动画吗？', aEn: 'No — CompressFast preserves GIF animations while reducing file size. Your GIFs will still move after compression.', aZh: '不会——极速压图在减小体积的同时保留GIF动画效果。压缩后你的GIF照样能动。' },
       { qEn: 'How much can GIF files be reduced?', qZh: 'GIF文件能减小多少？', aEn: 'Typically 30-70% reduction depending on the GIF. Simple GIFs with fewer colors compress better. You can preview the result before downloading.', aZh: '通常能减小30-70%，取决于GIF本身。颜色少的简单GIF压缩效果更好。下载前可以预览结果。' },
       { qEn: 'Is there a file size limit for GIFs?', qZh: 'GIF文件有大小限制吗？', aEn: 'Free users can compress GIFs up to 25MB each. Pro users get 50MB per file. No limits on the number of GIFs you can process (within batch limits).', aZh: '免费用户每张GIF最大25MB，Pro用户50MB。GIF数量无限制（在批量限制内）。' },
+      { qEn: 'Why are my GIF files so large?', qZh: '为什么我的GIF文件这么大？', aEn: 'GIF is a 1987 format with no real compression — it stores every frame as a full bitmap with a 256-color palette. A 5-second GIF at 30fps has 150 frames, each potentially a full image. Modern alternatives like animated WebP or MP4 can be 80-90% smaller with better quality.', aZh: 'GIF是1987年的格式，没有真正的压缩——每帧都是完整的位图，只有256色调色板。一个5秒30fps的GIF有150帧，每帧都可能是一张完整图片。现代替代方案如动态WebP或MP4可比GIF小80-90%，画质还更好。' },
+      { qEn: 'Should I compress GIF or convert to WebP/MP4?', qZh: '应该压缩GIF还是转成WebP/MP4？', aEn: 'For screen recordings and video clips: convert to MP4 — up to 90% smaller. For short reaction GIFs and memes: compress the GIF or convert to animated WebP — 60-80% smaller with wider compatibility than MP4. For logos and simple animations: animated WebP is ideal, often 70%+ smaller than GIF.', aZh: '录屏和视频片段：转MP4——可小90%。短反应动图和表情包：压缩GIF或转动态WebP——小60-80%，兼容性比MP4好。Logo和简单动画：动态WebP最佳，通常比GIF小70%+。' },
+      { qEn: 'Can I compress multiple GIFs at once?', qZh: '能同时压缩多个GIF吗？', aEn: 'Yes — batch compress up to 20 GIFs at once for free (500 with Pro). All GIFs are processed in parallel Web Workers. Use ZIP download to get all compressed GIFs in one file.', aZh: '可以——免费版一次批量压缩最多20个GIF（Pro版500个）。所有GIF通过Web Worker并行处理。一键ZIP打包下载所有结果。' },
+      { qEn: 'Does GIF compression reduce colors?', qZh: 'GIF压缩会减少颜色吗？', aEn: 'Yes — color reduction is the primary compression technique for GIFs. Most GIFs use far fewer than 256 colors. CompressFast analyzes each frame and optimizes the color palette per frame, often cutting colors from 256 to 64-128 with no visible difference. You control the quality slider to balance colors vs file size.', aZh: '会——色彩缩减是GIF最主要的压缩技术。大多数GIF实际使用的颜色远少于256种。极速压图分析每帧并逐帧优化调色板，通常将颜色从256减至64-128种，肉眼无差异。你可以通过画质滑块控制颜色和体积的平衡。' },
+      { qEn: 'What\'s the difference between GIF and animated WebP?', qZh: 'GIF和动态WebP有什么区别？', aEn: 'Animated WebP supports 24-bit color (16.7 million colors vs GIF\'s 256), better transparency (alpha channel vs binary), and modern compression. At the same visual quality, animated WebP is 60-80% smaller. The trade-off: Safari only added animated WebP support in 2023, so very old devices may not render it.', aZh: '动态WebP支持24位色（1670万色 vs GIF的256色）、更好的透明度（alpha通道 vs 二值透明）和现代压缩算法。同等观感下动态WebP小60-80%。代价是：Safari 2023年才支持动态WebP，非常老的设备可能无法渲染。' },
     ],
+    detailedGuideEn: `GIF (Graphics Interchange Format) turned 38 years old in 2025 — but it's still everywhere. From reaction memes to product demos, GIFs remain the internet's default animation format. The problem? They're huge. A single 10-second GIF can easily hit 15-20MB, slowing down pages and eating mobile data.
+
+    CompressFast's GIF compressor tackles this with smart, lossy optimization that preserves the animation experience:
+
+    1. Per-frame color optimization — GIFs are limited to 256 colors per frame. Our compressor analyzes each frame individually and builds the optimal palette, often reducing the palette to 64-128 colors with zero visible difference. Fewer colors = smaller file.
+
+    2. Frame timing optimization — Many GIFs duplicate frames with different delay timings. We detect identical consecutive frames and merge them, adjusting the delay accordingly. This can cut frame count by 20-40% without changing how the animation looks.
+
+    3. Transparency optimization — GIFs use binary transparency (a pixel is either fully transparent or fully opaque). We optimize transparent areas across frames, reducing redundant pixel data.
+
+    4. Quality slider control — The quality slider gives you direct control over the color reduction aggressiveness. At 80%+, colors remain rich and the file is 20-40% smaller. At 50-70%, you get 50-70% size reduction with noticeably fewer colors — fine for simple animations, less ideal for photorealistic GIFs.
+
+    Pro tip: If your "GIF" is actually a screen recording of a UI or video clip, consider converting it to MP4 or animated WebP instead. You'll get dramatically smaller files with better quality. Use GIF compression for actual GIFs — memes, reaction clips, and simple looping animations where GIF compatibility is essential.`,
+
+    detailedGuideZh: `GIF（图形交换格式）到 2025 年已经 38 岁了——但它仍然无处不在。从表情包到产品演示，GIF 依然是互联网的默认动图格式。问题呢？它们太大了。一个 10 秒的 GIF 动辄 15-20MB，拖慢页面加载，烧掉手机流量。
+
+    极速压图的 GIF 压缩工具通过智能的有损优化来解决这个问题，同时保留完整的动画体验：
+
+    1. 逐帧色彩优化——GIF 每帧限制 256 色。我们的压缩器逐帧分析并构建最优调色板，通常将颜色减至 64-128 种而肉眼完全看不出差异。颜色越少=文件越小。
+
+    2. 帧时序优化——很多 GIF 存在重复帧配上不同延迟时间的冗余。我们检测相同的连续帧并合并它们，同时调整延迟时间。这可以减少 20-40% 的帧数，动画观感完全不变。
+
+    3. 透明度优化——GIF 使用二值透明度（像素要么完全透明要么完全不透明）。我们跨帧优化透明区域，减少冗余像素数据。
+
+    4. 画质滑块控制——画质滑块让你直接控制色彩缩减的激进程度。80%+ 时色彩保持丰富，体积减小 20-40%。50-70% 时体积减小 50-70%，颜色明显减少——适合简单动图，不太适合照片级 GIF。
+
+    小贴士：如果你的"GIF"其实是录屏或视频片段，建议转成 MP4 或动态 WebP。你会得到体积小得多、画质更好的文件。GIF 压缩留给真正的 GIF——表情包、反应动图和简单的循环动画，这些场景下 GIF 兼容性仍然不可或缺。`,
     relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp'],
   },
 
