@@ -569,7 +569,38 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'What metadata is removed from my photos?', qZh: '会清除哪些元数据？', aEn: 'Everything: GPS coordinates (latitude/longitude/altitude), camera model and manufacturer, lens type, exposure settings (ISO, aperture, shutter speed), date/time taken, software used, author/copyright fields, and all other EXIF/IPTC/XMP metadata. Your photo pixels stay exactly the same.', aZh: '所有：GPS坐标（经纬度/海拔）、相机型号和制造商、镜头类型、曝光参数（ISO/光圈/快门）、拍摄时间、使用软件、作者/版权字段、所有其他EXIF/IPTC/XMP元数据。照片像素完全不变。' },
       { qEn: 'Will removing metadata reduce photo quality?', qZh: '清除元数据会影响画质吗？', aEn: 'No — metadata stripping only removes invisible text data attached to your photo file. The actual image pixels and quality are completely untouched. Your photo will look pixel-perfect identical while the file may even become slightly smaller.', aZh: '不会——元数据清除只删除附加在照片文件中的不可见文本数据。实际图像像素和画质完全不受影响。照片像素级别完全一致，文件甚至可能稍微变小。' },
       { qEn: 'Why should I remove metadata before sharing photos online?', qZh: '为什么分享照片前要清除元数据？', aEn: 'Social media, forums, and messaging apps may preserve and expose your photo metadata. GPS coordinates can reveal your home, workplace, or current location. Camera serial numbers can be used for tracking. Stripping metadata before sharing protects your privacy and safety.', aZh: '社交媒体、论坛和聊天应用可能会保留和暴露你的照片元数据。GPS坐标可能泄露你的家庭地址、工作地点或当前位置。相机序列号可能被用于追踪。分享前清除元数据保护你的隐私和安全。' },
+      { qEn: 'Do social media platforms remove metadata automatically?', qZh: '社交媒体平台会自动清除元数据吗？', aEn: 'Most major platforms (Facebook, Instagram, Twitter/X) claim to strip EXIF on upload, but this varies by platform and changes over time. Messaging apps like WhatsApp and Telegram often preserve metadata. The safest approach: strip it yourself before uploading anywhere. CompressFast makes this a one-click step.', aZh: '大多数主流平台（Facebook、Instagram、Twitter/X）声称上传时清除EXIF，但这因平台而异且随时变化。WhatsApp和Telegram等聊天应用通常保留元数据。最安全的做法：上传到任何地方之前先自己清除。极速压图让这变成一键搞定。' },
+      { qEn: 'Can I batch remove metadata from multiple photos?', qZh: '能批量清除多张照片的元数据吗？', aEn: 'Yes — batch up to 30 photos at once for free (500 with Pro). "Strip Photo Info" is on by default. All photos are processed in parallel and downloadable as a ZIP. Perfect for cleaning an entire photo album before sharing.', aZh: '可以——免费版一次最多30张（Pro版500张）。"清除照片信息"默认开启。所有照片并行处理，可ZIP打包下载。非常适合在分享前清理整个相册。' },
+      { qEn: 'Can I see what metadata my photo contains before removing it?', qZh: '能在清除前查看照片包含哪些元数据吗？', aEn: 'Most operating systems let you view basic EXIF: right-click → Properties → Details (Windows), or Get Info (Mac). For full metadata inspection, free tools like ExifTool or online EXIF viewers work. CompressFast strips everything automatically — no preview, but also no risk of missing hidden fields.', aZh: '多数操作系统支持查看基本EXIF：右键→属性→详细信息（Windows），或显示简介（Mac）。完整元数据检查可用ExifTool等免费工具或在线EXIF查看器。极速压图自动清除所有——不提供预览，但也确保了不会遗漏任何隐藏字段。' },
+      { qEn: 'Does metadata removal work on HEIC/HEIF photos from iPhones?', qZh: '能清除iPhone拍的照片（HEIC格式）的元数据吗？', aEn: 'Yes — CompressFast supports HEIC input. The metadata is stripped during processing, and you can output as JPEG or PNG (both metadata-free) or keep as original format. iPhone photos contain extensive metadata including precise GPS, so stripping is especially important for privacy.', aZh: '可以——极速压图支持HEIC输入。处理过程中元数据被清除，输出可选择JPEG或PNG（均无元数据）或保持原格式。iPhone照片包含大量元数据包括精确GPS，清除对隐私保护尤为重要。' },
+      { qEn: 'Is metadata removal reversible?', qZh: '元数据清除可以恢复吗？', aEn: 'No — once metadata is stripped, it cannot be recovered from the output file. If you need the metadata later, keep a copy of the original file. Think of it like shredding a document: permanent and irreversible by design.', aZh: '不能——元数据一旦被清除，无法从输出文件中恢复。如果以后还需要元数据，保留原始文件的副本。就像碎纸机一样：设计上就是永久且不可逆的。' },
     ],
+    detailedGuideEn: `Every photo you take with a smartphone or digital camera embeds invisible metadata — a digital fingerprint that tells the story of when, where, and how the photo was captured. This metadata, known as EXIF (Exchangeable Image File Format), includes GPS coordinates precise to within a few meters, the exact camera model and serial number, lens type, exposure settings, and a timestamp down to the second.
+
+    CompressFast's metadata removal tool strips all of this hidden data cleanly and completely:
+
+    1. What gets removed — GPS latitude/longitude/altitude (potentially revealing your home, workplace, or travel patterns), camera make/model/serial number (uniquely identifying your device), exposure details (ISO, aperture, shutter speed, focal length), date/time original, software/editing history, copyright and author fields, thumbnail embedded previews, and all IPTC/XMP metadata. Everything. Gone.
+
+    2. How it works — The stripping happens at the binary level. Your image is decoded, metadata blocks are discarded, and the pixel data is re-encoded without any metadata headers. For JPEG, this means re-encoding at your chosen quality. For PNG, the output is metadata-free by default. The visual pixels are never touched.
+
+    3. Batch workflow — Drop up to 30 photos at once. "Strip Photo Info" is enabled by default (toggle in settings panel). Click compress. Every output file is metadata-free. ZIP download bundles all clean photos.
+
+    4. When to use it — Before posting photos on social media, forums, or any public platform. Before sending photos to clients, contractors, or strangers. Before uploading photos to cloud storage. Before sharing photos in messaging apps. Basically: always remove metadata unless you specifically need to preserve it.
+
+    5. What about file size — Metadata removal typically reduces file size by 1-50KB per photo, depending on how much metadata was embedded. It is not a replacement for compression, but a privacy feature. Combine with JPEG compression at 85% quality for both privacy and size reduction in one step.`,
+    detailedGuideZh: `你用手机或数码相机拍的每一张照片都嵌入了不可见的元数据——一种数字指纹，记录着照片拍摄的时间、地点和方式。这种被称为EXIF（可交换图像文件格式）的元数据包含精确到几米以内的GPS坐标、相机型号和序列号、镜头类型、曝光参数以及精确到秒的时间戳。
+
+    极速压图的元数据清除工具干净彻底地剥离所有这些隐藏数据：
+
+    1. 清除内容——GPS经纬度/海拔（可能暴露你的家庭地址、工作地点或行踪轨迹）、相机制造商/型号/序列号（唯一标识你的设备）、曝光详情（ISO、光圈、快门速度、焦距）、原始拍摄时间、软件/编辑历史、版权和作者字段、嵌入的缩略图预览以及所有IPTC/XMP元数据。全部。清空。
+
+    2. 工作原理——清除发生在二进制层面。图片被解码，元数据块被丢弃，像素数据在没有元数据头的情况下重新编码。对JPEG来说，这意味着以你选择的画质重新编码。对PNG来说，输出默认就是无元数据的。视觉像素从未被触碰。
+
+    3. 批量工作流——一次拖入最多30张照片。"清除照片信息"默认开启（可在设置面板切换）。点击压缩。每张输出文件都是无元数据的。ZIP下载打包所有干净的照片。
+
+    4. 使用场景——在社交媒体、论坛或任何公开平台发布照片之前。在向客户、承包商或陌生人发送照片之前。在上传照片到云存储之前。在聊天应用中分享照片之前。简而言之：总是清除元数据，除非你特意需要保留。
+
+    5. 文件大小——元数据清除通常每张照片减少1-50KB，取决于嵌入的元数据量。它不是压缩的替代品，而是隐私功能。结合JPEG压缩85%画质，一步完成隐私保护和体积缩减。`,
     relatedTools: ['compress-jpeg', 'resize-image', 'compress-images'],
   },
 
@@ -600,7 +631,42 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Is CompressFast really better than TinyPNG?', qZh: '极速压图真的比TinyPNG好吗？', aEn: 'In key areas: yes. Larger file limits (25MB vs 5MB), true privacy (no upload vs cloud processing), more input formats (8 vs 3), and lifetime pricing ($24.99 vs $25/year). TinyPNG has slightly better default compression quality.', aZh: '关键维度上：是的。文件限制更大（25MB vs 5MB）、真正隐私（不上传 vs 云处理）、格式更多（8种 vs 3种）、定价更优（买断$24.99 vs 年付$25）。TinyPNG在默认压缩品质上略优。' },
       { qEn: 'Why is TinyPNG still so popular?', qZh: '为什么TinyPNG还那么火？', aEn: 'TinyPNG has been around since 2014 and built strong brand recognition. But for privacy-conscious users and those with large files or batch needs, CompressFast is a better choice.', aZh: 'TinyPNG 2014年就上线了，品牌认知度很高。但对重视隐私的用户、需要处理大文件或批量的用户来说，极速压图是更好的选择。' },
       { qEn: 'Can I use CompressFast just like TinyPNG?', qZh: '能像用TinyPNG一样用极速压图吗？', aEn: 'Yes — and more. Same drag-and-drop experience, but with batch ZIP download, format conversion, watermark, resize, and EXIF stripping. Everything TinyPNG does plus features they charge extra for.', aZh: '当然——甚至更好。同样的拖拽体验，外加批量ZIP下载、格式转换、水印、尺寸调整、EXIF清除。TinyPNG有的功能都有，它们收费的功能我们免费。' },
+      { qEn: 'Can I switch from TinyPNG to CompressFast without losing quality?', qZh: '从TinyPNG换到极速压图，压缩品质会变差吗？', aEn: 'PNG compression: CompressFast uses oxipng WASM for lossless optimization — often achieves smaller files than TinyPNG for PNG. JPEG compression: TinyPNG has a slight edge in default quality, but CompressFast gives you a quality slider (TinyPNG doesn\'t) so you can match or exceed their results by adjusting. In practice, the differences are negligible for web use.', aZh: 'PNG压缩：极速压图使用oxipng WASM无损优化——PNG文件往往比TinyPNG更小。JPEG压缩：TinyPNG默认品质略优，但极速压图提供画质滑块（TinyPNG没有），你可以调节画质来达到甚至超越它们的效果。实际使用中，网页场景差异可以忽略不计。' },
+      { qEn: 'Does CompressFast have an API like TinyPNG?', qZh: '极速压图有像TinyPNG那样的API吗？', aEn: 'Not currently. CompressFast is designed as a browser-based tool for end users, not developers. If you need API-based compression for a build pipeline, TinyPNG or Kraken.io are better fits. For manual batch compression with privacy, CompressFast is the better choice.', aZh: '目前没有。极速压图设计为面向终端用户的浏览器工具，而非面向开发者。如果你需要用于构建流程的API压缩，TinyPNG或Kraken.io更合适。如果你需要手动批量压缩并注重隐私，极速压图是更好的选择。' },
+      { qEn: 'What makes CompressFast more private than TinyPNG?', qZh: '极速压图比TinyPNG更隐私体现在哪里？', aEn: 'TinyPNG requires uploading images to their cloud servers for processing — they have access to your files during compression. CompressFast processes everything locally using Web Workers and WebAssembly in your browser. Your files never leave your device. You can verify this by disconnecting your internet after loading the page — everything still works.', aZh: 'TinyPNG需要将图片上传到云端服务器处理——压缩过程中他们能访问你的文件。极速压图使用Web Worker和WebAssembly在浏览器中本地处理一切。你的文件从不离开你的设备。你可以通过加载页面后断网来验证——一切功能照常工作。' },
+      { qEn: 'Is CompressFast completely free like the free tier of TinyPNG?', qZh: '极速压图像TinyPNG免费版那样完全免费吗？', aEn: 'Yes — and more generous. CompressFast free: 30 images/batch, 25MB/file, 400/month, all formats. TinyPNG free: 20 images/batch, 5MB/file, 500/month, WebP/PNG/JPEG only. CompressFast Pro ($24.99 lifetime) unlocks 500/batch, 50MB/file, no monthly limits, and AVIF output. TinyPNG Pro is $25/year.', aZh: '是的——而且更大方。极速压图免费版：30张/批、25MB/张、400次/月、全格式。TinyPNG免费版：20张/批、5MB/张、500次/月、仅WebP/PNG/JPEG。极速压图Pro（$24.99买断）解锁500张/批、50MB/张、无月度限制、AVIF输出。TinyPNG Pro是$25/年。' },
+      { qEn: 'Can CompressFast compress PDF files like some TinyPNG alternatives?', qZh: '极速压图能像某些TinyPNG替代品那样压缩PDF吗？', aEn: 'No — CompressFast is focused on image formats only (PNG, JPEG, WebP, AVIF, GIF, SVG, BMP, HEIC). For PDF compression, dedicated tools like Smallpdf or ILovePDF are better suited. CompressFast excels at image optimization specifically.', aZh: '不能——极速压图专注于图片格式（PNG、JPEG、WebP、AVIF、GIF、SVG、BMP、HEIC）。PDF压缩更适合用Smallpdf或ILovePDF等专用工具。极速压图在图片优化方面是专长。' },
     ],
+    detailedGuideEn: `TinyPNG has been the go-to image compressor for over a decade. It is reliable, well-known, and delivers consistent results. But in 2026, there are compelling reasons to consider alternatives — especially if you care about privacy, work with large files, or want to avoid recurring subscription costs.
+
+    CompressFast is the best TinyPNG alternative for users who want:
+
+    1. True privacy — TinyPNG processes your images on their cloud servers. Your files are uploaded, processed, and (they claim) deleted. But during those seconds, your images exist on a third-party server. CompressFast never uploads anything. All compression runs in your browser via Web Workers and WebAssembly. Disconnect your internet after loading the page — everything still works. This is critical for sensitive documents, client work, medical images, and unreleased product photos.
+
+    2. No file size limits — TinyPNG restricts free users to 5MB per image. A single high-resolution photo from a modern smartphone easily exceeds this. CompressFast supports 25MB per image on the free tier (50MB for Pro). No artificial caps on your creative work.
+
+    3. More format support — TinyPNG handles WebP, PNG, and JPEG. CompressFast handles 8 input formats (PNG, JPEG, WebP, AVIF, GIF, BMP, SVG, HEIC) and 4 output formats (PNG, JPEG, WebP, AVIF). This means format conversion is built-in — turn a GIF into WebP, a HEIC into JPEG, or a PNG into AVIF, all in the same compression step.
+
+    4. Lifetime pricing — TinyPNG Pro costs $25/year, every year. CompressFast Pro is $24.99 once. For occasional users, both free tiers are fine. For regular users, the math favors CompressFast after year one.
+
+    5. Extra features included — EXIF/GPS metadata stripping, image watermarking (text + image), resize with presets, ZIP batch download, before/after comparison slider. TinyPNG charges for some of these features; CompressFast includes them free.
+
+    Areas where TinyPNG still wins: API access for developers, Photoshop/Figma plugins, and slightly more polished default JPEG compression. For everything else — especially privacy, batch work, and cost — CompressFast is the better tool.`,
+    detailedGuideZh: `TinyPNG 作为图片压缩工具已经火了十多年。它可靠、知名、效果稳定。但到了 2026 年，有充分的理由考虑替代品——尤其如果你在意隐私、处理大文件、或不想付循环订阅费。
+
+    极速压图是以下用户的最佳 TinyPNG 替代品：
+
+    1. 真正的隐私——TinyPNG 在云端服务器上处理你的图片。你的文件被上传、处理、（他们声称）删除。但那几秒钟内，你的图片存在于第三方服务器上。极速压图从不上传任何东西。所有压缩在浏览器中通过 Web Worker 和 WebAssembly 运行。加载页面后断网——一切照常工作。这对敏感文件、客户工作、医疗影像和未发布的产品照片至关重要。
+
+    2. 无文件大小限制——TinyPNG 限制免费用户每张图片 5MB。现代智能手机的一张高分辨率照片轻易超过这个限制。极速压图免费版支持每张 25MB（Pro 版 50MB）。不给你创作设人工上限。
+
+    3. 更多格式支持——TinyPNG 处理 WebP、PNG 和 JPEG。极速压图处理 8 种输入格式（PNG、JPEG、WebP、AVIF、GIF、BMP、SVG、HEIC）和 4 种输出格式（PNG、JPEG、WebP、AVIF）。这意味着格式转换是内置的——把 GIF 变成 WebP、HEIC 变成 JPEG、PNG 变成 AVIF，全在同一个压缩步骤中完成。
+
+    4. 买断定价——TinyPNG Pro 每年 $25，年复一年。极速压图 Pro 一次性 $24.99。对偶尔使用的用户来说，两个免费版都够用。对经常使用的用户，一年后算账极速压图更划算。
+
+    5. 附加功能免费——EXIF/GPS 元数据清除、图片水印（文字+图片）、尺寸调整预设、ZIP 批量下载、前后对比滑块。TinyPNG 对其中一些功能收费；极速压图免费包含。
+
+    TinyPNG 仍占优的方面：开发者 API 访问、Photoshop/Figma 插件、默认 JPEG 压缩稍更精细。其他方面——特别是隐私、批量处理、成本——极速压图是更好的工具。`,
     relatedTools: ['compress-images', 'compress-png', 'compress-jpeg'],
   },
 
@@ -631,7 +697,38 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Does SVG compression change how my image looks?', qZh: 'SVG压缩会改变图像外观吗？', aEn: 'No — SVG compression is lossless. We only remove invisible data: XML comments, whitespace, and editor metadata. Your SVG renders pixel-perfect identical.', aZh: '不会——SVG压缩是完全无损的。我们只删除不可见数据：XML注释、空白和编辑器元数据。你的SVG渲染效果像素级别完全一致。' },
       { qEn: 'Is my SVG source code uploaded to a server?', qZh: '我的SVG源码会被上传到服务器吗？', aEn: 'Never. All optimization happens locally in your browser. Your SVG code stays on your device — safe for proprietary icons, brand logos, and commercial assets.', aZh: '绝不会。所有优化在浏览器本地完成，SVG代码留在你的设备上——适合私有的图标、品牌Logo和商业素材。' },
       { qEn: 'Can I compress multiple SVGs at once?', qZh: '可以同时压缩多个SVG吗？', aEn: 'Yes — compress up to 30 SVGs at once for free (500 with Pro). Perfect for icon sets, illustration packs, and design system assets.', aZh: '可以——免费版一次压缩最多30个SVG（Pro版500个）。非常适合图标集、插画包和设计系统资源。' },
+      { qEn: 'How much can SVG files be reduced?', qZh: 'SVG文件能减小多少？', aEn: 'Results vary widely: SVGs from design tools (Illustrator, Figma, Sketch) often contain massive editor metadata and can shrink 50-90%. Hand-coded SVGs are usually already lean — expect 5-20% reduction. Minified SVGs may see little to no reduction. CompressFast shows you the before/after byte count for each file.', aZh: '效果差异很大：设计工具导出的SVG（Illustrator、Figma、Sketch）通常包含大量编辑器元数据，可缩减50-90%。手写的SVG通常已经很精简——预期减少5-20%。已压缩过的SVG可能几乎没有缩减空间。极速压图会显示每张文件的前后字节数。' },
+      { qEn: 'What exactly gets removed during SVG compression?', qZh: 'SVG压缩过程中具体会删除什么？', aEn: 'XML comments, indentation and whitespace, editor metadata (Illustrator/Figma/Sketch markers), redundant namespace declarations, unnecessary `<title>` and `<desc>` elements, default attribute values (e.g., `version="1.1"`), and empty groups. Your visible artwork, paths, gradients, and animations are untouched.', aZh: 'XML注释、缩进和空白、编辑器元数据（Illustrator/Figma/Sketch标记）、多余的命名空间声明、不必要的`<title>`和`<desc>`元素、默认属性值（如`version="1.1"`）、空组。可见的图形、路径、渐变和动画不会被触碰。' },
+      { qEn: 'Can compressed SVGs still be edited in Illustrator or Figma?', qZh: '压缩后的SVG还能在Illustrator或Figma中编辑吗？', aEn: 'Yes — compression only removes invisible metadata, not structural vector data. The SVG opens fine in any vector editor. However, editor-specific metadata (like layer names or artboard info) will be gone. If you need to preserve editing metadata, keep the original file and compress a copy for production use.', aZh: '可以——压缩只移除不可见元数据，不会删除结构性矢量数据。SVG在任何矢量编辑器中都能正常打开。但编辑器专属元数据（如图层名称或画板信息）会被清除。如果需要保留编辑元数据，保留原文件，压缩一份副本用于生产环境。' },
+      { qEn: 'Is SVG compression the same as SVG minification?', qZh: 'SVG压缩和SVG压缩混淆是一样的吗？', aEn: 'They are similar but not identical. Minification focuses on reducing file size by removing whitespace and shortening names. CompressFast also removes editor metadata and redundant attributes, which minifiers often miss. For maximum size reduction, you can minify first with a dedicated tool (like SVGO), then use CompressFast for metadata cleanup.', aZh: '类似但不完全相同。压缩混淆侧重于通过移除空白和缩短名称来减小文件大小。极速压图还清除了编辑器元数据和多余属性，这些是混淆工具经常遗漏的。要最大化缩减体积，可以先用专用工具（如SVGO）混淆，再用极速压图清理元数据。' },
+      { qEn: 'Can I compress an SVG inside a web page without downloading it?', qZh: '能不下载就直接压缩网页中的SVG吗？', aEn: 'You would need to save the SVG file first, then upload it to CompressFast. Most SVGs on websites are already optimized. If you are building a website, the better approach is to optimize your SVGs during the build process using tools like SVGO (as part of your build pipeline) rather than manually compressing each one.', aZh: '你需要先保存SVG文件，然后上传到极速压图。网站上的大多数SVG已经被优化。如果你在构建网站，更好的做法是在构建流程中使用SVGO等工具优化SVG（作为构建管道的一部分），而非手动逐一压缩。' },
     ],
+    detailedGuideEn: `SVG (Scalable Vector Graphics) is unique among image formats — it is not a grid of pixels, but a text file containing mathematical descriptions of shapes, paths, and colors. This makes SVG infinitely scalable (no "resolution"), typically very small for simple graphics, and editable with any text editor. But SVGs from design tools like Illustrator, Figma, or Sketch often carry significant bloat.
+
+    CompressFast's SVG compressor strips this bloat without touching your visible artwork:
+
+    1. What gets cleaned — XML comments (designer notes, tool markers), indentation whitespace (tabs, spaces used for formatting), editor metadata blocks (application-specific data from Illustrator, Figma, Sketch, Inkscape), redundant namespace declarations, empty &lt;g&gt; groups, default attribute values (version="1.1", x="0" y="0"), and unnecessary &lt;title&gt;/&lt;desc&gt; elements. Everything visible — paths, shapes, gradients, filters, animations — is preserved exactly.
+
+    2. How much you can save — Editor-exported SVGs: 50-90% reduction is common. A 50KB Illustrator SVG may become 8KB after cleaning. Hand-coded SVGs: 5-20% reduction. Already-optimized SVGs: minimal savings. The before/after comparison shows exact bytes saved.
+
+    3. The privacy advantage for SVG — SVG files contain your actual source code. Uploading proprietary icons or brand logos to a server-based SVG optimizer means sharing your intellectual property with a third party. CompressFast processes everything locally — your vector code never leaves your browser.
+
+    4. Batch optimization for icon sets — Design systems and icon libraries often contain dozens or hundreds of SVG files. CompressFast handles up to 30 at once (500 with Pro). Drop an entire icon folder, download a ZIP of optimized SVGs.
+
+    5. When to use vs dedicated tools — For one-off SVG cleanups, CompressFast is perfect. For build-pipeline optimization of hundreds of SVGs, command-line tools like SVGO integrate better into CI/CD workflows. Use CompressFast for quick manual jobs and SVGO for automated optimization.`,
+    detailedGuideZh: `SVG（可缩放矢量图形）在图像格式中独树一帜——它不是像素网格，而是包含形状、路径和色彩数学描述的文本文件。这使得SVG无限可缩放（没有"分辨率"），简单图形通常非常小，且可用任何文本编辑器编辑。但从Illustrator、Figma或Sketch等设计工具导出的SVG往往携带大量冗余。
+
+    极速压图的SVG压缩器清除这些冗余，不触碰可见图形：
+
+    1. 清除内容——XML注释（设计师笔记、工具标记）、缩进空白（用于格式化的制表符和空格）、编辑器元数据块（来自Illustrator、Figma、Sketch、Inkscape的应用专属数据）、多余的命名空间声明、空&lt;g&gt;组、默认属性值（version="1.1"、x="0" y="0"）、不必要的&lt;title&gt;/&lt;desc&gt;元素。所有可见内容——路径、形状、渐变、滤镜、动画——被精确保留。
+
+    2. 能节省多少——编辑器导出的SVG：通常缩减50-90%。一个50KB的Illustrator SVG清理后可能变成8KB。手写的SVG：缩减5-20%。已优化过的SVG：节省空间微小。前后对比显示精确的字节节省量。
+
+    3. SVG的隐私优势——SVG文件包含你的实际源代码。将私有图标或品牌Logo上传到基于服务器的SVG优化器，意味着与第三方分享你的知识产权。极速压图全部本地处理——你的矢量代码永远不离开你的浏览器。
+
+    4. 图标集批量优化——设计系统和图标库通常包含几十甚至几百个SVG文件。极速压图一次处理最多30个（Pro版500个）。拖入整个图标文件夹，下载优化后的SVG ZIP包。
+
+    5. 何时使用vs专用工具——一次性SVG清理，极速压图完美胜任。对数百个SVG的构建管道优化，SVGO等命令行工具能更好地集成到CI/CD工作流中。用极速压图做快速手动处理，用SVGO做自动化优化。`,
     relatedTools: ['compress-images', 'compress-png', 'convert-to-webp'],
   },
 }
