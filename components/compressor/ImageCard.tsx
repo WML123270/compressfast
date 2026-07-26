@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2 } from 'lucide-react'
+import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2, CheckSquare, Square } from 'lucide-react'
 import type { ImageFile, QualityTier } from '@/lib/compression/types'
 import { getQualityTier, QUALITY_TIER_COLORS } from '@/lib/compression/types'
 import { useCompressionStore } from '@/lib/store/compression-store'
@@ -12,9 +12,9 @@ import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
 import { ImageCompare } from './ImageCompare'
 
-interface ImageCardProps { image: ImageFile; index?: number; showDragHandle?: boolean }
+interface ImageCardProps { image: ImageFile; index?: number; showDragHandle?: boolean; selected?: boolean; onSelect?: (id: string) => void }
 
-export function ImageCard({ image, showDragHandle }: ImageCardProps) {
+export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCardProps) {
   const { t } = useT()
   const { removeFile, compressOne, rotateImage, flipImage, resetTransform, naming } = useCompressionStore()
   const [showPreview, setShowPreview] = useState(false)
@@ -73,6 +73,19 @@ export function ImageCard({ image, showDragHandle }: ImageCardProps) {
   return (
     <div className="border border-gray-200 rounded-xl p-3 sm:p-4 bg-white hover:shadow-sm transition-shadow">
       <div className="flex items-center gap-3">
+        {/* Selection checkbox — only for done images */}
+        {image.status === 'done' && onSelect && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onSelect(image.id) }}
+            className="flex-shrink-0 text-neutral-700 hover:text-blue-600 transition-colors p-0.5 -ml-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
+            title={selected ? t('card.deselect') : t('card.select')}
+          >
+            {selected
+              ? <CheckSquare className="w-5 h-5 text-blue-600" />
+              : <Square className="w-5 h-5" />
+            }
+          </button>
+        )}
         {showDragHandle && (
           <div className="flex-shrink-0 text-neutral-800 hover:text-neutral-700 cursor-grab active:cursor-grabbing -ml-1">
             <GripVertical className="w-4 h-4" />

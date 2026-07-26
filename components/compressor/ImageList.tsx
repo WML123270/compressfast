@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
-import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw } from 'lucide-react'
+import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw, CheckSquare, Square } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
@@ -20,6 +20,38 @@ export function ImageList() {
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const [undoVisible, setUndoVisible] = useState(false)
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Selection state for selective batch download
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const doneFiles = files.filter(f => f.status === 'done' && f.compressedBlob)
+  const selectedCount = doneFiles.filter(f => selectedIds.has(f.id)).length
+  const allSelected = doneFiles.length > 0 && selectedCount === doneFiles.length
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(doneFiles.map(f => f.id)))
+  }, [doneFiles])
+
+  const deselectAll = useCallback(() => {
+    setSelectedIds(new Set())
+  }, [])
+
+  // Clear selection when files change
+  useEffect(() => {
+    setSelectedIds(prev => {
+      const validIds = new Set(files.map(f => f.id))
+      const next = new Set(Array.from(prev).filter(id => validIds.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [files])
 
   // Show undo bar when undoStack changes (file removed)
   useEffect(() => {
@@ -65,18 +97,21 @@ export function ImageList() {
   const allProcessed = allDone()
 
   const handleBatchDownload = async () => {
-    const doneFiles = files.filter(f => f.status === 'done' && f.compressedBlob)
-    if (doneFiles.length === 0) return
+    // If files are selected, download only selected; otherwise download all done
+    const targetFiles = selectedCount > 0
+      ? doneFiles.filter(f => selectedIds.has(f.id))
+      : doneFiles
+    if (targetFiles.length === 0) return
 
-    if (doneFiles.length === 1) {
-      const f = doneFiles[0]
+    if (targetFiles.length === 1) {
+      const f = targetFiles[0]
       const name = generateFilename(f, naming, 1)
       saveAs(f.compressedBlob!, name)
       return
     }
 
     const zip = new JSZip()
-    doneFiles.forEach((f, i) => {
+    targetFiles.forEach((f, i) => {
       const name = generateFilename(f, naming, i + 1)
       zip.file(name, f.compressedBlob!)
     })
@@ -130,13 +165,27 @@ export function ImageList() {
             </button>
           )}
 
+          {/* Select All / Deselect All toggle */}
+          {hasDone && !isCompressing && (
+            <button
+              onClick={allSelected ? deselectAll : selectAll}
+              className="flex items-center gap-1 px-2 py-2 sm:px-2.5 sm:py-2 text-neutral-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+              title={allSelected ? (locale === 'zh' ? '取消全选' : 'Deselect All') : (locale === 'zh' ? '全选' : 'Select All')}
+            >
+              {allSelected ? <CheckSquare className="w-4 h-4 text-blue-600" /> : <Square className="w-4 h-4" />}
+            </button>
+          )}
+
           {hasDone && (
             <button
               onClick={handleBatchDownload}
               className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
             >
               <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              {allProcessed ? t('list.downloadAll') : t('list.downloadDone', { n: doneCount })}
+              {selectedCount > 0
+                ? (locale === 'zh' ? `下载选中 (${selectedCount})` : `Download Selected (${selectedCount})`)
+                : allProcessed ? t('list.downloadAll') : t('list.downloadDone', { n: doneCount })
+              }
             </button>
           )}
 
@@ -191,7 +240,7 @@ export function ImageList() {
             {overIndex === index && dragIndex !== index && (
               <div className="h-0.5 bg-brand-500 rounded-full mb-2 mx-2 transition-all" />
             )}
-            <ImageCard image={image} index={index} showDragHandle />
+            <ImageCard image={image} index={index} showDragHandle selected={selectedIds.has(image.id)} onSelect={toggleSelect} />
             {/* Drop indicator line — show below the last card */}
             {overIndex === files.length && dragIndex !== null && index === files.length - 1 && (
               <div className="h-0.5 bg-brand-500 rounded-full mt-2 mx-2 transition-all" />
