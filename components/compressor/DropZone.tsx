@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useRef } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
-import { Upload, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, AlertCircle, Loader2, Camera } from 'lucide-react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits, MONTHLY_FREE_QUOTA, getMonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
@@ -25,8 +25,42 @@ export function DropZone() {
   const { t, locale } = useT()
   const { files, addFiles, isCompressing, isPro } = useCompressionStore()
   const limits = getLimits(isPro)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [sampleLoading, setSampleLoading] = useState<string | null>(null)
+
+  const handleCameraCapture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const capturedFiles = e.target.files
+    if (!capturedFiles || capturedFiles.length === 0) return
+    setError(null)
+
+    const imageFiles = Array.from(capturedFiles).filter(f => f.type.startsWith('image/'))
+    if (imageFiles.length === 0) {
+      setError(t('dropzone.error.imagesOnly'))
+      return
+    }
+
+    const available = limits.maxFiles - files.length
+    if (available <= 0) {
+      setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
+      return
+    }
+
+    // Monthly quota check for free users
+    if (!isPro && !isCnDeploy()) {
+      const q = getMonthlyQuota()
+      if (q.count >= MONTHLY_FREE_QUOTA) {
+        setError(t('pro.quotaExceeded'))
+        return
+      }
+    }
+
+    addFiles(imageFiles)
+
+    // Reset input value so same camera can be opened again
+    e.target.value = ''
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files.length, addFiles, t, isPro, limits])
 
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
@@ -119,6 +153,34 @@ export function DropZone() {
           {t('dropzone.paste')}
           <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-gray-200 text-neutral-700 font-mono">⌘V</kbd>
         </p>
+
+        {/* Camera capture — primary action for mobile users */}
+        <div className="mt-4 flex items-center justify-center gap-3">
+          {/* Hidden camera input with capture="environment" for rear camera */}
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleCameraCapture}
+            multiple
+          />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              cameraInputRef.current?.click()
+            }}
+            disabled={isCompressing}
+            className="inline-flex items-center gap-2 px-5 py-3 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Camera className="w-5 h-5 sm:w-4 sm:h-4" />
+            <span className="sm:hidden">{t('dropzone.camera')}</span>
+            <span className="hidden sm:inline">{t('dropzone.camera')}</span>
+          </button>
+        </div>
+
         {remaining < limits.maxFiles && remaining > 0 && (
           <p className="text-blue-600 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
         )}
