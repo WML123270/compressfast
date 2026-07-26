@@ -16,7 +16,12 @@ function readStored<T>(key: string, fallback: T): T {
   return fallback
 }
 
-let worker: Worker | null = null
+const MAX_WORKERS = Math.min(
+  typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || 4) : 4,
+  4,
+)
+const _workers: Worker[] = []
+let _workerRR = 0
 let _compressAllCleanup: (() => void) | null = null
 const _compressOneCleanups = new Map<string, () => void>()
 
@@ -31,13 +36,26 @@ async function decodeHEICOnMain(buffer: ArrayBuffer): Promise<ArrayBuffer> {
 
 function isHEIC(t: string) { return t === 'image/heic' || t === 'image/heif' || t === 'image/heic-sequence' }
 
-function getWorker(): Worker {
-  if (!worker) {
-    worker = new Worker(
-      new URL('../compression/worker.ts', import.meta.url),
-    )
+/** Ensure Worker pool is initialized */
+function ensureWorkers(): void {
+  if (_workers.length > 0) return
+  for (let i = 0; i < MAX_WORKERS; i++) {
+    _workers.push(new Worker(new URL('../compression/worker.ts', import.meta.url)))
   }
-  return worker
+}
+
+/** Get the first Worker (for single-file compressOne) */
+function getWorker(): Worker {
+  ensureWorkers()
+  return _workers[0]
+}
+
+/** Round-robin get next Worker (for batch compressAll distribution) */
+function getNextWorker(): Worker {
+  ensureWorkers()
+  const w = _workers[_workerRR % _workers.length]
+  _workerRR++
+  return w
 }
 
 /** Increment monthly quota counter (called after each successful compression) */
@@ -299,7 +317,10 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     const effectiveFormat = !isPro && options.outputFormat === 'avif' ? 'original' : options.outputFormat
 
     set({ isCompressing: true })
-    const w = getWorker()
+
+    // Init worker pool and reset round-robin
+    ensureWorkers()
+    _workerRR = 0
 
     if (_compressAllCleanup) {
       _compressAllCleanup()
@@ -353,6 +374,11 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       }
     }
 
+    // Register handler on all workers in the pool
+    for (const w of _workers) {
+      w.addEventListener('message', handleMessage)
+    }
+
     const pendingCount = pendingFiles.length
 
     const checkDone = () => {
@@ -360,10 +386,11 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       const stillRunning = allFiles.some(f => f.status === 'pending' || f.status === 'compressing')
       if (stillRunning) return
 
-      if (_compressAllCleanup) {
-        _compressAllCleanup()
-        _compressAllCleanup = null
+      // Cleanup handlers from all workers
+      for (const w of _workers) {
+        w.removeEventListener('message', handleMessage)
       }
+      _compressAllCleanup = null
 
       // 统计压缩次数（只计本轮新压缩的，避免重复计数）
       if (pendingCount > 0) {
@@ -390,8 +417,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       set({ isCompressing: false })
     }
 
-    w.addEventListener('message', handleMessage)
-    _compressAllCleanup = () => w.removeEventListener('message', handleMessage)
+    // Set cleanup for external cancellation
+    _compressAllCleanup = () => {
+      for (const w of _workers) {
+        w.removeEventListener('message', handleMessage)
+      }
+    }
 
     pendingFiles.forEach((file) => {
       set({
@@ -419,7 +450,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           }
         }
 
-        w.postMessage({
+        getNextWorker().postMessage({
           id: file.id,
           fileBuffer,
           fileName: file.file.name,
