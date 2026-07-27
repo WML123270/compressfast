@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
-import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw, CheckSquare, Square } from 'lucide-react'
+import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw, CheckSquare, Square, Loader2 } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
@@ -23,6 +23,7 @@ export function ImageList() {
 
   // Selection state for selective batch download
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [zipProgress, setZipProgress] = useState<{ current: number; total: number; percent: number } | null>(null)
   const doneFiles = files.filter(f => f.status === 'done' && f.compressedBlob)
   const selectedCount = doneFiles.filter(f => selectedIds.has(f.id)).length
   const allSelected = doneFiles.length > 0 && selectedCount === doneFiles.length
@@ -110,12 +111,19 @@ export function ImageList() {
       return
     }
 
+    setZipProgress({ current: 0, total: targetFiles.length, percent: 0 })
     const zip = new JSZip()
     targetFiles.forEach((f, i) => {
       const name = generateFilename(f, naming, i + 1)
       zip.file(name, f.compressedBlob!)
     })
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    const zipBlob = await zip.generateAsync(
+      { type: 'blob' },
+      (meta) => {
+        setZipProgress({ current: meta.currentFile ? targetFiles.findIndex(ff => ff.file.name === meta.currentFile) + 1 : 0, total: targetFiles.length, percent: meta.percent })
+      },
+    )
+    setZipProgress(null)
     saveAs(zipBlob, 'compressed_images.zip')
   }
 
@@ -179,14 +187,33 @@ export function ImageList() {
           {hasDone && (
             <button
               onClick={handleBatchDownload}
-              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center"
+              disabled={zipProgress !== null}
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-lg transition-colors text-xs sm:text-sm flex-1 sm:flex-none justify-center disabled:opacity-50"
             >
-              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {zipProgress ? (
+                <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              )}
               {selectedCount > 0
                 ? (locale === 'zh' ? `下载选中 (${selectedCount})` : `Download Selected (${selectedCount})`)
                 : allProcessed ? t('list.downloadAll') : t('list.downloadDone', { n: doneCount })
               }
             </button>
+          )}
+
+          {zipProgress && (
+            <div className="w-full sm:w-48 flex items-center gap-2 px-2">
+              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                  style={{ width: `${zipProgress.percent}%` }}
+                />
+              </div>
+              <span className="text-xs text-neutral-700 tabular-nums whitespace-nowrap">
+                {Math.round(zipProgress.percent)}%
+              </span>
+            </div>
           )}
 
           <button
