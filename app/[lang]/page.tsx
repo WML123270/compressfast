@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, useRef } from 'react'
 import { DropZone } from '@/components/compressor/DropZone'
 import { ImageList } from '@/components/compressor/ImageList'
 import { CompressionControls } from '@/components/compressor/CompressionControls'
+import { DemoShowcase } from '@/components/compressor/DemoShowcase'
 import { WatermarkSettings } from '@/components/compressor/WatermarkSettings'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits } from '@/lib/compression/types'
@@ -183,6 +184,9 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      {/* Demo showcase — only when no files loaded */}
+      {!hasFiles && <DemoShowcase />}
 
       {/* Upload & Tool Area */}
       <DropZone />
