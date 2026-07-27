@@ -87,11 +87,11 @@ export default function LangLayout({
   return (
     <LanguageProvider locale={locale}>
       <ToastProvider>
-        <div className="relative min-h-screen flex flex-col">
-          {/* Top glow orb */}
-          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-glow-top pointer-events-none" aria-hidden="true" />
-          {/* Bottom glow orb */}
-          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-glow-bottom pointer-events-none" aria-hidden="true" />
+        <div className="relative min-h-screen flex flex-col overflow-x-hidden">
+          {/* Top glow orb — hidden on mobile to prevent overflow */}
+          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[200px] sm:h-[300px] lg:h-[400px] bg-glow-top pointer-events-none" aria-hidden="true" />
+          {/* Bottom glow orb — hidden on mobile */}
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[500px] lg:w-[600px] h-[150px] sm:h-[250px] lg:h-[300px] bg-glow-bottom pointer-events-none" aria-hidden="true" />
 
           <Header />
           <JsonLd />

@@ -1,8 +1,15 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
 import { Analytics } from '@/components/layout/Analytics'
 import { LangDetector } from '@/components/layout/LangDetector'
 import './globals.css'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#ffffff',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.vercel.app'),
@@ -60,7 +67,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={htmlLang} suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#ffffff" />
         <meta name="baidu_union_verify" content="88a78eaf1ef0ec38f4c7e7d4ca595e55" />
         <script
           dangerouslySetInnerHTML={{
@@ -73,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col text-neutral-800 antialiased">
+      <body className="min-h-screen flex flex-col text-neutral-800 antialiased overflow-x-hidden">
         <LangDetector />
         {children}
         <Analytics />
