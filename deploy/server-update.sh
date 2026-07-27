@@ -86,8 +86,12 @@ echo "✅ 解压完成"
 echo ""
 echo ">>> [3/6] 更新文件..."
 
-# 停一下服务再替换（避免文件锁定）
+# 停掉所有相关服务（包括旧名称 compressfast）再替换（避免文件锁定和端口冲突）
 pm2 stop png-compressor 2>/dev/null || true
+pm2 stop compressfast 2>/dev/null || true
+# 确保端口释放
+fuser -k 3000/tcp 2>/dev/null || true
+sleep 1
 
 # 删除旧文件
 rm -rf "$APP_DIR/.next" "$APP_DIR/public"
@@ -125,10 +129,12 @@ cd "$APP_DIR"
 
 export NODE_ENV=production
 
+# 清理旧进程名，避免端口冲突
+pm2 delete compressfast 2>/dev/null || true
+
 if pm2 list 2>/dev/null | grep -q png-compressor; then
   pm2 start png-compressor 2>/dev/null || pm2 restart png-compressor
 else
-  # 首次部署：用 npx 启动，兼容性最好
   pm2 start npx --name png-compressor -- next start -p $PORT
 fi
 
