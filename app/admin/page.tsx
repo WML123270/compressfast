@@ -37,8 +37,8 @@ interface Purchase {
 
 // Tiny inline sparkline chart — pure SVG, no dependencies
 function Sparkline({ data, height = 40, color = '#3b82f6' }: { data: DailyPoint[]; height?: number; color?: string }) {
-  if (!data || data.length === 0) return <div className="text-neutral-500 text-xs">No data</div>
-  const values = data.map(d => d.value)
+  if (!data || data.length === 0) return <div className="text-neutral-500 text-xs">—</div>
+  const values = data.map(d => d.value || 0)
   const max = Math.max(...values, 1)
   const min = Math.min(...values, 0)
   const range = max - min || 1
@@ -112,34 +112,38 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [refreshing, setRefreshing] = useState(false)
+  const [fetching, setFetching] = useState(false)
 
   const fetchStats = useCallback(async () => {
-    if (refreshing) return
-    setRefreshing(true)
+    if (fetching) return
+    setFetching(true)
     setError('')
     try {
       const res = await fetch('/api/admin/stats', { credentials: 'include' })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`HTTP ${res.status}${text ? ': ' + text.slice(0, 100) : ''}`)
+      }
       const data = await res.json()
       if (data.error) throw new Error(data.error)
       setStats(data)
+      setLoading(false)
     } catch (e: any) {
+      console.error('Admin stats fetch error:', e)
       setError(e.message || '加载失败')
+      setLoading(false)
     }
-    setLoading(false)
-    setRefreshing(false)
-  }, [refreshing])
+    setFetching(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  useEffect(() => { fetchStats() }, [])
+  useEffect(() => { fetchStats() }, [fetchStats])
 
   // Auto-refresh every 60s
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!refreshing) fetchStats()
-    }, 60000)
+    const interval = setInterval(fetchStats, 60000)
     return () => clearInterval(interval)
-  }, [refreshing, fetchStats])
+  }, [fetchStats])
 
   if (loading) {
     return (
@@ -155,27 +159,37 @@ export default function AdminDashboardPage() {
       <div className="max-w-lg mx-auto mt-10">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-4">
           <p className="text-red-600 font-semibold mb-2">数据加载失败</p>
-          <p className="text-sm text-red-500">{error}</p>
+          <p className="text-sm text-red-500 break-all">{error}</p>
+          <p className="text-xs text-neutral-500 mt-2">
+            请确认已登录（访问此页应自动跳转登录），或打开控制台查看详细错误。
+          </p>
         </div>
-        <button onClick={fetchStats} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">重试</button>
+        <button onClick={fetchStats} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">重试</button>
       </div>
     )
   }
 
-  if (!stats) return null
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full" />
+        <span className="ml-3 text-neutral-600">加载中...</span>
+      </div>
+    )
+  }
 
   const allDailyPV = stats.dailyPV || []
   const allDailyUV = stats.dailyUV || []
   const allDailyComp = stats.dailyCompressions || []
-  const maxPV = Math.max(...allDailyPV.map(d => d.value), 1)
-  const maxUV = Math.max(...allDailyUV.map(d => d.value), 1)
-  const maxComp = Math.max(...allDailyComp.map(d => d.value), 1)
+  const maxPV = Math.max(...allDailyPV.map(d => d.value || 0), 1)
+  const maxUV = Math.max(...allDailyUV.map(d => d.value || 0), 1)
+  const maxComp = Math.max(...allDailyComp.map(d => d.value || 0), 1)
 
   // Separate real purchases from test
   const purchases = stats.recentPurchases || []
   const testEmails = ['test@test.com', 'test@example.com', 'test2@test.com', 'hacker@test.com', 'hacker2@test.com']
-  const realPurchases = purchases.filter(p => !testEmails.includes(p.email))
-  const testPurchases = purchases.filter(p => testEmails.includes(p.email))
+  const realPurchases = purchases.filter(p => p && !testEmails.includes(p.email))
+  const testPurchases = purchases.filter(p => p && testEmails.includes(p.email))
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -184,21 +198,21 @@ export default function AdminDashboardPage() {
         <h1 className="text-xl font-bold text-neutral-900">📊 数据仪表盘</h1>
         <button
           onClick={fetchStats}
-          disabled={refreshing}
+          disabled={fetching}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-sm text-neutral-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${fetching ? 'animate-spin' : ''}`} />
           刷新
         </button>
       </div>
 
       {/* Top metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <MetricCard label="总 PV" value={stats.totalPV.toLocaleString()} icon={TrendingUp} color="text-blue-600" />
-        <MetricCard label="总 UV" value={stats.totalUV.toLocaleString()} icon={Users} color="text-green-600" />
-        <MetricCard label="总压缩" value={stats.totalCompressions.toLocaleString()} icon={Zap} color="text-amber-600" />
-        <MetricCard label="Pro 购买" value={String(stats.totalPurchases)} icon={DollarSign} color="text-purple-600" />
-        <MetricCard label="总收入" value={`$${stats.totalRevenue.toFixed(2)}`} icon={DollarSign} color="text-pink-600" />
+        <MetricCard label="总 PV" value={(stats.totalPV ?? 0).toLocaleString()} icon={TrendingUp} color="text-blue-600" />
+        <MetricCard label="总 UV" value={(stats.totalUV ?? 0).toLocaleString()} icon={Users} color="text-green-600" />
+        <MetricCard label="总压缩" value={(stats.totalCompressions ?? 0).toLocaleString()} icon={Zap} color="text-amber-600" />
+        <MetricCard label="Pro 购买" value={String(stats.totalPurchases ?? 0)} icon={DollarSign} color="text-purple-600" />
+        <MetricCard label="总收入" value={`$${(stats.totalRevenue ?? 0).toFixed(2)}`} icon={DollarSign} color="text-pink-600" />
       </div>
 
       {/* Overseas vs China */}
@@ -260,9 +274,9 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-gray-100 text-xs font-semibold">
           <span className="w-12 flex-shrink-0 text-neutral-600">合计</span>
           <div className="flex items-center gap-1 flex-1 min-w-0">
-            <span className="flex-1 text-center min-w-[30px] text-blue-600 tabular-nums">{allDailyPV.reduce((s, d) => s + d.value, 0)}</span>
-            <span className="flex-1 text-center min-w-[30px] text-green-600 tabular-nums">{allDailyUV.reduce((s, d) => s + d.value, 0)}</span>
-            <span className="flex-1 text-center min-w-[30px] text-amber-600 tabular-nums">{allDailyComp.reduce((s, d) => s + d.value, 0)}</span>
+            <span className="flex-1 text-center min-w-[30px] text-blue-600 tabular-nums">{allDailyPV.reduce((s, d) => s + (d.value || 0), 0)}</span>
+            <span className="flex-1 text-center min-w-[30px] text-green-600 tabular-nums">{allDailyUV.reduce((s, d) => s + (d.value || 0), 0)}</span>
+            <span className="flex-1 text-center min-w-[30px] text-amber-600 tabular-nums">{allDailyComp.reduce((s, d) => s + (d.value || 0), 0)}</span>
           </div>
         </div>
       </div>
