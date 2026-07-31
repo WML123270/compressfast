@@ -73,6 +73,26 @@ function incrementQuota(n: number = 1) {
   } catch {}
 }
 
+/** Shared tracking + quota update after compression completes (used by both compressAll and compressOne) */
+function trackCompressionComplete(get: () => CompressionState, set: (s: Partial<CompressionState>) => void, count: number, sizes: number[]) {
+  // Fire analytics event
+  fetch('/api/admin/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event: 'compression', count, host: window.location.hostname, sizes }),
+  }).catch(() => {})
+  // Free users: update local + server quota
+  if (!get().isPro && !IS_CN) {
+    incrementQuota(count)
+    set({ monthlyUsed: getMonthlyQuota().count })
+    fetch('/api/quota', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ count }),
+    }).catch(() => {})
+  }
+}
+
 interface RemovedFileEntry {
   file: ImageFile
   index: number  // position where it was removed
@@ -394,24 +414,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
 
       // 统计压缩次数（只计本轮新压缩的，避免重复计数）
       if (pendingCount > 0) {
-        // Collect file sizes for analytics
-        const compressedSizes = pendingFiles.map(f => f.originalSize)
-        fetch('/api/admin/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: pendingCount, host: window.location.hostname, sizes: compressedSizes }),
-        }).catch(() => {})
-        // 免费用户更新月度配额
-        if (!get().isPro && !IS_CN) {
-          incrementQuota(pendingCount)
-          set({ monthlyUsed: getMonthlyQuota().count })
-          // Also increment server-side (fire-and-forget)
-          fetch('/api/quota', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ count: pendingCount }),
-          }).catch(() => {})
-        }
+        trackCompressionComplete(get, set, pendingCount, pendingFiles.map(f => f.originalSize))
       }
 
       set({ isCompressing: false })
@@ -554,23 +557,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
               : f
           ),
         })
-        // 统计压缩次数（单文件）
-        fetch('/api/admin/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'compression', count: 1, host: window.location.hostname, sizes: [file.file.size] }),
-        }).catch(() => {})
-        // 免费用户更新月度配额
-        if (!get().isPro && !IS_CN) {
-          incrementQuota(1)
-          set({ monthlyUsed: getMonthlyQuota().count })
-          // Also increment server-side
-          fetch('/api/quota', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ count: 1 }),
-          }).catch(() => {})
-        }
+        trackCompressionComplete(get, set, 1, [file.file.size])
       }
 
       if (type === 'error') {

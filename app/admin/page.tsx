@@ -68,15 +68,17 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
-  function purchaseRow(p: any, tag: string) {
+  function purchaseRow(p: any, isTest: boolean) {
     const devices = p.devices?.length || 0
+    const tag = isTest ? 'TEST' : 'REAL'
+    const tagClass = isTest ? 'tag-test' : 'tag-real'
     return `<tr>
       <td class="mono">${p.code || ''}</td>
       <td>${p.email || ''}</td>
       <td>${new Date(p.created_at).toLocaleDateString('zh-CN')}</td>
       <td>${p.orderAmount || '$24.99'}</td>
       <td>${devices > 0 ? devices + ' dev' : ''}</td>
-      <td class="tag">${tag}</td>
+      <td class="${tagClass}">${tag}</td>
     </tr>`
   }
 
@@ -84,7 +86,7 @@ function renderStats(data: any, ov: any, cn: any): string {
   const purchases = data.recentPurchases || []
   const testEmails = ['test@test.com', 'test@example.com', 'test2@test.com', 'hacker@test.com', 'hacker2@test.com']
   for (const p of purchases) {
-    purchaseRows += purchaseRow(p, testEmails.includes(p.email) ? 'TEST' : 'REAL')
+    purchaseRows += purchaseRow(p, testEmails.includes(p.email))
   }
 
   return `<style>
@@ -105,8 +107,8 @@ function renderStats(data: any, ov: any, cn: any): string {
     .num { text-align: right; font-variant-numeric: tabular-nums; }
     .date { color: #64748b; }
     .mono { font-family: monospace; font-size: 11px; }
-    .tag { font-size: 10px; font-weight: 600; }
-    .tag:contains('REAL') { color: #16a34a; }
+    .tag-real { font-size: 10px; font-weight: 600; color: #16a34a; }
+    .tag-test { font-size: 10px; font-weight: 600; color: #94a3b8; }
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #475569; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
     .btn:hover { background: #f8fafc; }
   </style>
