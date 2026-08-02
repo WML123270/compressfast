@@ -34,6 +34,7 @@ const SKIP_PATHS = [
   '/verify-file.txt',
   '/google',
   '/demo-photo',
+  '.html',
   '.png',
   '.jpg',
   '.webp',
