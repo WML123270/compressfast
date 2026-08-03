@@ -1,15 +1,18 @@
 {
   "name": "compressfast",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CompressFast CLI — lightning-fast image compression from the command line. Compress JPEG, PNG, WebP, and AVIF in bulk.",
   "keywords": ["image", "compress", "compression", "png", "jpeg", "webp", "avif", "sharp", "cli", "optimize"],
   "homepage": "https://compressfast.site",
-  "repository": "github:WML123270/compressfast",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WML123270/compressfast.git"
+  },
   "license": "MIT",
   "author": "CompressFast",
   "main": "src/index.js",
   "bin": {
-    "compressfast": "./bin/compressfast.js"
+    "compressfast": "bin/compressfast.js"
   },
   "files": [
     "bin/",
