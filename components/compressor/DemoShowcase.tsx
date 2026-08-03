@@ -35,7 +35,7 @@ export function DemoShowcase() {
 
     try {
       // Load real landscape photo from public directory
-      const res = await fetch('/demo-photo.jpg')
+      const res = await fetch('/demo-photo.jpg?v=2')
       if (!res.ok) throw new Error('Failed to load demo photo')
       const blob = await res.blob()
       const file = new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })
