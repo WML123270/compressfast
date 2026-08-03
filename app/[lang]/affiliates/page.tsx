@@ -101,10 +101,17 @@ export default function AffiliatesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, locale }),
       })
-      await res.json()
-      setMessage(locale === 'zh'
-        ? '📧 登录链接已发送到你的邮箱（10分钟内有效）'
-        : '📧 Magic link sent to your email (valid 10 min)')
+      const data = await res.json()
+      if (data.loginUrl) {
+        // Email failed — show direct link as fallback
+        setMessage(locale === 'zh'
+          ? `⚠️ 邮件发送失败，请直接访问：${data.loginUrl}`
+          : `⚠️ Email unavailable. Use this link: ${data.loginUrl}`)
+      } else {
+        setMessage(locale === 'zh'
+          ? '📧 登录链接已发送到你的邮箱（10分钟内有效）'
+          : '📧 Magic link sent to your email (valid 10 min)')
+      }
     } catch {
       setError(locale === 'zh' ? '发送失败，请重试' : 'Failed to send. Please retry.')
     }

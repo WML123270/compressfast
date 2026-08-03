@@ -60,13 +60,14 @@ export async function POST(request: NextRequest) {
     const langPrefix = ['zh', 'en'].includes(userLocale) ? userLocale : 'en'
     const loginUrl = `${siteUrl}/${langPrefix}/affiliates?token=${token}`
 
-    // Send magic link email via Resend
+    // Try to send magic link email via Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@jisuyatu.com'
+    let emailSent = false
 
     if (RESEND_API_KEY) {
       try {
-        await fetch('https://api.resend.com/emails', {
+        const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${RESEND_API_KEY}`,
@@ -88,14 +89,24 @@ export async function POST(request: NextRequest) {
             ].join('\n'),
           }),
         })
+        if (emailRes.ok) emailSent = true
       } catch (e) {
         console.error('[Affiliate Login] Email error:', e)
       }
-    } else {
-      console.log(`[Affiliate Login] Would send magic link to ${email}: ${loginUrl}`)
     }
 
-    return NextResponse.json({ success: true, message: 'If registered, check your email' })
+    if (!emailSent) {
+      console.log(`[Affiliate Login] Email not sent to ${email}. Login URL: ${loginUrl}`)
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: emailSent
+        ? 'If registered, check your email'
+        : 'Email delivery unavailable — use this link directly',
+      // Fallback: return login link when email can't be sent
+      loginUrl: emailSent ? undefined : loginUrl,
+    })
   } catch (error: any) {
     console.error('[Affiliate Login] Error:', error)
     return NextResponse.json({ error: error?.message || 'Server error' }, { status: 500 })
