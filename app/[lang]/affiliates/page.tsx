@@ -192,7 +192,7 @@ export default function AffiliatesPage() {
     }
   }
 
-  const refLink = stats?.link || (affiliate ? `${window.location.origin}?ref=${affiliate.code}` : '')
+  const refLink = stats?.link || (affiliate && typeof window !== 'undefined' ? `${window.location.origin}?ref=${affiliate.code}` : '')
 
   // ─── Loading ───────────────────────────────────
   if (loading && !affiliate) {
