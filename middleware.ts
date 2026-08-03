@@ -86,8 +86,26 @@ function getLocaleFromRequest(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname, hostname } = request.nextUrl
 
+  // ─── Affiliate Referral Tracking ──────────────────
+  // Read ?ref=CODE, set 30-day cookie for conversion attribution
+  const refCode = request.nextUrl.searchParams.get('ref')
+  const hasRefCookie = request.cookies.get('aff_ref')?.value
+
   // Skip static files, API routes, and admin (always accessible from any domain)
-  if (shouldSkip(pathname)) return NextResponse.next()
+  if (shouldSkip(pathname)) {
+    // Still set ref cookie on static file requests if ref param present
+    if (refCode && !hasRefCookie) {
+      const resp = NextResponse.next()
+      resp.cookies.set('aff_ref', refCode.toUpperCase(), {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+      return resp
+    }
+    return NextResponse.next()
+  }
 
   // Geo-block: compressfast.site blocks Chinese IPs (overseas paid version)
   if (hostname === 'compressfast.site' || hostname.startsWith('png-compressor-')) {
@@ -107,6 +125,10 @@ export function middleware(request: NextRequest) {
   if (pathLocale) {
     const response = NextResponse.next()
     response.cookies.set('lang', pathLocale, { maxAge: 365 * 24 * 60 * 60 })
+    // Affiliate ref cookie
+    if (refCode && !hasRefCookie) {
+      response.cookies.set('aff_ref', refCode.toUpperCase(), { maxAge: 30 * 24 * 60 * 60, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
+    }
     return response
   }
 
@@ -125,11 +147,17 @@ export function middleware(request: NextRequest) {
     // could confuse Baidu's crawler during Union review
     const response = NextResponse.rewrite(newUrl)
     response.cookies.set('lang', locale, { maxAge: 365 * 24 * 60 * 60 })
+    if (refCode && !hasRefCookie) {
+      response.cookies.set('aff_ref', refCode.toUpperCase(), { maxAge: 30 * 24 * 60 * 60, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
+    }
     return response
   }
 
   const response = NextResponse.redirect(newUrl)
   response.cookies.set('lang', locale, { maxAge: 365 * 24 * 60 * 60 })
+  if (refCode && !hasRefCookie) {
+    response.cookies.set('aff_ref', refCode.toUpperCase(), { maxAge: 30 * 24 * 60 * 60, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
+  }
   return response
 }
 

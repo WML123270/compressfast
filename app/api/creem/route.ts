@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createLicense } from '@/lib/license'
 import { sendLicenseEmail } from '@/lib/email'
 import { incrementProPurchase } from '@/lib/stats'
+import { getAndClearAttribution, recordConversion } from '@/lib/affiliate'
 
 /**
  * Creem webhook handler
@@ -80,6 +81,20 @@ async function processWebhook(body: any) {
       : undefined
 
     const license = await createLicense(email, orderId, orderAmount)
+
+    // 联盟分销归属：检查是否有待处理的推荐关系
+    const affCode = await getAndClearAttribution(email)
+    if (affCode) {
+      const recorded = await recordConversion(
+        affCode,
+        orderId || 'unknown',
+        orderAmount || '$24.99 USD',
+        email,
+      )
+      if (recorded) {
+        console.log(`[Creem] Affiliate conversion: ${affCode} earned $12.50 from ${email}`)
+      }
+    }
 
     const sent = await sendLicenseEmail({ to: email, code: license.code, locale: 'en' })
     if (!sent) {

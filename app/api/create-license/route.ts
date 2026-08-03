@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createLicense } from '@/lib/license'
+import { saveAttribution, getAffiliate } from '@/lib/affiliate'
 import { Redis } from '@upstash/redis'
 
 const CREEM_CHECKOUT = process.env.NEXT_PUBLIC_CREEM_CHECKOUT_URL
@@ -68,6 +69,16 @@ export async function POST(request: NextRequest) {
 
     // 生成激活码存入 Redis（不发邮件，等 webhook 确认付款后发）
     const license = await createLicense(email)
+
+    // 联盟分销归属：读取 aff_ref cookie，存储待归属关系
+    const affRef = request.cookies.get('aff_ref')?.value
+    if (affRef) {
+      const aff = await getAffiliate(affRef)
+      if (aff && aff.active) {
+        await saveAttribution(email, affRef)
+        console.log(`[CreateLicense] Affiliate attribution: ${affRef} → ${email}`)
+      }
+    }
 
     // 构建带邮箱的 Creem 支付链接
     const checkoutUrl = new URL(CREEM_CHECKOUT)

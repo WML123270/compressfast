@@ -64,6 +64,11 @@ export function Footer() {
           <Link href={`/${locale}/terms`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '服务条款' : 'Terms'}
           </Link>
+          {!isCn && (
+            <Link href={`/${locale}/affiliates`} className="text-green-600 hover:text-green-700 transition-colors font-medium">
+              {isZh ? '联盟分销 · 赚50%' : 'Affiliates · Earn 50%'}
+            </Link>
+          )}
         </div>
 
         {/* Social + Support — overseas only */}
