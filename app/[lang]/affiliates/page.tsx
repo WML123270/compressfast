@@ -170,10 +170,26 @@ export default function AffiliatesPage() {
 
   const copyLink = async (link: string) => {
     try {
-      await navigator.clipboard.writeText(link)
+      // Primary: Clipboard API (needs HTTPS + user gesture)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link)
+      } else {
+        // Fallback: execCommand (works everywhere)
+        const textarea = document.createElement('textarea')
+        textarea.value = link
+        textarea.style.position = 'fixed'
+        textarea.style.left = '-9999px'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {}
+    } catch {
+      setError(locale === 'zh' ? '复制失败，请手动复制链接' : 'Copy failed, please copy manually')
+      setTimeout(() => setError(''), 3000)
+    }
   }
 
   const refLink = stats?.link || (affiliate ? `${window.location.origin}?ref=${affiliate.code}` : '')
