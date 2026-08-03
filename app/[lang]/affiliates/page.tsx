@@ -3,6 +3,9 @@
 import { useState, useEffect, Component } from 'react'
 import { Copy, Check, ArrowRight, TrendingUp, Users, DollarSign, LogIn, UserPlus, Loader2 } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
 // Error boundary to catch auto-translate DOM corruption
 class DashboardErrorBoundary extends Component<{ children: React.ReactNode; fallback: string }, { hasError: boolean }> {
@@ -33,6 +36,31 @@ type View = 'login' | 'signup' | 'dashboard'
 
 export default function AffiliatesPage() {
   const { t, locale } = useT()
+  const isCn = useIsCn()
+
+  // ─── 国内版不适用 ────────────────────────────
+  if (isCn) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6">
+        <div className="text-5xl">🆓</div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
+          {locale === 'zh' ? '国内版不支持联盟分销' : 'Affiliate program unavailable in China'}
+        </h1>
+        <p className="text-neutral-800 max-w-md mx-auto">
+          {locale === 'zh'
+            ? '极速压图国内版完全免费，无 Pro 付费，暂不提供联盟分销功能。'
+            : 'The domestic version is permanently free with no Pro tier. Affiliate program is not available.'}
+        </p>
+        <Link
+          href={`/${locale}`}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {locale === 'zh' ? '开始压缩' : 'Start Compressing'}
+        </Link>
+      </div>
+    )
+  }
 
   // ─── State ────────────────────────────────────
   const [view, setView] = useState<View>('login')
