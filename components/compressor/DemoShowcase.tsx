@@ -6,11 +6,11 @@ import { ImageCompare } from './ImageCompare'
 import { Zap, ArrowRight, Loader2 } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { SAMPLE_IMAGES } from '@/lib/sample-images'
 
 /**
  * DemoShowcase — visible on homepage when no files are loaded.
- * Compresses a sample image independently via Canvas API (no store/Worker).
+ * Uses a real landscape photo from /demo/sample-photo.jpg.
+ * Compresses via Canvas API (no store/Worker).
  * Shows visitors compression quality without requiring an upload.
  */
 export function DemoShowcase() {
@@ -34,9 +34,11 @@ export function DemoShowcase() {
     setState('loading')
 
     try {
-      // Generate sample image (already PNG, ~1.2MB for photo)
-      const sample = SAMPLE_IMAGES.find(s => s.name === 'photo') || SAMPLE_IMAGES[0]
-      const file = await sample.generator()
+      // Load real landscape photo from public directory
+      const res = await fetch('/demo/sample-photo.jpg')
+      if (!res.ok) throw new Error('Failed to load demo photo')
+      const blob = await res.blob()
+      const file = new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })
       const beforeUrl = URL.createObjectURL(file)
 
       // Compress via Canvas: decode PNG → re-encode as JPEG at quality 50

@@ -23,89 +23,12 @@ function seededRandom(seed: number): () => number {
   }
 }
 
-/** Create a photo-like image with gradient sky, terrain, and noise */
+/** Load real landscape photo from public directory */
 async function createPhotoSample(): Promise<File> {
-  const W = 1200, H = 800
-  const canvas = new OffscreenCanvas(W, H)
-  const ctx = canvas.getContext('2d')!
-  const rand = seededRandom(42)
-
-  // Sky gradient
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.55)
-  skyGrad.addColorStop(0, '#1a1a3e')
-  skyGrad.addColorStop(0.4, '#4169e1')
-  skyGrad.addColorStop(0.7, '#87ceeb')
-  skyGrad.addColorStop(1, '#b0e0e6')
-  ctx.fillStyle = skyGrad
-  ctx.fillRect(0, 0, W, H * 0.55)
-
-  // Mountains
-  ctx.fillStyle = '#2d5a27'
-  ctx.beginPath()
-  ctx.moveTo(0, H * 0.55)
-  for (let x = 0; x <= W; x += 20) {
-    const h = H * 0.55 - Math.sin(x * 0.008) * 120 - Math.sin(x * 0.02) * 60 - rand() * 30
-    ctx.lineTo(x, h)
-  }
-  ctx.lineTo(W, H)
-  ctx.lineTo(0, H)
-  ctx.fill()
-
-  // Snow caps
-  ctx.fillStyle = '#ffffff'
-  ctx.beginPath()
-  ctx.moveTo(0, H * 0.55)
-  for (let x = 0; x <= W; x += 20) {
-    const h = H * 0.55 - Math.sin(x * 0.008) * 120 - Math.sin(x * 0.02) * 60 - rand() * 30
-    ctx.lineTo(x, h + 30)
-  }
-  ctx.lineTo(0, H * 0.55)
-  ctx.fill()
-
-  // Lake
-  const lakeGrad = ctx.createLinearGradient(0, H * 0.7, 0, H * 0.95)
-  lakeGrad.addColorStop(0, '#1e90ff')
-  lakeGrad.addColorStop(0.5, '#4169e1')
-  lakeGrad.addColorStop(1, '#191970')
-  ctx.fillStyle = lakeGrad
-  ctx.beginPath()
-  ctx.ellipse(W * 0.5, H * 0.85, W * 0.3, H * 0.12, 0, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Sun
-  const sunGrad = ctx.createRadialGradient(W * 0.75, H * 0.2, 20, W * 0.75, H * 0.2, 80)
-  sunGrad.addColorStop(0, '#fffde0')
-  sunGrad.addColorStop(0.3, '#ffeb3b')
-  sunGrad.addColorStop(1, 'transparent')
-  ctx.fillStyle = sunGrad
-  ctx.beginPath()
-  ctx.arc(W * 0.75, H * 0.2, 80, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Trees
-  for (let i = 0; i < 60; i++) {
-    const tx = rand() * W
-    const ty = H * 0.55 + rand() * H * 0.15
-    const th = 30 + rand() * 60
-    ctx.fillStyle = `rgb(${20 + rand() * 40}, ${80 + rand() * 60}, ${10 + rand() * 30})`
-    ctx.beginPath()
-    ctx.moveTo(tx, ty)
-    ctx.lineTo(tx - 15, ty + th)
-    ctx.lineTo(tx + 15, ty + th)
-    ctx.fill()
-  }
-
-  // Noise for realism
-  const imgData = ctx.getImageData(0, 0, W, H)
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    const noise = (rand() - 0.5) * 15
-    imgData.data[i] = Math.min(255, Math.max(0, imgData.data[i] + noise))
-    imgData.data[i + 1] = Math.min(255, Math.max(0, imgData.data[i + 1] + noise))
-    imgData.data[i + 2] = Math.min(255, Math.max(0, imgData.data[i + 2] + noise))
-  }
-  ctx.putImageData(imgData, 0, 0)
-
-  return canvasToFile(canvas, 'sample_photo.png', 'image/png')
+  const res = await fetch('/demo/sample-photo.jpg')
+  if (!res.ok) throw new Error('Failed to load sample photo')
+  const blob = await res.blob()
+  return new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })
 }
 
 /** Create a screenshot-like image with UI elements */
@@ -368,7 +291,7 @@ export const SAMPLE_IMAGES: SampleImage[] = [
     description: 'Landscape photo',
     icon: '🏞️',
     generator: createPhotoSample,
-    size: '~1.2 MB',
+    size: '~140 KB',
   },
   {
     name: 'screenshot',
