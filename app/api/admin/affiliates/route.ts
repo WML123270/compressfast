@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, affiliate: updated })
       }
       case 'mark-paid': {
-        const amount = rest.amount || 0
+        const amount = Number(rest.amount) || 0
         const aff = await getAffiliate(code)
         if (!aff) return NextResponse.json({ error: 'Not found' }, { status: 404 })
         const updated = await updateAffiliate(code, { paidOut: (aff.paidOut || 0) + amount })

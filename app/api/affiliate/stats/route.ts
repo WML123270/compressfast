@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     // 脱敏：转换记录不暴露购买者完整邮箱
     const safeConversions = conversions.map(c => ({
-      orderId: c.orderId?.slice(0, 8) + '...',
+      orderId: c.orderId?.slice(0, 8),
       amount: c.amount,
       commission: c.commission,
       timestamp: c.timestamp,
