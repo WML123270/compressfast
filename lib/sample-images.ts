@@ -25,7 +25,7 @@ function seededRandom(seed: number): () => number {
 
 /** Load real landscape photo from public directory */
 async function createPhotoSample(): Promise<File> {
-  const res = await fetch('/demo/sample-photo.jpg')
+  const res = await fetch('/demo-photo.jpg')
   if (!res.ok) throw new Error('Failed to load sample photo')
   const blob = await res.blob()
   return new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })

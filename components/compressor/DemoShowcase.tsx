@@ -9,7 +9,7 @@ import { useCompressionStore } from '@/lib/store/compression-store'
 
 /**
  * DemoShowcase — visible on homepage when no files are loaded.
- * Uses a real landscape photo from /demo/sample-photo.jpg.
+ * Uses a real landscape photo from /demo-photo.jpg.
  * Compresses via Canvas API (no store/Worker).
  * Shows visitors compression quality without requiring an upload.
  */
@@ -35,7 +35,7 @@ export function DemoShowcase() {
 
     try {
       // Load real landscape photo from public directory
-      const res = await fetch('/demo/sample-photo.jpg')
+      const res = await fetch('/demo-photo.jpg')
       if (!res.ok) throw new Error('Failed to load demo photo')
       const blob = await res.blob()
       const file = new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })
