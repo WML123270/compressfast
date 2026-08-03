@@ -1,8 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Copy, Check, ArrowRight, TrendingUp, Users, DollarSign, Link2, LogIn, UserPlus, Loader2 } from 'lucide-react'
+import { useState, useEffect, Component } from 'react'
+import { Copy, Check, ArrowRight, TrendingUp, Users, DollarSign, LogIn, UserPlus, Loader2 } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+
+// Error boundary to catch auto-translate DOM corruption
+class DashboardErrorBoundary extends Component<{ children: React.ReactNode; fallback: string }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error) { console.error('Dashboard error:', error) }
+  render() {
+    if (this.state.hasError) return <div className="text-center py-10 text-neutral-600 text-sm">{this.props.fallback}</div>
+    return this.props.children
+  }
+}
 
 interface AffiliateData {
   code: string
@@ -216,7 +230,9 @@ export default function AffiliatesPage() {
     const paidOut = (paid / 100).toFixed(2)
     const pending = ((totalEarnings - paid) / 100).toFixed(2)
 
+    const fallbackMsg = locale === 'zh' ? 'Dashboard 加载出错，请刷新页面' : 'Dashboard error. Please refresh.'
     return (
+      <DashboardErrorBoundary fallback={fallbackMsg}>
       <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -234,7 +250,7 @@ export default function AffiliatesPage() {
         </div>
 
         {/* Referral Link */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+        <div translate="no" className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
           <p className="text-sm font-semibold text-blue-800 mb-2">
             {locale === 'zh' ? '🔗 你的推荐链接' : '🔗 Your Referral Link'}
           </p>
@@ -258,7 +274,7 @@ export default function AffiliatesPage() {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div translate="no" className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
             <Users className="w-5 h-5 text-blue-600 mx-auto mb-1" />
             <div className="text-2xl font-bold text-neutral-900">{totalClicks.toLocaleString()}</div>
@@ -357,6 +373,7 @@ export default function AffiliatesPage() {
           </div>
         </div>
       </div>
+      </DashboardErrorBoundary>
     )
   }
 
