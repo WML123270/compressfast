@@ -5,6 +5,7 @@ import { JsonLd } from '@/components/layout/JsonLd'
 import { PageViewTracker } from '@/components/layout/PageViewTracker'
 import { ToastProvider } from '@/components/ui/Toast'
 import { FeedbackButton } from '@/components/ui/FeedbackButton'
+import { BaiduAutoPush } from '@/components/layout/BaiduAutoPush'
 import { Analytics } from '@vercel/analytics/react'
 import type { Locale } from '@/lib/i18n/dictionaries'
 import type { Metadata } from 'next'
@@ -97,6 +98,7 @@ export default function LangLayout({
           <JsonLd />
           <PageViewTracker />
           <Analytics />
+          <BaiduAutoPush />
           <main className="flex-1 relative z-10">{children}</main>
           <Footer />
           <FeedbackButton locale={locale} />
