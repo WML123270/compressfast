@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2, CheckSquare, Square } from 'lucide-react'
+import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2, CheckSquare, Square, Crop } from 'lucide-react'
 import type { ImageFile, QualityTier } from '@/lib/compression/types'
 import { getQualityTier, QUALITY_TIER_COLORS } from '@/lib/compression/types'
 import { useCompressionStore } from '@/lib/store/compression-store'
@@ -11,14 +11,16 @@ import { generateFilename } from '@/lib/compression/utils'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
 import { ImageCompare } from './ImageCompare'
+import { ImageCropModal } from './ImageCropModal'
 
 interface ImageCardProps { image: ImageFile; index?: number; showDragHandle?: boolean; selected?: boolean; onSelect?: (id: string) => void }
 
 export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCardProps) {
   const { t } = useT()
-  const { removeFile, compressOne, rotateImage, flipImage, resetTransform, naming } = useCompressionStore()
+  const { removeFile, compressOne, rotateImage, flipImage, resetTransform, cropImage, naming } = useCompressionStore()
   const [showPreview, setShowPreview] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [showCrop, setShowCrop] = useState(false)
   const previewBlobUrlRef = useRef<string | null>(null)
 
   const ratio = image.compressedSize
@@ -78,7 +80,7 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
           <button
             onClick={(e) => { e.stopPropagation(); onSelect(image.id) }}
             className="flex-shrink-0 text-neutral-700 hover:text-blue-600 transition-colors p-0.5 -ml-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
-            title={selected ? t('card.deselect') : t('card.select')}
+            title={t(selected ? 'card.deselect' : 'card.select')}
           >
             {selected
               ? <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -204,6 +206,14 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
         <div className="flex items-center gap-0.5 sm:gap-1 mt-2 pt-2 border-gray-200">
           <span className="text-neutral-700 mr-0.5 hidden sm:inline text-xs">{t('card.edit')}:</span>
           <button
+            onClick={() => setShowCrop(true)}
+            className="p-2 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+            title={t('card.crop')}
+          >
+            <Crop className="w-4 h-4" />
+          </button>
+          <span className="w-px h-5 bg-gray-200 mx-0.5 sm:mx-1" />
+          <button
             onClick={() => rotateImage(image.id, 'ccw')}
             className="p-2 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
             title={t('card.rotateCcw')}
@@ -262,6 +272,19 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
             </span>
           </div>
         </div>
+      )}
+
+      {/* Crop modal */}
+      {showCrop && (
+        <ImageCropModal
+          imageUrl={image.previewUrl}
+          fileName={image.file.name}
+          onCrop={(croppedFile) => {
+            cropImage(image.id, croppedFile)
+            setShowCrop(false)
+          }}
+          onClose={() => setShowCrop(false)}
+        />
       )}
     </div>
   )

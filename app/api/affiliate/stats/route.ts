@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateSession, getAffiliate, getConversions, getDailyClicks } from '@/lib/affiliate'
 
+export const dynamic = 'force-dynamic'
+
 /** GET /api/affiliate/stats — 需登录（session token） */
 export async function GET(request: NextRequest) {
   try {

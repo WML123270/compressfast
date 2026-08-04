@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { ImageCompare } from './ImageCompare'
 import { Zap, ArrowRight, Loader2 } from 'lucide-react'
@@ -16,21 +16,31 @@ import { useCompressionStore } from '@/lib/store/compression-store'
 export function DemoShowcase() {
   const { t, locale } = useT()
   const files = useCompressionStore(s => s.files)
-  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'done'>('loading')
   const [demoData, setDemoData] = useState<{
     beforeUrl: string
     afterUrl: string
     beforeSize: number
     afterSize: number
   } | null>(null)
+  const autoStarted = useRef(false)
 
   const isZh = locale === 'zh'
+
+  // Auto-run demo on mount (after short delay to not block first paint)
+  useEffect(() => {
+    if (autoStarted.current) return
+    autoStarted.current = true
+    const timer = setTimeout(() => runDemo(), 800)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Hide when user has real files loaded
   if (files.length > 0) return null
 
   const runDemo = useCallback(async () => {
-    if (state !== 'idle') return
+    if (state === 'done') return
     setState('loading')
 
     try {
@@ -98,17 +108,17 @@ export function DemoShowcase() {
 
         {/* Demo content */}
         <div className="p-4 sm:p-5">
-          {/* Idle state */}
+          {/* Idle state — only shown if auto-run failed */}
           {state === 'idle' && (
-            <div className="text-center py-8 space-y-4">
-              <p className="text-neutral-700 text-sm max-w-md mx-auto">
+            <div className="text-center py-6 space-y-3">
+              <p className="text-neutral-700 text-sm">
                 {isZh
-                  ? '点一下按钮，看看一张照片能压缩多少——全部在浏览器里完成，文件不上传。'
-                  : 'Click to see how much a photo can be compressed — all in your browser, zero upload.'}
+                  ? '点击按钮看看压缩效果——全部在浏览器里完成，文件不上传。'
+                  : 'Click to see compression in action — all in your browser, zero upload.'}
               </p>
               <button
                 onClick={runDemo}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all"
               >
                 <Zap className="w-4 h-4" />
                 {isZh ? '演示压缩效果' : 'Run Demo'}

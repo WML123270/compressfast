@@ -132,6 +132,7 @@ interface CompressionState {
   rotateImage: (id: string, direction: 'cw' | 'ccw') => void
   flipImage: (id: string, direction: 'h' | 'v') => void
   resetTransform: (id: string) => void
+  cropImage: (id: string, croppedFile: File) => void
 
   totalOriginalSize: () => number
   totalCompressedSize: () => number
@@ -781,6 +782,45 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         ),
       })
     }
+  },
+
+  cropImage: (id: string, croppedFile: File) => {
+    const file = get().files.find(f => f.id === id)
+    if (!file) return
+    // Create new preview URL for cropped image
+    const oldUrl = file.previewUrl
+    const newUrl = URL.createObjectURL(croppedFile)
+    set({
+      files: get().files.map(f =>
+        f.id === id
+          ? {
+              ...f,
+              file: croppedFile,
+              originalSize: croppedFile.size,
+              previewUrl: newUrl,
+              status: 'pending' as const,
+              compressedSize: null,
+              compressedBlob: null,
+              rotation: 0,
+              flipH: false,
+              flipV: false,
+              width: 0,
+              height: 0,
+            }
+          : f
+      ),
+    })
+    // Clean up old preview URL
+    URL.revokeObjectURL(oldUrl)
+    // Re-read dimensions async
+    createImageBitmap(croppedFile).then(bitmap => {
+      set({
+        files: get().files.map(f =>
+          f.id === id ? { ...f, width: bitmap.width, height: bitmap.height } : f
+        ),
+      })
+      bitmap.close()
+    }).catch(() => {})
   },
 
   totalOriginalSize: () => {

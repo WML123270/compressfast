@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { ImageCard } from './ImageCard'
 import { NamingSettings } from './NamingSettings'
-import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw, CheckSquare, Square, Loader2 } from 'lucide-react'
+import { Zap, Download, Trash2, ArrowRight, Dna, RotateCcw, CheckSquare, Square, Loader2, Crown } from 'lucide-react'
 import { formatFileSize } from '@/lib/compression/utils'
 import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
@@ -276,22 +276,52 @@ export function ImageList() {
         ))}
       </div>
 
-      {/* AVIF comparison hint — shown after all compressions complete for non-Pro non-CN users */}
-      {allProcessed && !isPro && !isCn && options.outputFormat !== 'avif' && doneCount > 0 && (
-        <div className="mt-4 p-4 rounded-xl border border-purple-700/30 bg-gradient-to-r from-purple-900/10 to-indigo-900/10">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+      {/* Pro value prop — shown after compression completes for free overseas users */}
+      {allProcessed && !isPro && !isCn && doneCount > 0 && (
+        <div className="mt-4 rounded-2xl border border-purple-700/30 bg-gradient-to-br from-purple-950/40 via-indigo-950/30 to-blue-950/20 overflow-hidden">
+          <div className="p-4 sm:p-5 space-y-3">
+            {/* Header */}
             <div className="flex items-center gap-2">
-              <Dna className="w-5 h-5 text-purple-400 flex-shrink-0" />
-              <span className="text-sm text-neutral-800">
-                {t('list.avifHint', { current: options.outputFormat === 'original' ? 'PNG/JPEG' : options.outputFormat.toUpperCase() })}
+              <Dna className="w-5 h-5 text-purple-400" />
+              <span className="font-bold text-sm text-purple-200">
+                {t('list.proUnlockTitle')}
               </span>
             </div>
+
+            {/* Savings comparison */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="text-xs text-neutral-500">
+                  {t('list.currentCompression')}
+                </div>
+                <div className="text-lg font-bold text-blue-400 tabular-nums">
+                  {overallRatio().toFixed(0)}%
+                </div>
+                <div className="text-xs text-neutral-600">
+                  {options.outputFormat === 'original' ? 'PNG/JPEG' : options.outputFormat.toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <div className="text-xs text-purple-300">
+                  {t('list.avifEstimated')}
+                </div>
+                <div className="text-lg font-bold text-purple-300 tabular-nums">
+                  ~{Math.min(95, Math.round(overallRatio() * 1.3))}%
+                </div>
+                <div className="text-xs text-purple-400">
+                  AVIF · Pro
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
             <a
               href={`/${locale}/pro`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors flex-shrink-0"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-purple-500/20 transition-all active:scale-[0.98]"
             >
-              {t('list.avifHintTry')}
-              <ArrowRight className="w-3.5 h-3.5" />
+              <Crown className="w-4 h-4" />
+              {t('list.upgradePro')}
+              <ArrowRight className="w-4 h-4" />
             </a>
           </div>
         </div>
