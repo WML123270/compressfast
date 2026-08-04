@@ -68,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang={htmlLang} suppressHydrationWarning>
       <head>
         <meta name="baidu_union_verify" content="88a78eaf1ef0ec38f4c7e7d4ca595e55" />
+        <meta name="msvalidate.01" content="A8A090114D7C6DEB343B0DA6FF560CD8" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var l=window.location.pathname;document.documentElement.lang=l.startsWith('/zh')?'zh':'en'})()`,
