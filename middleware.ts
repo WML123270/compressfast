@@ -88,6 +88,14 @@ function getLocaleFromRequest(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname, hostname } = request.nextUrl
 
+  // ─── Bing Webmaster verification ──────────────────
+  if (pathname === '/BingSiteAuth.xml') {
+    return new NextResponse(
+      '<?xml version="1.0"?>\n<users>\n\t<user>A8A090114D7C6DEB343B0DA6FF560CD8</user>\n</users>',
+      { headers: { 'Content-Type': 'application/xml' } }
+    )
+  }
+
   // ─── Affiliate Referral Tracking ──────────────────
   // Read ?ref=CODE, set 30-day cookie for conversion attribution
   const refCode = request.nextUrl.searchParams.get('ref')
@@ -164,5 +172,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|BingSiteAuth).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
