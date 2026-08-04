@@ -8,6 +8,12 @@ const nextConfig = {
     return config
   },
 
+  async rewrites() {
+    return [
+      { source: '/BingSiteAuth.xml', destination: '/api/bing-verify' },
+    ]
+  },
+
   async headers() {
     return [
       {
