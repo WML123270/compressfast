@@ -21,6 +21,7 @@ const SKIP_PATHS = [
   '/favicon.ico',
   '/robots.txt',
   '/sitemap.xml',
+  '/BingSiteAuth.xml',
   '/sw.js',
   '/manifest.json',
   '/file.svg',
