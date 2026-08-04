@@ -41,6 +41,7 @@ const SKIP_PATHS = [
   '.webp',
   '.gif',
   '.svg',
+  '.xml',
 ]
 
 function shouldSkip(pathname: string): boolean {
@@ -163,5 +164,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|BingSiteAuth\.xml).*)'],
 }
