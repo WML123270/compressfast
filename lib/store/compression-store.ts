@@ -133,6 +133,7 @@ interface CompressionState {
   flipImage: (id: string, direction: 'h' | 'v') => void
   resetTransform: (id: string) => void
   cropImage: (id: string, croppedFile: File) => void
+  adjustImage: (id: string, adjustedFile: File) => void
 
   totalOriginalSize: () => number
   totalCompressedSize: () => number
@@ -821,6 +822,11 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       })
       bitmap.close()
     }).catch(() => {})
+  },
+
+  // adjustImage reuses cropImage logic — same "replace file, reset to pending" pattern
+  adjustImage: (id: string, adjustedFile: File) => {
+    get().cropImage(id, adjustedFile)
   },
 
   totalOriginalSize: () => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2, CheckSquare, Square, Crop } from 'lucide-react'
+import { Download, Loader2, X, RotateCcw, RotateCw, ChevronDown, ChevronUp, GripVertical, ShieldCheck, FlipHorizontal, FlipVertical, Undo2, CheckSquare, Square, Crop, SlidersHorizontal } from 'lucide-react'
 import type { ImageFile, QualityTier } from '@/lib/compression/types'
 import { getQualityTier, QUALITY_TIER_COLORS } from '@/lib/compression/types'
 import { useCompressionStore } from '@/lib/store/compression-store'
@@ -12,15 +12,17 @@ import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
 import { ImageCompare } from './ImageCompare'
 import { ImageCropModal } from './ImageCropModal'
+import { ImageAdjustModal } from './ImageAdjustModal'
 
 interface ImageCardProps { image: ImageFile; index?: number; showDragHandle?: boolean; selected?: boolean; onSelect?: (id: string) => void }
 
 export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCardProps) {
   const { t } = useT()
-  const { removeFile, compressOne, rotateImage, flipImage, resetTransform, cropImage, naming } = useCompressionStore()
+  const { removeFile, compressOne, rotateImage, flipImage, resetTransform, cropImage, adjustImage, naming } = useCompressionStore()
   const [showPreview, setShowPreview] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [showCrop, setShowCrop] = useState(false)
+  const [showAdjust, setShowAdjust] = useState(false)
   const previewBlobUrlRef = useRef<string | null>(null)
 
   const ratio = image.compressedSize
@@ -212,6 +214,13 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
           >
             <Crop className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setShowAdjust(true)}
+            className="p-2 sm:p-1.5 text-neutral-700 hover:text-neutral-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+            title={t('card.adjust')}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+          </button>
           <span className="w-px h-5 bg-gray-200 mx-0.5 sm:mx-1" />
           <button
             onClick={() => rotateImage(image.id, 'ccw')}
@@ -284,6 +293,19 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
             setShowCrop(false)
           }}
           onClose={() => setShowCrop(false)}
+        />
+      )}
+
+      {/* Adjust modal */}
+      {showAdjust && (
+        <ImageAdjustModal
+          imageUrl={image.previewUrl}
+          fileName={image.file.name}
+          onAdjust={(adjustedFile) => {
+            adjustImage(image.id, adjustedFile)
+            setShowAdjust(false)
+          }}
+          onClose={() => setShowAdjust(false)}
         />
       )}
     </div>
