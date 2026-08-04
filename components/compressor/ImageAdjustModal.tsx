@@ -96,15 +96,19 @@ export function ImageAdjustModal({ imageUrl, fileName, onAdjust, onClose }: Imag
     onAdjust(adjustedFile)
   }, [values, fileName, onAdjust])
 
-  // Keyboard
+  // Keyboard — use refs to avoid re-registering on every slider change
+  const confirmRef = useRef(handleConfirm)
+  confirmRef.current = handleConfirm
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'Enter') handleConfirm()
+      if (e.key === 'Escape') closeRef.current()
+      if (e.key === 'Enter') confirmRef.current()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose, handleConfirm])
+  }, [])
 
   const isDefault = values.brightness === 100 && values.contrast === 100 && values.saturation === 100
 

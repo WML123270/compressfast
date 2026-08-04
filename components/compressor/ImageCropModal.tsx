@@ -299,15 +299,19 @@ export function ImageCropModal({ imageUrl, fileName, onCrop, onClose }: ImageCro
     onCrop(croppedFile)
   }, [crop, fileName, onCrop])
 
-  // Keyboard
+  // Keyboard — use refs to avoid re-registering during drag
+  const confirmRef = useRef(handleCropConfirm)
+  confirmRef.current = handleCropConfirm
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'Enter') handleCropConfirm()
+      if (e.key === 'Escape') closeRef.current()
+      if (e.key === 'Enter') confirmRef.current()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose, handleCropConfirm])
+  }, [])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
