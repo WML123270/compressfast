@@ -670,6 +670,142 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
     relatedTools: ['compress-images', 'compress-png', 'compress-jpeg'],
   },
 
+  'heic-to-jpg': {
+    slug: 'heic-to-jpg',
+    titleEn: 'Convert HEIC to JPG Online Free — No Upload | CompressFast',
+    titleZh: '在线HEIC转JPG — 免费iPhone照片格式转换 | 极速压图',
+    descriptionEn: 'Convert HEIC to JPG online for free. iPhone photos to JPEG instantly — no upload, 100% browser-based. Batch convert up to 30 HEIC files at once. Keep original quality, strip EXIF.',
+    descriptionZh: '免费在线HEIC转JPG，iPhone照片瞬间转为JPEG格式。无需上传，100%浏览器本地处理。批量转换最多30张HEIC文件，保留原始画质，清除EXIF隐私信息。',
+    keywords: ['heic to jpg', 'convert heic to jpg', 'heic to jpg converter', 'heic to jpeg', 'iphone photo to jpg', 'convert heic to jpg online free', 'heic to jpg free', 'change heic to jpg', 'heic photo converter', 'apple heic to jpg'],
+    heroTitleEn: 'Convert HEIC to JPG Online',
+    heroTitleZh: '在线HEIC转JPG',
+    heroSubEn: 'iPhone photos to JPEG in seconds. No upload, batch 30, free forever — works offline too.',
+    heroSubZh: 'iPhone照片秒转JPEG。无需上传、批量30张、永久免费——断网也能用。',
+    targetFormat: 'jpeg',
+    defaultSettings: { quality: 92, outputFormat: 'jpeg', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '📱', titleEn: 'iPhone Photos → Universal JPG', titleZh: 'iPhone照片→通用JPG', descEn: 'Apple HEIC photos only work on Apple devices. Convert to JPG for universal compatibility — Windows, Android, web, everywhere.', descZh: 'Apple的HEIC照片只在苹果设备上能看。转成JPG后通用兼容——Windows、安卓、网页，任何地方都能打开。' },
+      { icon: '🔒', titleEn: '100% Private Conversion', titleZh: '100%隐私转换', descEn: 'Your photos never leave your device. Unlike cloud converters, all HEIC decoding happens locally in your browser via Web Workers.', descZh: '你的照片不会离开设备。不同于云端转换器，所有HEIC解码在浏览器本地通过Web Worker完成。' },
+      { icon: '📦', titleEn: 'Batch 30 at Once', titleZh: '批量30张同时转换', descEn: 'Convert up to 30 HEIC photos to JPG in one batch. All processed in parallel. ZIP download all results in one click.', descZh: '一次批量转换最多30张HEIC照片为JPG，并行处理。一键ZIP下载全部结果。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload HEIC Photos', titleZh: '上传HEIC照片', descEn: 'Drag iPhone HEIC photos into the upload area, click to browse, or paste from clipboard. Supports up to 25MB per file.', descZh: '将iPhone的HEIC照片拖入上传区、点击选择、或Ctrl+V粘贴。单文件最高支持25MB。' },
+      { step: 2, titleEn: 'Choose JPG Quality', titleZh: '选择JPG画质', descEn: 'Set JPG output quality (85-95% recommended for photos). "Strip Photo Info" removes GPS and camera data for privacy.', descZh: '设置JPG输出画质（照片推荐85-95%）。开启"清除照片信息"可删除GPS和相机数据保护隐私。' },
+      { step: 3, titleEn: 'Download JPG Files', titleZh: '下载JPG文件', descEn: 'Each HEIC becomes a high-quality .jpg file. Download individually or batch ZIP. Compare before/after sizes.', descZh: '每张HEIC变成高质量.jpg文件。逐张下载或批量ZIP打包，对比前后大小。' },
+    ],
+    faqs: [
+      { qEn: 'What is HEIC and why do iPhones use it?', qZh: '什么是HEIC？为什么iPhone要用它？', aEn: 'HEIC (High Efficiency Image Container) is Apple\'s modern photo format based on HEVC (H.265) compression. It stores photos at roughly half the file size of JPEG with equal or better quality. Apple adopted it as the default iPhone camera format in 2017 with iOS 11 to save storage space. The downside: HEIC is not widely supported outside the Apple ecosystem — Windows PCs, Android devices, most websites, and many apps cannot open HEIC files without conversion.', aZh: 'HEIC（高效图像容器）是Apple基于HEVC（H.265）压缩的现代照片格式。它在同等或更优画质下，文件体积约为JPEG的一半。Apple于2017年iOS 11起将其设为iPhone默认相机格式以节省存储空间。缺点是：HEIC在Apple生态外支持有限——Windows电脑、安卓设备、大多数网站和许多应用都无法直接打开HEIC文件，需要转换。' },
+      { qEn: 'Does converting HEIC to JPG lose quality?', qZh: 'HEIC转JPG会损失画质吗？', aEn: 'Minimally, if you use a high quality setting (90%+). HEIC and JPEG are both lossy formats, so each conversion involves some information loss. However, at 90-95% quality, the difference is invisible to the naked eye. For archival purposes, keep the original .heic file and convert a copy to JPG for sharing. CompressFast uses browser-native high-quality HEIC decoding, then re-encodes to JPEG at your chosen quality level.', aZh: '如果用高画质设置（90%+），损失极小。HEIC和JPEG都是有损格式，每次转换都会涉及一些信息损失。但90-95%画质下，肉眼无法分辨差异。用于存档的话，保留原始.heic文件，转一份JPG用于分享。极速压图使用浏览器原生高质量HEIC解码，然后以你选择的画质重新编码为JPEG。' },
+      { qEn: 'Is my photo data safe during HEIC conversion?', qZh: 'HEIC转换过程中照片数据安全吗？', aEn: 'Completely safe. All HEIC decoding and JPEG encoding happens locally in your browser using Web Workers. Your photos never leave your device — no upload to any server. You can verify this by disconnecting your internet after loading the page: the conversion still works perfectly. This is critical for personal photos, sensitive documents, and anything you would not want on a third-party server.', aZh: '绝对安全。所有HEIC解码和JPEG编码在浏览器本地通过Web Worker完成。你的照片从不离开设备——不上传任何服务器。你可以通过加载页面后断网来验证：转换仍然正常工作。这对个人照片、敏感文件和任何你不想放在第三方服务器上的内容至关重要。' },
+      { qEn: 'Can I batch convert multiple HEIC files at once?', qZh: '能批量转换多个HEIC文件吗？', aEn: 'Yes — convert up to 30 HEIC photos to JPG in a single batch for free (500 with Pro). All files are processed in parallel using multiple Web Workers for maximum speed. Use "Download All" to get a single ZIP file of all converted JPGs. Perfect for converting an entire vacation album or photo shoot.', aZh: '可以——免费版一次批量转换最多30张HEIC为JPG（Pro版500张）。所有文件通过多个Web Worker并行处理，速度极快。点击"下载全部"获取包含所有JPG的单个ZIP文件。非常适合转换整个假期相册或拍摄合集。' },
+      { qEn: 'Why can\'t I open HEIC files on my Windows PC?', qZh: '为什么Windows电脑打不开HEIC文件？', aEn: 'Windows does not include built-in HEIC support by default. Microsoft offers a paid HEIC codec ($0.99) in the Microsoft Store, but it only enables viewing — not editing or converting. This is the #1 reason people search for "heic to jpg converter": they need their iPhone photos to work on Windows. CompressFast solves this entirely in the browser — no codec to install, no payment, no upload.', aZh: 'Windows默认不包含HEIC支持。微软在应用商店提供了付费HEIC编解码器（$0.99），但只能查看不能编辑或转换。这是人们搜索"heic转jpg"的首要原因：他们需要iPhone照片在Windows上能用。极速压图完全在浏览器中解决——无需安装编解码器、无需付费、无需上传。' },
+      { qEn: 'How long does HEIC to JPG conversion take?', qZh: 'HEIC转JPG需要多长时间？', aEn: 'Typically 1-3 seconds per photo, depending on the image resolution and your device\'s processing power. HEIC files are heavily compressed (that\'s why they\'re small), so the browser needs to decode them fully before re-encoding to JPEG. High-resolution photos (12MP+) may take 2-5 seconds. All processing runs in background Web Workers, so you can continue using the page while conversion happens.', aZh: '通常每张照片1-3秒，取决于图片分辨率和设备处理能力。HEIC文件压缩率高（这也是它们体积小的原因），浏览器需要完全解码后才能重新编码为JPEG。高分辨率照片（1200万像素以上）可能需要2-5秒。所有处理在后台Web Worker中运行，转换过程中你可以继续使用页面。' },
+      { qEn: 'What is the difference between HEIC and HEIF?', qZh: 'HEIC和HEIF有什么区别？', aEn: 'HEIF (High Efficiency Image Format) is the container format standard. HEIC is Apple\'s specific implementation of HEIF — the "C" stands for "Container." In practice, they are the same thing: .heic files from iPhones are HEIF images with HEVC compression. CompressFast handles both .heic and .heif extensions identically.', aZh: 'HEIF（高效图像格式）是容器格式标准。HEIC是Apple对HEIF的具体实现——"C"代表容器（Container）。实践中它们是一回事：iPhone的.heic文件就是使用HEVC压缩的HEIF图像。极速压图对.heic和.heif扩展名同等处理。' },
+      { qEn: 'Can I preserve HDR or Live Photos when converting HEIC to JPG?', qZh: 'HEIC转JPG能保留HDR或Live Photo吗？', aEn: 'No — JPEG format does not support HDR gain maps, depth data, or the video component of Live Photos. When converting HEIC to JPG, only the still image frame is preserved. HDR tone-mapping is applied during conversion so the photo looks natural, but the dynamic range is reduced to standard (SDR). If you need to preserve HDR or Live Photo features, keep the original .heic file.', aZh: '不能——JPEG格式不支持HDR增益图、深度数据或Live Photo的视频部分。HEIC转JPG时，只保留静态图像帧。转换过程中会应用HDR色调映射使照片看起来自然，但动态范围降低到标准（SDR）。如需保留HDR或Live Photo特性，请保留原始.heic文件。' },
+    ],
+    detailedGuideEn: `HEIC (High Efficiency Image Container) is Apple's answer to the question: "How do we fit more photos on iPhones without sacrificing quality?" Based on the HEVC (H.265) video compression standard, HEIC stores photos at roughly half the file size of JPEG — a 4MB JPEG photo becomes about 2MB as HEIC, with equivalent or better visual quality. Since iOS 11 (2017), every iPhone has captured photos in HEIC by default.
+
+The problem? HEIC is an Apple-centric format. Windows PCs need a paid codec just to view HEIC files. Android devices can't open them natively. Most websites, social media platforms, and image editors expect JPEG or PNG. If you have ever tried to upload an iPhone photo to a website and been told "unsupported format," you have experienced the HEIC compatibility gap.
+
+CompressFast's HEIC to JPG converter bridges this gap — 100% in your browser, with zero upload:
+
+1. Browser-native HEIC decoding — Modern browsers (Chrome, Firefox, Edge, Safari) include HEIC decoders that run at native speed. CompressFast leverages these built-in decoders to extract full-resolution pixel data from your HEIC files. No plugin, no extension, no codec pack required. The decoding happens in a Web Worker so the main page stays responsive.
+
+2. High-quality JPEG encoding — After decoding, the pixel data is re-encoded to JPEG at your chosen quality level (10-100%). We recommend 90-95% for photos — this produces a JPG that looks indistinguishable from the original HEIC while being about 30-50% larger (due to JPEG's less efficient compression). For web use, 85% provides an excellent size-quality balance.
+
+3. EXIF privacy control — iPhone photos embed extensive metadata: precise GPS coordinates, camera specs, timestamp, and more. Enable "Strip Photo Info" to remove all of this before the JPEG is saved — critical for photos you plan to share online. Disable it to preserve metadata for your own archival use.
+
+4. Batch workflow — Drop 30 HEIC photos at once, select JPEG output, click compress. All files convert in parallel. The result: a ZIP of ready-to-use JPGs that work everywhere — Windows, Android, websites, email attachments, social media, and any photo editing software.
+
+5. Offline capability — Load the page once, then disconnect your internet. The converter still works perfectly because everything runs locally. This is especially useful when traveling or in areas with limited connectivity — convert photos without burning mobile data.
+
+The HEIC to JPG workflow is one of the most common conversion needs: every iPhone user who wants their photos to work outside Apple's ecosystem needs it. With CompressFast, it is free, private, and takes seconds — no software to install, no accounts to create, no files to upload.`,
+    detailedGuideZh: `HEIC（高效图像容器）是Apple对"如何在不牺牲画质的前提下让iPhone存更多照片"这个问题的答案。基于HEVC（H.265）视频压缩标准，HEIC以JPEG大约一半的文件体积存储照片——一张4MB的JPEG照片变成HEIC约2MB，画质相当甚至更好。自2017年iOS 11起，每台iPhone都默认以HEIC格式拍摄照片。
+
+问题呢？HEIC是以Apple为中心的格式。Windows电脑需要付费编解码器才能查看HEIC文件。安卓设备无法原生打开。大多数网站、社交媒体平台和图片编辑器期望的是JPEG或PNG。如果你曾尝试将iPhone照片上传到某个网站却被提示"不支持的格式"，你就经历过HEIC兼容性鸿沟。
+
+极速压图的HEIC转JPG转换器弥合了这一鸿沟——100%在浏览器中完成，零上传：
+
+1. 浏览器原生HEIC解码——现代浏览器（Chrome、Firefox、Edge、Safari）内置了以原生速度运行的HEIC解码器。极速压图利用这些内置解码器从HEIC文件中提取全分辨率像素数据。无需插件、无需扩展、无需编解码器包。解码在Web Worker中进行，主页面保持响应流畅。
+
+2. 高质量JPEG编码——解码后，像素数据以你选择的画质水平（10-100%）重新编码为JPEG。照片推荐90-95%——生成的JPG与原始HEIC肉眼无法区分，文件约大30-50%（因JPEG压缩效率较低）。用于网页的话，85%提供了优秀的体积-画质平衡。
+
+3. EXIF隐私控制——iPhone照片嵌入了大量元数据：精确的GPS坐标、相机参数、时间戳等。开启"清除照片信息"在保存JPEG前删除所有这些——对于打算在线分享的照片至关重要。关闭则以保留元数据用于自己的存档。
+
+4. 批量工作流——一次拖入30张HEIC照片，选JPEG输出，点压缩。所有文件并行转换。结果：一个包含即用JPG的ZIP文件，在任何地方都能用——Windows、安卓、网站、邮件附件、社交媒体和任何照片编辑软件。
+
+5. 离线能力——加载页面一次，然后断开网络。转换器仍然完美工作，因为一切在本地运行。这在旅行或网络有限的环境下特别有用——转换照片不消耗手机流量。
+
+HEIC转JPG是最常见的转换需求之一：每个想让照片在Apple生态之外也能使用的iPhone用户都需要它。使用极速压图，免费、隐私、几秒钟完成——无需安装软件、无需注册账号、无需上传文件。`,
+    relatedTools: ['heic-to-png', 'compress-jpeg', 'convert-jpg-to-png', 'remove-metadata'],
+  },
+
+  'heic-to-png': {
+    slug: 'heic-to-png',
+    titleEn: 'Convert HEIC to PNG Online Free — No Upload | CompressFast',
+    titleZh: '在线HEIC转PNG — 免费iPhone照片无损格式转换 | 极速压图',
+    descriptionEn: 'Convert HEIC to PNG online for free. iPhone photos to lossless PNG — no upload, 100% browser-based. Batch convert up to 30 HEIC files at once. Preserve maximum quality with PNG output.',
+    descriptionZh: '免费在线HEIC转PNG，iPhone照片转无损PNG格式。无需上传，100%浏览器本地处理。批量转换最多30张HEIC，PNG输出保留最高画质。',
+    keywords: ['heic to png', 'convert heic to png', 'heic to png converter', 'heic to png online', 'iphone photo to png', 'convert heic to png free', 'heic to png transparent', 'apple heic to png', 'heif to png'],
+    heroTitleEn: 'Convert HEIC to PNG Online',
+    heroTitleZh: '在线HEIC转PNG',
+    heroSubEn: 'iPhone photos to lossless PNG. No upload, batch 30, free forever — preserve every detail.',
+    heroSubZh: 'iPhone照片转无损PNG。无需上传、批量30张、永久免费——保留每一处细节。',
+    targetFormat: 'png',
+    defaultSettings: { quality: 100, outputFormat: 'png', speed: 5, lossless: true, stripMetadata: true },
+    benefits: [
+      { icon: '✨', titleEn: 'Lossless PNG Output', titleZh: '无损PNG输出', descEn: 'Convert HEIC to PNG with zero additional quality loss. Oxipng WASM further optimizes the PNG for smaller file size — perfect for editing and archiving.', descZh: 'HEIC转PNG零额外画质损失。Oxipng WASM进一步优化PNG文件大小——非常适合编辑和存档。' },
+      { icon: '🖼️', titleEn: 'Transparency Support', titleZh: '透明背景支持', descEn: 'PNG supports alpha channel transparency. Perfect for logos, graphics, and any image that needs a transparent background.', descZh: 'PNG支持alpha通道透明。非常适合Logo、图形和任何需要透明背景的图像。' },
+      { icon: '📱', titleEn: 'Edit-Ready Format', titleZh: '可编辑格式', descEn: 'PNG is the standard format for photo editing. No generation loss when saving repeatedly — ideal for Photoshop, GIMP, and design work.', descZh: 'PNG是照片编辑的标准格式。反复保存不会有世代损失——适合Photoshop、GIMP和设计工作。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload HEIC Photos', titleZh: '上传HEIC照片', descEn: 'Drag iPhone HEIC photos into the upload area, click to browse, or Ctrl+V paste. Each file up to 25MB for free.', descZh: '将iPhone HEIC照片拖入上传区、点击选择、或Ctrl+V粘贴。免费每张最高25MB。' },
+      { step: 2, titleEn: 'Select PNG Output + Settings', titleZh: '选择PNG输出+设置', descEn: 'Choose PNG as output format. Enable lossless mode for oxipng optimization — same pixels, smaller file. Adjust quality if needed.', descZh: '选PNG为输出格式。开启无损模式使用oxipng优化——像素不变，文件更小。如需可调画质。' },
+      { step: 3, titleEn: 'Download PNG Files', titleZh: '下载PNG文件', descEn: 'Each HEIC becomes a lossless .png file. Download individually or batch ZIP. Compare sizes with the built-in slider.', descZh: '每张HEIC变成无损.png文件。逐张下载或批量ZIP。用内置对比滑块查看前后体积。' },
+    ],
+    faqs: [
+      { qEn: 'Is HEIC to PNG conversion really lossless?', qZh: 'HEIC转PNG真的是无损的吗？', aEn: 'PNG is a lossless format — once converted, no further quality degradation occurs when you open, edit, and save the PNG repeatedly. However, the original HEIC source file already has compression from its HEVC encoding. Converting to PNG preserves the current quality perfectly but cannot recover details already lost in the original HEIC compression. Think of it as "lossless from this point forward." For maximum archival quality, enable CompressFast\'s lossless mode which uses oxipng WASM to produce the smallest possible mathematically-lossless PNG.', aZh: 'PNG是无损格式——转换后，反复打开、编辑、保存PNG都不会造成进一步的画质劣化。但原始HEIC文件本身已有HEVC编码的压缩。转PNG完美保留当前画质，但无法恢复原始HEIC压缩中已丢失的细节。可以理解为"从此往后无损"。为最大化存档画质，开启极速压图的无损模式，使用oxipng WASM产出最小的数学上无损的PNG。' },
+      { qEn: 'Will the PNG file be larger than the original HEIC?', qZh: 'PNG文件会比原始HEIC大吗？', aEn: 'Almost certainly yes — often 3-5× larger. HEIC uses highly efficient HEVC compression (similar to video compression), while PNG uses lossless DEFLATE compression designed for graphics. A 2MB HEIC photo might become 6-10MB as PNG. This is the fundamental trade-off: PNG gives you lossless quality and universal compatibility at the cost of larger file size. For web use where file size matters, convert HEIC to JPG or WebP instead.', aZh: '几乎肯定会——通常大3-5倍。HEIC使用高效的HEVC压缩（类似视频压缩），而PNG使用为图形设计的无损DEFLATE压缩。一张2MB的HEIC照片转PNG可能变成6-10MB。这是根本性的取舍：PNG提供无损画质和通用兼容性，代价是文件更大。用于网页且在意文件大小的话，建议转JPG或WebP。' },
+      { qEn: 'Why convert HEIC to PNG instead of JPG?', qZh: '为什么转PNG而不是JPG？', aEn: 'Choose PNG when: (1) you plan to edit the photo further — PNG does not accumulate generation loss like JPG does. (2) you need transparency — JPG does not support it. (3) you are archiving important photos — PNG provides a stable, lossless format. (4) the image contains text, logos, or sharp edges — JPG creates fuzzy artifacts around these. Choose JPG when: file size matters more than perfect quality, or you are sharing photos online where JPEG is universally accepted.', aZh: '选PNG当：(1) 你打算进一步编辑照片——PNG不会像JPG那样累积世代损失。(2) 你需要透明背景——JPG不支持。(3) 你在存档重要照片——PNG提供稳定无损的格式。(4) 图片包含文字、Logo或锐利边缘——JPG会在这些区域产生模糊伪影。选JPG当：文件大小比完美画质更重要，或你是在线分享照片，JPEG被普遍接受。' },
+      { qEn: 'Can I convert Live Photos from HEIC to PNG?', qZh: '能把Live Photo从HEIC转成PNG吗？', aEn: 'HEIC files from Live Photos contain a still image keyframe plus a short video clip. CompressFast extracts and converts only the still image to PNG. The video portion of the Live Photo is not included in the output PNG. If you need to preserve the motion component, keep the original .heic file or export as a video/GIF.', aZh: 'Live Photo的HEIC文件包含一个静态关键帧和一段短视频。极速压图仅提取并转换静态图像为PNG。Live Photo的视频部分不会包含在输出的PNG中。如需保留动态部分，请保留原始.heic文件或导出为视频/GIF。' },
+      { qEn: 'Does the conversion work on mobile devices?', qZh: '转换能在手机上用吗？', aEn: 'Yes — CompressFast works fully on mobile browsers (Safari on iPhone, Chrome on Android). You can convert HEIC photos directly on your phone without installing any app. On iPhones, you can even convert photos right in Safari: the HEIC decoder is built into iOS, so conversion is fast and efficient. The responsive UI adapts to your screen size for easy tap-and-convert workflow.', aZh: '可以——极速压图在手机浏览器上完全可用（iPhone上的Safari、安卓上的Chrome）。你可以直接在手机上转换HEIC照片，无需安装任何App。在iPhone上，甚至可以在Safari中直接转换照片：HEIC解码器内置于iOS，转换快速高效。响应式UI适配屏幕尺寸，点击即转换。' },
+      { qEn: 'Can I batch convert multiple HEIC files to PNG at once?', qZh: '能批量将多个HEIC转PNG吗？', aEn: 'Yes — convert up to 30 HEIC photos to PNG in a single batch for free (500 with Pro). Each photo is decoded and re-encoded in parallel via Web Workers. Use "Download All" to get a single ZIP file containing all converted PNGs. Perfect for converting an entire photo set for editing or archiving.', aZh: '可以——免费版一次批量转最多30张HEIC为PNG（Pro版500张）。每张照片通过Web Worker并行解码和重编码。点击"下载全部"获取包含所有PNG的单个ZIP文件。非常适合批量转换照片用于编辑或存档。' },
+      { qEn: 'What quality settings should I use for HEIC to PNG?', qZh: 'HEIC转PNG应该用什么画质设置？', aEn: 'For PNG output, the quality slider mainly affects compression effort, not visual quality. PNG is lossless — quality settings above 90% produce visually lossless results. For maximum quality preservation, use 100% quality with lossless mode enabled (oxipng WASM). This produces the smallest possible PNG that is pixel-for-pixel identical to the decoded HEIC. For slightly smaller files with imperceptible quality loss, 90-95% works well.', aZh: 'PNG输出时，画质滑块主要影响压缩力度而非视觉质量。PNG是无损的——90%以上画质产出的结果视觉上无损。为最大化画质保留，使用100%画质并开启无损模式（oxipng WASM）。这产出与解码后的HEIC逐像素一致的、体积最小的PNG。为稍小文件且可忽略的画质损失，90-95%效果很好。' },
+      { qEn: 'Can I convert HEIC to PNG with transparent background?', qZh: '能把HEIC转成带透明背景的PNG吗？', aEn: 'HEIC photos from iPhone cameras do not contain transparency — they are regular photographs with opaque backgrounds. Converting to PNG preserves the photo as-is. If you need to remove the background from a photo, you would need a separate background removal tool. PNG supports transparency in case your HEIC source has it (e.g., screenshots of UI elements on iOS), and CompressFast preserves it during conversion.', aZh: 'iPhone相机拍摄的HEIC照片不包含透明背景——它们是普通的不透明照片。转PNG保持照片原样。如需去除照片背景，需要另外使用背景移除工具。如果HEIC源文件有透明通道（如iOS上UI元素的截图），PNG支持透明且极速压图在转换中会保留它。' },
+    ],
+    detailedGuideEn: `HEIC offers incredible compression — iPhone photos at half the size of JPEG with equal quality. But when you need to edit, archive, or ensure maximum compatibility, PNG is the gold standard. It is a lossless format, which means you can open, edit, and save a PNG file hundreds of times without accumulating compression artifacts.
+
+CompressFast's HEIC to PNG converter combines browser-native HEIC decoding with powerful PNG optimization in one seamless workflow:
+
+1. High-fidelity HEIC decoding — The browser's built-in HEIC decoder extracts every pixel from your iPhone photo at full resolution. This step converts the HEVC-compressed image data into raw pixel data — the same uncompressed representation any image editor would work with.
+
+2. PNG encoding with oxipng optimization — The decoded pixels are encoded to PNG format. If lossless mode is enabled, oxipng WASM kicks in to trial-run multiple compression strategies (zlib levels, Zopfli, PNG filter combinations) and selects the smallest result. The output is mathematically lossless — every pixel matches the decoded HEIC exactly, but the file is 20-60% smaller than a naive PNG save.
+
+3. EXIF privacy protection — iPhone HEIC photos contain extensive metadata. Enable "Strip Photo Info" to remove GPS coordinates, camera serial numbers, timestamps, and all other EXIF data before the PNG is saved. Your photo pixels stay identical — only the hidden metadata is removed.
+
+4. Batch processing — Convert up to 30 HEIC photos to PNG at once. Each photo is processed in its own Web Worker thread for maximum parallelism. The result: a ZIP file of optimized PNGs, each file preserving the full quality of the original iPhone photo.
+
+5. When to use HEIC → PNG — (a) Photo editing workflow: convert to PNG, edit in Photoshop/GIMP, save without generation loss. (b) Archival: PNG is a stable, well-documented format that will be readable for decades. HEIC is newer and patent-encumbered. (c) Screenshots and UI: iOS screenshots captured as HEIC benefit from PNG's lossless sharpness — text stays crisp. (d) Printing: professional print services expect PNG or TIFF, not HEIC.
+
+The trade-off is file size: PNGs will be larger than the HEIC originals (typically 3-5×). If file size is your primary concern, use the HEIC to JPG converter instead for a much smaller output at still-excellent quality.`,
+    detailedGuideZh: `HEIC提供了令人难以置信的压缩率——iPhone照片在同等画质下体积仅为JPEG的一半。但当需要编辑、存档或确保最大兼容性时，PNG是黄金标准。它是无损格式，意味着你可以反复打开、编辑、保存PNG文件数百次而不会累积压缩失真。
+
+极速压图的HEIC转PNG转换器将浏览器原生HEIC解码与强大的PNG优化结合在一个无缝工作流中：
+
+1. 高保真HEIC解码——浏览器内置HEIC解码器以全分辨率提取iPhone照片的每个像素。这一步将HEVC压缩的图像数据转换为原始像素数据——与任何图像编辑器处理的未压缩表示相同。
+
+2. 含oxipng优化的PNG编码——解码后的像素被编码为PNG格式。如开启无损模式，oxipng WASM会尝试多种压缩策略（zlib级别、Zopfli算法、PNG滤镜组合）并选择最小结果。输出在数学上无损——每个像素与解码后的HEIC完全一致，但文件比朴素PNG保存小20-60%。
+
+3. EXIF隐私保护——iPhone HEIC照片包含大量元数据。开启"清除照片信息"在PNG保存前删除GPS坐标、相机序列号、时间戳等所有EXIF数据。照片像素保持不变——只删除隐藏元数据。
+
+4. 批量处理——一次将最多30张HEIC照片转为PNG。每张照片在独立的Web Worker线程中处理，最大化并行度。结果：一个包含优化PNG的ZIP文件，每张文件保留iPhone照片的完整画质。
+
+5. 何时使用HEIC→PNG——(a) 照片编辑工作流：转PNG后在Photoshop/GIMP中编辑，保存无世代损失。(b) 存档：PNG是稳定、文档完备的格式，未来几十年都可读。HEIC较新且有专利负担。(c) 截图和UI：iOS截图转PNG受益于无损锐度——文字保持清晰。(d) 打印：专业打印服务期望PNG或TIFF，不接受HEIC。
+
+取舍在于文件大小：PNG会比HEIC原文件大（通常3-5倍）。如果文件大小是首要考量，改用HEIC转JPG转换器，在体积小得多的同时画质依然优秀。`,
+    relatedTools: ['heic-to-jpg', 'compress-png', 'convert-jpg-to-png', 'webp-to-png'],
+  },
+
   'compress-svg': {
     slug: 'compress-svg',
     titleEn: 'Compress SVG Online Free — Reduce SVG File Size | CompressFast',
