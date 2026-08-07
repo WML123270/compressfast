@@ -1123,6 +1123,76 @@ The SVG→PNG workflow is essential for any designer or developer who works with
 SVG→PNG工作流对任何使用矢量图形但需要为不支持SVG的平台提供位图输出的设计师或开发者来说都是必不可少的。极速压图让它免费、私密且分辨率灵活。`,
     relatedTools: ['compress-svg', 'compress-png', 'convert-jpg-to-png', 'resize-image'],
   },
+
+  'webp-to-jpg': {
+    slug: 'webp-to-jpg',
+    titleEn: 'Convert WebP to JPG Online Free — No Upload | CompressFast',
+    titleZh: '在线WebP转JPG — 免费WebP格式转换 | 极速压图',
+    descriptionEn: 'Convert WebP to JPG online for free. No upload — 100% browser-based. Batch convert up to 30 WebP images to JPEG at once. Perfect for opening WebP files in older software, sharing, and uploading to platforms that require JPEG.',
+    descriptionZh: '免费在线WebP转JPG，无需上传，100%浏览器本地转换。批量转换最多30张WebP为JPEG。完美解决WebP图片打不开、不兼容的问题。',
+    keywords: ['webp to jpg', 'convert webp to jpg', 'webp to jpg converter', 'webp to jpeg', 'convert webp to jpg online free', 'webp to jpg free', 'change webp to jpg', 'webp to jpg high quality', 'webp image to jpg', 'save webp as jpg'],
+    heroTitleEn: 'Convert WebP to JPG Online',
+    heroTitleZh: '在线WebP转JPG',
+    heroSubEn: 'Turn WebP images into universally-compatible JPEGs. No upload, batch 30, free forever — works offline too.',
+    heroSubZh: 'WebP秒转JPEG，兼容所有设备和软件。无需上传、批量30张、永久免费。',
+    targetFormat: 'jpeg',
+    defaultSettings: { quality: 92, outputFormat: 'jpeg', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🌍', titleEn: 'Universal Compatibility', titleZh: '通用兼容', descEn: 'WebP is great for the web but many apps, image viewers, and older software cannot open it. Convert to JPG and your images work everywhere — every device, every app, every platform.', descZh: 'WebP在网页上很好用，但很多应用、图片查看器和老旧软件打不开。转成JPG，你的图片在所有设备、所有应用、所有平台上都能打开。' },
+      { icon: '📦', titleEn: 'Compact + Compatible', titleZh: '小体积+广兼容', descEn: 'WebP is already small. Converting to JPG at 90% quality keeps excellent visuals while adding universal compatibility. File size stays reasonable — typically 2-5× smaller than a direct-from-PNG JPG.', descZh: 'WebP本身已经很小。以90%画质转JPG保持出色视觉效果的同时获得通用兼容性。文件体积依然合理——通常比PNG直转JPG小2-5倍。' },
+      { icon: '🔒', titleEn: 'Private & Local', titleZh: '隐私本地处理', descEn: 'Your WebP files never leave your device. All conversion happens in your browser via Web Workers — no upload to any server, no privacy risk.', descZh: 'WebP文件不离开你的设备。所有转换在浏览器中通过Web Worker完成——不上传任何服务器，无隐私风险。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload WebP Files', titleZh: '上传WebP文件', descEn: 'Drag WebP images into the upload area, click to browse, or Ctrl+V paste. Up to 30 files at once for free.', descZh: '将WebP图片拖入上传区、点击选择、或Ctrl+V粘贴。免费一次最多30张。' },
+      { step: 2, titleEn: 'Adjust Quality (Optional)', titleZh: '调整画质（可选）', descEn: 'Default 90% quality produces excellent results. Adjust the slider if you need smaller files or maximum quality output.', descZh: '默认90%画质效果出色。如需更小文件或最高画质输出，调节滑块即可。' },
+      { step: 3, titleEn: 'Download as JPG', titleZh: '下载JPG文件', descEn: 'Each WebP becomes a standard .jpg file. Download individually or batch as ZIP. Ready to use anywhere.', descZh: '每张WebP变成标准.jpg文件。逐张下载或批量ZIP。随时随地可用。' },
+    ],
+    faqs: [
+      { qEn: 'Why do I need to convert WebP to JPG?', qZh: '为什么需要把WebP转成JPG？', aEn: 'WebP is a modern image format by Google that offers excellent compression — 25-35% smaller than JPEG at the same quality. However, many applications and platforms still do not support WebP: (1) older photo editing software like Photoshop CS6, (2) some email clients that block WebP attachments, (3) e-commerce platforms like eBay and Etsy that require JPEG, (4) document software like older Word and PowerPoint versions, (5) some social media platforms during upload. Converting to JPG ensures your images work everywhere, not just in modern browsers.', aZh: 'WebP是Google开发的现代图片格式，压缩效果出色——相同画质比JPEG小25-35%。但很多应用和平台仍不支持WebP：(1) 老旧图片编辑软件如Photoshop CS6，(2) 某些邮件客户端屏蔽WebP附件，(3) 电商平台如eBay和Etsy要求JPEG，(4) 文档软件如旧版Word和PowerPoint，(5) 某些社交媒体上传限制。转成JPG确保图片在所有地方都能打开，不止是现代浏览器。' },
+      { qEn: 'Does converting WebP to JPG lose quality?', qZh: 'WebP转JPG会损失画质吗？', aEn: 'Yes — both WebP and JPEG are lossy formats, so re-encoding involves generation loss. However, at 90-95% quality, the additional loss is negligible and invisible to the naked eye. WebP\'s advantage is achieving the same quality at a smaller size — so converting a high-quality WebP to JPG at 90% produces a file that looks nearly identical to the original. If you need the best possible quality, use 100% quality setting (though this produces a larger file). For archival purposes, keep the original WebP.', aZh: '会——WebP和JPEG都是有损格式，重新编码会产生代际损失。但90-95%画质下，额外损失微乎其微，肉眼无法察觉。WebP的优势是相同画质体积更小——所以将高质量WebP以90%转JPG，产出文件几乎与原始一致。如需最佳画质，使用100%设置（不过文件会更大）。存档用途建议保留原WebP。' },
+      { qEn: 'Can I batch convert multiple WebP files to JPG?', qZh: '能批量把多个WebP转成JPG吗？', aEn: 'Yes — convert up to 30 WebP images to JPG in one batch for free (500 with Pro). All files are processed in parallel via Web Workers for maximum speed. Use "Download All" to get a single ZIP containing all converted JPGs with their original filenames. Perfect for converting an entire folder of downloaded WebP images at once.', aZh: '可以——免费版一次批量转换最多30张WebP为JPG（Pro版500张）。所有文件通过Web Worker并行处理以达到最高速度。点击"下载全部"获取包含所有JPG的单个ZIP，保留原始文件名。非常适合一次性转换整个下载的WebP文件夹。' },
+      { qEn: 'What is the best quality setting for WebP to JPG conversion?', qZh: 'WebP转JPG用什么画质设置最好？', aEn: '90% is the recommended default — it produces visually lossless results with reasonable file size. For photos: 85-95% depending on how critical fine detail is. For screenshots and UI: 80-90% works well. For thumbnails: 75-85% is sufficient. The "sweet spot" is typically 88-92% where you get great quality and good compression. CompressFast shows you real-time size estimates as you adjust.', aZh: '推荐默认90%——视觉无损效果，文件大小合理。照片：85-95%，取决于精细细节的重要程度。截图和UI：80-90%效果很好。缩略图：75-85%足够。最佳区间通常是88-92%，画质出色且压缩良好。极速压图在调节时实时显示大小估算。' },
+      { qEn: 'Will I lose transparency when converting WebP to JPG?', qZh: 'WebP转JPG会丢失透明吗？', aEn: 'Yes — JPEG does not support transparency. If your WebP has transparent areas (common for logos, icons, and product cutouts), the transparent regions will be filled with white (#FFFFFF) in the output JPG. CompressFast warns you when converting images with transparency. If you need to preserve transparency, convert WebP to PNG instead — use our WebP to PNG converter. For photos and screenshots (which rarely have transparency), this is not an issue.', aZh: '会——JPEG不支持透明。如果WebP有透明区域（Logo、图标、产品抠图常见），透明区域在输出JPG中会被填充为白色(#FFFFFF)。极速压图在转换含透明度的图片时会显示警告。如需保留透明，请将WebP转PNG——使用我们的WebP转PNG工具。对于照片和截图（很少有透明），这完全不是问题。' },
+      { qEn: 'Can I resize images while converting WebP to JPG?', qZh: 'WebP转JPG的同时能调整尺寸吗？', aEn: 'Yes — CompressFast combines resize and format conversion in one step. Set target dimensions in pixels or use percentage presets (50%, 75%, 1080p, 720p). Resizing during conversion is especially useful for: (1) product photos for e-commerce platforms that require specific dimensions, (2) email attachments where smaller dimensions = smaller file, (3) social media posts with platform-specific size requirements. The combined resize+convert produces the smallest possible JPG.', aZh: '可以——极速压图一步完成尺寸调整和格式转换。设置目标像素尺寸或使用百分比预设（50%、75%、1080p、720p）。转换同时调整尺寸特别适用于：(1) 电商平台要求特定尺寸的产品图，(2) 邮件附件——尺寸越小文件越小，(3) 社交媒体帖子有平台特定尺寸要求。调整尺寸+转换结合产出最小的JPG。' },
+      { qEn: 'Why do websites serve WebP images instead of JPG?', qZh: '为什么网站要提供WebP而不是JPG？', aEn: 'Websites use WebP because it is 25-35% smaller than JPEG at equivalent quality — meaning faster page loads, lower bandwidth costs, and better SEO rankings (Google prioritizes fast sites). Over 96% of browsers now support WebP. However, when you right-click and "Save Image As..." from a website, you often get a .webp file that your local photo viewer cannot open. That is exactly when you need a WebP to JPG converter. CompressFast solves this friction: download WebP from any site, convert to JPG instantly.', aZh: '网站使用WebP因为它比JPEG同等画质小25-35%——意味着更快的页面加载、更低的带宽成本和更好的SEO排名（Google优先快速站点）。超过96%的浏览器现在支持WebP。但当你从网站右键"图片另存为…"时，下载的往往是.webp文件，本地图片查看器打不开。这正是你需要WebP转JPG的时候。极速压图解决这个痛点：从任何网站下载WebP，秒转JPG。' },
+      { qEn: 'Is WebP to JPG conversion free? Are there any limits?', qZh: 'WebP转JPG免费吗？有什么限制？', aEn: 'Completely free. Free tier: up to 30 images per batch (20 for single-format), 10MB per file, 400 compressions per month. Pro ($24.99 lifetime): 500 images per batch, 50MB per file, no monthly limits, AVIF output, custom presets, priority support. No account required for free use — just open the site and start converting.', aZh: '完全免费。免费版：每批最多30张（单格式20张），单文件10MB，每月400次。Pro版（$24.99买断）：每批500张，单文件50MB，无月度限制，支持AVIF输出和自定义预设，优先支持。免费使用无需注册——打开网站即可开始转换。' },
+    ],
+    detailedGuideEn: `WebP is a modern image format developed by Google that delivers superior compression: 25-35% smaller file sizes than JPEG at equivalent visual quality. It supports both lossy and lossless compression, transparency (alpha channel), and even animation — making it a technically superior replacement for JPEG, PNG, and GIF simultaneously. Since 2020, WebP has been supported by all major browsers (Chrome, Firefox, Safari, Edge), and over 96% of web users can view WebP images.
+
+But there is a catch: despite near-universal browser support, WebP files are still difficult to open outside a browser. Windows Photos app needed a codec until recently. Adobe Photoshop only added WebP support in 2022 (version 23.2). Older software, many mobile gallery apps, government portals, e-commerce platforms, and document tools still require JPEG or PNG. When you save an image from the web, you often get a .webp file that your local applications cannot open.
+
+CompressFast's WebP to JPG converter bridges this gap — turning modern, efficient WebP files into universally-compatible JPEGs, instantly and privately:
+
+1. Browser-native decoding — WebP images are decoded by the browser's own WebP decoder, the same one that displays WebP images on websites. This ensures perfect rendering of all WebP features: lossy, lossless, alpha channel, and even animated WebP (first frame). No third-party libraries, no quality surprises.
+
+2. Quality-controlled JPEG encoding — After decoding, the image is re-encoded as JPEG with your chosen quality setting (10-100%). At 88-92%, the visual difference from the original WebP is imperceptible while the file remains reasonably sized. At 100%, you get the highest possible JPEG quality at the cost of a larger file.
+
+3. Transparency handling — Since JPEG lacks alpha channel support, transparent areas in WebP images (transferred from PNG lossless WebP) are filled with white (#FFFFFF). CompressFast detects and warns about transparency before conversion. For images where transparency is critical, our WebP to PNG converter preserves the alpha channel.
+
+4. Combined resize + convert — Many WebP images from the web are high-resolution (2000px+). Resize them during conversion for even smaller output: a 2000px WebP converted to 1200px JPG at 90% quality produces a file ready for immediate use on websites, social media, or email.
+
+5. Batch workflow — Drop up to 30 WebP files, select JPEG output at 90% quality, click compress. All files convert in parallel. Download a ZIP of ready-to-use JPGs, each correctly named and stripped of metadata.
+
+Common scenarios: (a) You saved product photos from a supplier website — they are all .webp and your e-commerce platform requires JPEG. (b) You downloaded images from a Google Doc or Slides export — they came as WebP. (c) You received WebP attachments in email and your image viewer cannot open them. (d) You are preparing images for a platform (social media, marketplace, document) that does not support WebP. In every case, CompressFast converts them in seconds, no upload required.`,
+    detailedGuideZh: `WebP是Google开发的现代图片格式，提供卓越的压缩效果：同等视觉质量下比JPEG文件小25-35%。它同时支持有损和无损压缩、透明度（alpha通道）、甚至动画——使其在技术上可以同时替代JPEG、PNG和GIF。自2020年以来，WebP已被所有主流浏览器（Chrome、Firefox、Safari、Edge）支持，超过96%的网页用户可以查看WebP图片。
+
+但有一个致命伤：尽管浏览器几乎普遍支持，WebP文件在浏览器之外仍然难以打开。Windows照片应用直到最近才需要编解码器。Adobe Photoshop在2022年（版本23.2）才添加WebP支持。老旧软件、许多手机相册应用、政府门户、电商平台和文档工具仍然需要JPEG或PNG。当你从网页保存图片时，得到的往往是.webp文件，本地应用打不开。
+
+极速压图的WebP转JPG转换器弥合了这个鸿沟——将现代高效的WebP文件即时、私密地转换为通用兼容的JPEG：
+
+1. 浏览器原生解码——WebP图片由浏览器自己的WebP解码器解码，与网页上显示WebP图片的是同一个引擎。这确保所有WebP特性的完美渲染：有损、无损、alpha通道，甚至动画WebP（首帧）。无需第三方库，画质无意外。
+
+2. 画质可控的JPEG编码——解码后，图片以你选择的画质设置（10-100%）重新编码为JPEG。88-92%画质下，与原WebP的视觉差异肉眼无法察觉，文件大小保持合理。100%设置获得最高JPEG画质，但文件更大。
+
+3. 透明度处理——由于JPEG不支持alpha通道，WebP图片中的透明区域（从PNG无损WebP转移而来）会被填充为白色(#FFFFFF)。极速压图在转换前检测并警告透明度。对于透明度至关重要的图片，我们的WebP转PNG转换器保留alpha通道。
+
+4. 调整尺寸+格式转换一步完成——网页下载的WebP图片很多是高分辨率的（2000px+）。转换时调整尺寸获得更小输出：2000px的WebP调到1200px并以90%画质转JPG，产出的文件即可直接用于网页、社交媒体或邮件。
+
+5. 批量工作流——拖入最多30张WebP，选择90%画质JPEG输出，点击压缩。所有文件并行转换。下载包含即用JPG的ZIP，每个文件命名正确且元数据已清除。
+
+常见场景：(a) 你从供应商网站保存了产品图——全是.webp，但电商平台要求JPEG。(b) 从Google文档或幻灯片导出下载了图片——结果是WebP。(c) 邮件收到WebP附件，图片查看器打不开。(d) 正在为不支持WebP的平台（社交媒体、电商平台、文档）准备图片。所有情况，极速压图秒速转换，无需上传。`,
+    relatedTools: ['convert-to-webp', 'webp-to-png', 'compress-jpeg', 'resize-image'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)
