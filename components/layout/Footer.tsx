@@ -22,23 +22,46 @@ export function Footer() {
   }, [isCn])
 
   const icpNumber = process.env.NEXT_PUBLIC_ICP_NUMBER || ''
+  const psbNumber = process.env.NEXT_PUBLIC_PSB_NUMBER || ''
+  // 公安备案 recordcode：提取数字部分（去掉"湘公网安备"和"号"）
+  const psbRecordCode = psbNumber.replace(/[^\d]/g, '')
 
   return (
     <footer className="border-t border-gray-200 bg-gray-50 mt-16">
       <div className="max-w-5xl mx-auto px-4 py-8 text-center">
 
-        {/* ICP 备案号 */}
-        {isCn && icpNumber && (
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200">
-            <span className="text-xs text-neutral-600">ICP备案</span>
-            <a
-              href="https://beian.miit.gov.cn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-600 font-medium transition-colors"
-            >
-              {icpNumber}
-            </a>
+        {/* ICP + 公安 备案号 */}
+        {isCn && (icpNumber || psbNumber) && (
+          <div className="mb-6 flex items-center justify-center gap-3 flex-wrap">
+            {psbNumber && (
+              <a
+                href={`http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${psbRecordCode}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-white border border-gray-200 hover:border-blue-300 transition-colors"
+              >
+                <img
+                  src="https://www.beian.gov.cn/img/ghs.png"
+                  alt="公安备案"
+                  className="w-4 h-4"
+                  loading="lazy"
+                />
+                <span className="text-sm text-blue-600 font-medium">{psbNumber}</span>
+              </a>
+            )}
+            {icpNumber && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200">
+                <span className="text-xs text-neutral-600">ICP备案</span>
+                <a
+                  href="https://beian.miit.gov.cn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-600 font-medium transition-colors"
+                >
+                  {icpNumber}
+                </a>
+              </div>
+            )}
           </div>
         )}
 

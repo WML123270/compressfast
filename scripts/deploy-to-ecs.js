@@ -19,8 +19,8 @@ const SERVER = {
   },
 };
 
-const localFile = 'deploy-package-20260718-134605.tar.gz';
-const remoteFile = '/home/admin/deploy-package-20260718-134605.tar.gz';
+const localFile = 'deploy-package-20260806-232114.tar.gz';
+const remoteFile = '/home/admin/deploy-package-20260806-232114.tar.gz';
 
 console.log('>>> 连接服务器...');
 const conn = new Client();
@@ -52,8 +52,10 @@ conn.on('ready', () => {
         `rm -rf /tmp/png-update`,
         `mkdir -p /tmp/png-update`,
         `tar xzf /home/admin/${pkg} -C /tmp/png-update`,
-        // stop
+        // stop + kill port
         `pm2 stop png-compressor 2>/dev/null || true`,
+        `fuser -k 3000/tcp 2>/dev/null || true`,
+        `sleep 1`,
         // replace
         `rm -rf /home/admin/png-compressor/.next /home/admin/png-compressor/public`,
         `mv /tmp/png-update/.next /home/admin/png-compressor/`,
@@ -62,14 +64,16 @@ conn.on('ready', () => {
         `[ -f /tmp/png-update/package-lock.json ] && cp /tmp/png-update/package-lock.json /home/admin/png-compressor/`,
         `[ -f /tmp/png-update/next.config.mjs ] && cp /tmp/png-update/next.config.mjs /home/admin/png-compressor/`,
         `[ -f /tmp/png-update/deploy/server-update.sh ] && mkdir -p /home/admin/png-compressor/deploy && cp /tmp/png-update/deploy/server-update.sh /home/admin/png-compressor/deploy/`,
+        `[ -f /tmp/png-update/scripts/start-ecs.sh ] && cp /tmp/png-update/scripts/start-ecs.sh /home/admin/png-compressor/scripts/ && chmod +x /home/admin/png-compressor/scripts/start-ecs.sh`,
         `rm -rf /tmp/png-update`,
         // install
         `cd /home/admin/png-compressor && npm install --omit=dev --registry=https://registry.npmmirror.com`,
-        // start
-        `cd /home/admin/png-compressor && export NODE_ENV=production && pm2 restart png-compressor 2>/dev/null || pm2 start npx --name png-compressor -- next start -p 3000`,
+        // start (safe — port already freed above)
+        `cd /home/admin/png-compressor && export NODE_ENV=production && pm2 delete png-compressor 2>/dev/null || true`,
+        `cd /home/admin/png-compressor && pm2 start npx --name png-compressor -- next start -p 3000`,
         `pm2 save`,
-        `sleep 3`,
-        `curl -s -o /dev/null -w "HTTP: %{http_code}" http://localhost:3000`,
+        `sleep 4`,
+        `curl -s -o /dev/null -w "HTTP: %{http_code}" http://localhost:3000/zh`,
       ].join(' && ');
       console.log('>>> 部署中...');
       conn.exec(`cd /home/admin && ${cmd}`,
