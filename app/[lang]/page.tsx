@@ -18,6 +18,7 @@ import { useIsCn } from '@/lib/use-is-cn'
 import { useToast } from '@/components/ui/Toast'
 import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
+import { PopularTools } from '@/components/layout/PopularTools'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -199,6 +200,9 @@ export default function HomePage() {
       <WatermarkSettings />
       <ImageList />
       <AdSlot />
+
+      {/* Popular Tools Grid — CN site content enrichment */}
+      <PopularTools />
 
       {/* Trust badges + Stats + Links below tool */}
       <div className="pt-6 space-y-6">
