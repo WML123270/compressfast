@@ -136,6 +136,8 @@ export default function HomePage() {
           <p className="text-neutral-600 mt-2">{t('dropzone.paste')}</p>
         </div>
         <AdSlot />
+        {/* PopularTools — only on CN site, env var inlined at build time */}
+        {process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'cn' && <PopularTools />}
       </div>
     )
   }
