@@ -48,7 +48,7 @@ export function generateMetadata({ params }: Props): Metadata {
       images: [{ url: '/icon-512.png', width: 512, height: 512 }],
     },
     other: {
-      'baidu_union_verify': '88a78eaf1ef0ec38f4c7e7d4ca595e55',
+      'baidu_union_verify': 'e54d348ba3c0ecd5bd0cb95aa9e8d480',
     },
   }
 }

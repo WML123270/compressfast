@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   verification: {
     other: {
       'baidu-site-verification': 'codeva-0i0J3e3ChT',
-      'baidu_union_verify': '88a78eaf1ef0ec38f4c7e7d4ca595e55',
+      'baidu_union_verify': 'e54d348ba3c0ecd5bd0cb95aa9e8d480',
     },
   },
   manifest: '/manifest.json',
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={htmlLang} suppressHydrationWarning>
       <head>
-        <meta name="baidu_union_verify" content="88a78eaf1ef0ec38f4c7e7d4ca595e55" />
+        <meta name="baidu_union_verify" content="e54d348ba3c0ecd5bd0cb95aa9e8d480" />
         <meta name="msvalidate.01" content="A8A090114D7C6DEB343B0DA6FF560CD8" />
         <script
           dangerouslySetInnerHTML={{
