@@ -106,6 +106,14 @@ export function Footer() {
               <span>𝕏</span> @CompressFastApp
             </a>
             <a
+              href="https://jisuyatu.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 transition-all"
+            >
+              <span>🇨🇳</span> 极速压图 · jisuyatu.com
+            </a>
+            <a
               href={process.env.NEXT_PUBLIC_CREEM_TIP_URL || 'https://www.creem.io/payment/prod_PxY4p0dRqz6lyrngUmBjU'}
               target="_blank"
               rel="noopener noreferrer"
