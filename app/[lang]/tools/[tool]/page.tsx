@@ -67,10 +67,10 @@ export default function ToolPage({ params }: Props) {
 
       {/* Hero */}
       <section className="text-center space-y-3 pb-2">
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900">
           <span>{isZh ? tool.heroTitleZh : tool.heroTitleEn}</span>
         </h1>
-        <p className="text-sm sm:text-lg text-slate-400 max-w-xl mx-auto">
+        <p className="text-sm sm:text-lg text-gray-700 max-w-xl mx-auto">
           {isZh ? tool.heroSubZh : tool.heroSubEn}
         </p>
       </section>
@@ -79,7 +79,7 @@ export default function ToolPage({ params }: Props) {
       <ToolClient defaultSettings={tool.defaultSettings} />
 
       {/* Content Intro — explains what this tool does with SEO-rich text */}
-      <section className="prose prose-sm max-w-none text-slate-400 leading-relaxed space-y-3">
+      <section className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-3">
         <p>
           {isZh ? tool.descriptionZh : tool.descriptionEn}
         </p>
@@ -93,10 +93,10 @@ export default function ToolPage({ params }: Props) {
       {/* Detailed Usage Guide */}
       {((isZh && tool.detailedGuideZh) || (!isZh && tool.detailedGuideEn)) && (
         <section className="pt-4">
-          <h2 className="font-bold text-slate-100 text-lg mb-4">
+          <h2 className="font-bold text-gray-900 text-lg mb-4">
             {isZh ? '详细使用指南' : 'Detailed Usage Guide'}
           </h2>
-          <div className="prose prose-sm max-w-none text-slate-400 leading-relaxed space-y-4 p-5 rounded-xl bg-white/5 border border-white/10">
+          <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4 p-5 rounded-xl bg-white border border-gray-200">
             {(isZh ? tool.detailedGuideZh! : tool.detailedGuideEn!).split('\n\n').filter(Boolean).map((para, i) => (
               <p key={i}>{para}</p>
             ))}
@@ -106,15 +106,15 @@ export default function ToolPage({ params }: Props) {
 
       {/* Benefits */}
       <section className="pt-4">
-        <h2 className="font-bold text-slate-100 text-lg mb-4">
+        <h2 className="font-bold text-gray-900 text-lg mb-4">
           {isZh ? '为什么选择我们？' : 'Why Choose CompressFast?'}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {tool.benefits.map((b, i) => (
-            <div key={i} className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-all group">
+            <div key={i} className="p-5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 transition-all group">
               <span className="text-2xl">{b.icon}</span>
-              <h3 className="font-semibold text-sm mt-3 mb-1 text-slate-200">{isZh ? b.titleZh : b.titleEn}</h3>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{isZh ? b.descZh : b.descEn}</p>
+              <h3 className="font-semibold text-sm mt-3 mb-1 text-gray-900">{isZh ? b.titleZh : b.titleEn}</h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{isZh ? b.descZh : b.descEn}</p>
             </div>
           ))}
         </div>
@@ -122,18 +122,18 @@ export default function ToolPage({ params }: Props) {
 
       {/* How To */}
       <section className="pt-4">
-        <h2 className="font-bold text-slate-100 text-lg mb-4">
+        <h2 className="font-bold text-gray-900 text-lg mb-4">
           {isZh ? '三步完成' : 'How to ' + (isZh ? '' : tool.heroTitleEn.split(' ').slice(1).join(' '))}
         </h2>
         <div className="space-y-3">
           {tool.howTo.map((step, i) => (
-            <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div key={i} className="flex gap-4 p-4 rounded-xl bg-white border border-gray-200">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-sm text-white flex-shrink-0">
                 {step.step}
               </div>
               <div>
-                <h3 className="font-semibold text-sm text-slate-200">{isZh ? step.titleZh : step.titleEn}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">{isZh ? step.descZh : step.descEn}</p>
+                <h3 className="font-semibold text-sm text-gray-900">{isZh ? step.titleZh : step.titleEn}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">{isZh ? step.descZh : step.descEn}</p>
               </div>
             </div>
           ))}
@@ -142,17 +142,17 @@ export default function ToolPage({ params }: Props) {
 
       {/* FAQ */}
       <section className="pt-4">
-        <h2 className="font-bold text-slate-100 text-lg mb-4">
+        <h2 className="font-bold text-gray-900 text-lg mb-4">
           {isZh ? '常见问题' : 'FAQ'}
         </h2>
         <div className="space-y-2">
           {tool.faqs.map((faq, i) => (
-            <details key={i} className="group rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+            <details key={i} className="group rounded-xl border border-gray-200 bg-white overflow-hidden">
               <summary className="flex items-center justify-between gap-2 px-4 sm:px-5 py-3 cursor-pointer list-none">
-                <span className="font-medium text-sm text-slate-200">{isZh ? faq.qZh : faq.qEn}</span>
-                <ChevronDown className="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0" />
+                <span className="font-semibold text-sm text-gray-900">{isZh ? faq.qZh : faq.qEn}</span>
+                <ChevronDown className="w-4 h-4 text-gray-600 group-open:rotate-180 transition-transform flex-shrink-0" />
               </summary>
-              <p className="px-4 sm:px-5 pb-4 text-sm text-slate-300 leading-relaxed">{isZh ? faq.aZh : faq.aEn}</p>
+              <p className="px-4 sm:px-5 pb-4 text-sm text-gray-700 leading-relaxed">{isZh ? faq.aZh : faq.aEn}</p>
             </details>
           ))}
         </div>
@@ -160,7 +160,7 @@ export default function ToolPage({ params }: Props) {
 
       {/* Related Tools */}
       <section className="pt-4 pb-6">
-        <h2 className="font-bold text-slate-100 text-lg mb-4">
+        <h2 className="font-bold text-gray-900 text-lg mb-4">
           {isZh ? '相关工具' : 'Related Tools'}
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ export default function ToolPage({ params }: Props) {
               <Link
                 key={slug}
                 href={`/${params.lang}/tools/${slug}`}
-                className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all text-sm"
+                className="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:text-blue-600 hover:border-blue-300 transition-all text-sm"
               >
                 {isZh ? related.heroTitleZh : related.heroTitleEn}
               </Link>
@@ -182,7 +182,7 @@ export default function ToolPage({ params }: Props) {
 
       {/* Breadcrumb-like link back */}
       <div className="text-center pt-2 pb-4">
-        <Link href={`/${params.lang}`} className="text-slate-400 hover:text-cyan-400 text-sm transition-colors">
+        <Link href={`/${params.lang}`} className="text-gray-700 hover:text-blue-600 text-sm transition-colors">
           {isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images'}
         </Link>
       </div>
