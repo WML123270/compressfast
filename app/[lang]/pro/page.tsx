@@ -285,6 +285,30 @@ export default function ProPage() {
       </section>
       )}
 
+      {/* Affiliate teaser — non-Pro users only */}
+      {!isCn && !isPro && (
+        <section className="max-w-md mx-auto pt-6">
+          <Link href={`/${locale}/affiliates`} className="block bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 hover:border-green-300 transition-all group">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">💰</span>
+              <div>
+                <h3 className="font-semibold text-green-800 text-sm">
+                  {locale === 'zh' ? '赚回你的 Pro 费用' : 'Earn back your Pro cost'}
+                </h3>
+                <p className="text-green-700 text-xs mt-1 leading-relaxed">
+                  {locale === 'zh'
+                    ? '加入联盟分销计划，推荐朋友购买 Pro，每单赚 $12.50（50%佣金）。只需 2 单就回本，上不封顶。'
+                    : 'Join our affiliate program. Refer users to Pro and earn $12.50 per sale (50%). Just 2 referrals and Pro pays for itself.'}
+                </p>
+                <span className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-green-600 group-hover:text-green-700 transition-colors">
+                  {locale === 'zh' ? '了解详情 →' : 'Learn more →'}
+                </span>
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
+
       {/* Pro Active Banner */}
       {isPro && (
         <section className="max-w-md mx-auto pt-8">

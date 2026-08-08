@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;font-family:'Segoe UI',system-ui,sans-serif;background:#0b1420;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px}
+.glow{position:absolute;top:-100px;left:-100px;width:500px;height:400px;background:radial-gradient(ellipse,rgba(245,158,11,.1),transparent)}
+.content{position:relative;z-index:1;text-align:center;padding:40px}
+.badge{display:inline-block;padding:6px 18px;border-radius:20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;font-size:14px;font-weight:600;margin-bottom:24px}
+h1{font-size:52px;font-weight:800;margin-bottom:8px}
+.price{font-size:72px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.lifetime{font-size:22px;color:#fbbf24;font-weight:600;margin-bottom:32px}
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:600px;margin:0 auto 32px}
+.feat{padding:14px 20px;background:rgba(255,255,255,.04);border-radius:10px;display:flex;align-items:center;gap:10px;font-size:16px;color:#e2e8f0}
+.feat .icon{font-size:22px}
+.nosub{display:inline-block;padding:10px 28px;border-radius:30px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;font-size:17px;font-weight:600;margin-bottom:24px}
+.footer-text{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:1;font-size:20px;font-weight:700;color:#06b6d4}
+</style></head>
+<body>
+<div class="bg-grid"></div><div class="glow"></div>
+<div class="content">
+  <div class="badge">💰 SIMPLE PRICING</div>
+  <h1>Pro — One Payment. Forever.</h1>
+  <div class="price">$24.99</div>
+  <div class="lifetime">⭐ Lifetime Access · No Subscription</div>
+  <div class="features">
+    <div class="feat"><span class="icon">🚀</span> 500 Images per Batch</div>
+    <div class="feat"><span class="icon">🎯</span> AVIF Encode & Decode</div>
+    <div class="feat"><span class="icon">🔓</span> No Watermark · No Ads</div>
+    <div class="feat"><span class="icon">📱</span> Unlimited Devices</div>
+  </div>
+  <div class="nosub">🚫 No monthly fees. No hidden costs.</div>
+</div>
+<div class="footer-text">compressfast.site/pro</div>
+</body></html>

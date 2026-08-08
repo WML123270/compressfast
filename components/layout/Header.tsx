@@ -41,13 +41,22 @@ export function Header() {
             <span className="hidden sm:inline">{locale === 'zh' ? '了解更多' : 'Features'}</span>
           </Link>
           {!isCn && (
-            <Link
-              href={`/${locale}/pro`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all"
-            >
-              <Crown className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Pro</span>
-            </Link>
+            <>
+              <Link
+                href={`/${locale}/pro`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Pro</span>
+              </Link>
+              <Link
+                href={`/${locale}/affiliates`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-green-600 hover:text-green-700 hover:bg-green-50 border border-transparent hover:border-green-200 transition-all"
+              >
+                <span className="text-xs">💰</span>
+                <span className="hidden sm:inline">{locale === 'zh' ? '赚$12.50' : 'Earn $12.50'}</span>
+              </Link>
+            </>
           )}
           <button
             onClick={switchLang}

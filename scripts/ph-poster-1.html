@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;font-family:'Segoe UI',system-ui,sans-serif;background:#0b1420;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px}
+.glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(6,182,212,.12),transparent)}
+.card{position:relative;z-index:1;text-align:center;max-width:900px;padding:40px}
+.badge{display:inline-block;padding:6px 18px;border-radius:20px;background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:#06b6d4;font-size:14px;font-weight:600;margin-bottom:24px}
+h1{font-size:52px;font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:22px;color:#94a3b8;margin-bottom:32px;line-height:1.5}
+.features{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.feat{padding:10px 20px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:15px;color:#cbd5e1}
+.cta{font-size:20px;color:#64748b}
+.url{font-size:24px;font-weight:700;color:#06b6d4;margin-top:4px}
+</style></head>
+<body>
+<div class="bg-grid"></div><div class="glow"></div>
+<div class="card">
+  <div class="badge">🔒 PRIVACY FIRST</div>
+  <h1>100% Local Image Compression</h1>
+  <p class="sub">Your images never leave your browser. Zero upload.<br>Compress, convert, resize — all on your device.</p>
+  <div class="features">
+    <span class="feat">🛡️ No Server Upload</span>
+    <span class="feat">⚡ Batch 30 Free</span>
+    <span class="feat">📦 7 Formats In</span>
+    <span class="feat">🎯 AVIF Output</span>
+    <span class="feat">📱 Mobile Ready</span>
+  </div>
+  <p class="cta">compressfast.site</p>
+</div>
+</body></html>

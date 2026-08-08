@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;font-family:'Segoe UI',system-ui,sans-serif;background:#0b1420;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px}
+.glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(59,130,246,.06),transparent)}
+.content{position:relative;z-index:1;text-align:center;padding:40px}
+.badge{display:inline-block;padding:6px 18px;border-radius:20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;font-size:14px;font-weight:600;margin-bottom:24px}
+h1{font-size:44px;font-weight:800;margin-bottom:16px}
+.vs{display:flex;gap:24px;justify-content:center;align-items:flex-start;margin:32px 0}
+.col{width:300px;padding:28px 20px;border-radius:16px;text-align:center}
+.col.them{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)}
+.col.us{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2)}
+.col h2{font-size:26px;font-weight:800;margin-bottom:16px}
+.col.them h2{color:#fca5a5}
+.col.us h2{color:#6ee7b7}
+.col .item{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:15px;color:#cbd5e1;justify-content:center}
+.col .check{color:#10b981;font-weight:700}
+.col .cross{color:#ef4444;font-weight:700}
+.col.them .item{color:#94a3b8}
+.vs-center{display:flex;align-items:center;font-size:28px;font-weight:900;color:#64748b;padding-top:60px}
+.stats{display:flex;gap:40px;justify-content:center;margin-top:24px}
+.stat{text-align:center}
+.stat .num{font-size:32px;font-weight:800;color:#60a5fa}
+.stat .label{font-size:13px;color:#64748b;margin-top:2px}
+.footer-text{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:1;font-size:20px;font-weight:700;color:#06b6d4}
+</style></head>
+<body>
+<div class="bg-grid"></div><div class="glow"></div>
+<div class="content">
+  <div class="badge">⚡ BETTER ALTERNATIVE</div>
+  <h1>CompressFast vs The Rest</h1>
+  <div class="vs">
+    <div class="col them">
+      <h2>Other Tools</h2>
+      <div class="item"><span class="cross">✕</span> Uploads to server</div>
+      <div class="item"><span class="cross">✕</span> Monthly subscription</div>
+      <div class="item"><span class="cross">✕</span> File size limits</div>
+      <div class="item"><span class="cross">✕</span> No AVIF support</div>
+    </div>
+    <div class="vs-center">VS</div>
+    <div class="col us">
+      <h2>CompressFast</h2>
+      <div class="item"><span class="check">✓</span> 100% Local</div>
+      <div class="item"><span class="check">✓</span> $24.99 Lifetime</div>
+      <div class="item"><span class="check">✓</span> Batch 30 Free</div>
+      <div class="item"><span class="check">✓</span> AVIF + WebP</div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="num">18</div><div class="label">Image Tools</div></div>
+    <div class="stat"><div class="num">4,000+</div><div class="label">Compressions</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">Uploads Ever</div></div>
+  </div>
+</div>
+<div class="footer-text">compressfast.site</div>
+</body></html>
