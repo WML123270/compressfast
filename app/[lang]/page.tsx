@@ -19,6 +19,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
+import { AffiliateTeaser } from '@/components/compressor/AffiliateTeaser'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -201,6 +202,7 @@ export default function HomePage() {
       <CompressionControls />
       <WatermarkSettings />
       <ImageList />
+      <AffiliateTeaser />
       <AdSlot />
 
       {/* Popular Tools Grid — CN site content enrichment */}
