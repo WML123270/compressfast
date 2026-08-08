@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useIsCn } from '@/lib/use-is-cn'
 import { useT } from '@/lib/i18n/context'
 import { TOOLS } from '@/lib/tool-pages'
 
@@ -33,9 +32,7 @@ const ICONS: Record<string, string> = {
  * for Baidu Union review and internal linking SEO.
  */
 export function PopularTools() {
-  const isCn = useIsCn()
   const { locale } = useT()
-  if (!isCn) return null
 
   const tools = Object.values(TOOLS)
   const isZh = locale === 'zh'
