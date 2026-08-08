@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 675px;
+  background: #0b1420;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.content { position: relative; z-index: 1; text-align: center; padding: 30px 60px; }
+h1 { font-size: 42px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.sub { font-size: 20px; color: #94a3b8; margin-bottom: 28px; }
+
+.tools {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px; width: 1020px; margin-bottom: 24px;
+}
+.tool {
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px; padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  border-left: 3px solid var(--c);
+}
+.tool .arrow { font-size: 28px; font-weight: 700; color: var(--c); flex-shrink: 0; }
+.tool .info { flex: 1; min-width: 0; }
+.tool .from-to { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.tool .fmt {
+  font-size: 22px; font-weight: 700;
+  padding: 2px 10px; border-radius: 5px;
+}
+.tool .fmt.from { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+.tool .fmt.to   { color: #fff; background: var(--c); }
+.tool .sep { color: #64748b; font-size: 18px; }
+.tool .desc { font-size: 12px; color: #64748b; white-space: nowrap; }
+
+.footer { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; width: 600px; }
+.footer .tag { font-size: 15px; color: #94a3b8; }
+.footer .url { font-size: 18px; font-weight: 700; color: #3b82f6; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="content">
+  <h1>5 New Format Conversion Tools</h1>
+  <p class="sub">All local. No upload. Free to use.</p>
+
+  <div class="tools">
+    <div class="tool" style="--c:#3b82f6">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">WebP</span><span class="sep">→</span><span class="fmt to">JPG</span></div>
+        <div class="desc">Open downloaded web images anywhere</div>
+      </div>
+    </div>
+    <div class="tool" style="--c:#8b5cf6">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">WebP</span><span class="sep">→</span><span class="fmt to">PNG</span></div>
+        <div class="desc">Keep transparency, universal format</div>
+      </div>
+    </div>
+    <div class="tool" style="--c:#10b981">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">PNG</span><span class="sep">→</span><span class="fmt to">JPG</span></div>
+        <div class="desc">5MB screenshots → 300KB photos</div>
+      </div>
+    </div>
+    <div class="tool" style="--c:#f59e0b">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">PNG</span><span class="sep">→</span><span class="fmt to">WebP</span></div>
+        <div class="desc">25% smaller, perfect for websites</div>
+      </div>
+    </div>
+    <div class="tool" style="--c:#ef4444">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">JPG</span><span class="sep">→</span><span class="fmt to">WebP</span></div>
+        <div class="desc">Shrink photos without quality loss</div>
+      </div>
+    </div>
+    <div class="tool" style="--c:#06b6d4">
+      <span class="arrow">→</span>
+      <div class="info">
+        <div class="from-to"><span class="fmt from">SVG</span><span class="sep">→</span><span class="fmt to">PNG</span></div>
+        <div class="desc">Vector to raster at any resolution</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="tag">100% browser-based · No files ever uploaded</div>
+    <div class="url">compressfast.site</div>
+  </div>
+</div>
+</body>
+</html>
