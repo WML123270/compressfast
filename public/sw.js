@@ -1,8 +1,10 @@
-// CompressFast Service Worker v6
-const CACHE = 'png-compressor-v6'
+// CompressFast Service Worker v7
+// Caches static assets for faster repeat visits and basic offline support.
+const CACHE = 'png-compressor-v7'
 
-// Only pre-cache static assets, NOT HTML pages
+// Pre-cache app shell assets
 const PRE_CACHE = [
+  '/',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
@@ -30,16 +32,33 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event
 
-  // Skip non-GET and non-http
+  // Skip non-GET and non-http(s)
   if (request.method !== 'GET') return
   if (!request.url.startsWith('http')) return
 
-  // Never cache: API, workers, HTML navigation
+  // Never cache: API calls, admin
   if (request.url.includes('/api/')) return
-  if (request.url.includes('worker')) return
-  if (request.mode === 'navigate' || request.destination === 'document') return
+  if (request.url.includes('/admin')) return
 
-  // Cache static assets only
+  // For HTML navigation: network-first with offline fallback
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Cache the fresh page
+          const clone = response.clone()
+          caches.open(CACHE).then(cache => cache.put(request, clone))
+          return response
+        })
+        .catch(() => {
+          // Offline — serve cached version
+          return caches.match(request) || caches.match('/')
+        })
+    )
+    return
+  }
+
+  // Static assets: cache-first (these are versioned by Next.js)
   if (
     request.destination === 'script' ||
     request.destination === 'style' ||

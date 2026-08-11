@@ -1,11 +1,8 @@
 'use client'
 
-import { useEffect, useCallback, useState, useRef } from 'react'
+import { useEffect, useCallback, useState, useRef, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { DropZone } from '@/components/compressor/DropZone'
-import { ImageList } from '@/components/compressor/ImageList'
-import { CompressionControls } from '@/components/compressor/CompressionControls'
-import { WatermarkSettings } from '@/components/compressor/WatermarkSettings'
-import { DemoShowcase } from '@/components/compressor/DemoShowcase'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits } from '@/lib/compression/types'
 import { QuotaBanner } from '@/components/compressor/QuotaBanner'
@@ -19,7 +16,28 @@ import { useToast } from '@/components/ui/Toast'
 import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
-import { AffiliateTeaser } from '@/components/compressor/AffiliateTeaser'
+
+// Dynamic imports for heavy components — split from critical rendering path
+const DemoShowcase = dynamic(
+  () => import('@/components/compressor/DemoShowcase').then(m => m.DemoShowcase),
+  { ssr: false }
+)
+const CompressionControls = dynamic(
+  () => import('@/components/compressor/CompressionControls').then(m => m.CompressionControls),
+  { ssr: false }
+)
+const WatermarkSettings = dynamic(
+  () => import('@/components/compressor/WatermarkSettings').then(m => m.WatermarkSettings),
+  { ssr: false }
+)
+const ImageList = dynamic(
+  () => import('@/components/compressor/ImageList').then(m => m.ImageList),
+  { ssr: false }
+)
+const AffiliateTeaser = dynamic(
+  () => import('@/components/compressor/AffiliateTeaser').then(m => m.AffiliateTeaser),
+  { ssr: false }
+)
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -198,8 +216,13 @@ export default function HomePage() {
         <QuotaBanner />
       </div>
 
-      <CompressionControls />
-      <WatermarkSettings />
+      {/* Heavy compression UI — only load when files are present */}
+      {hasFiles && (
+        <>
+          <CompressionControls />
+          <WatermarkSettings />
+        </>
+      )}
       <ImageList />
       <AffiliateTeaser />
       <AdSlot />
