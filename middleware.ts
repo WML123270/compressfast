@@ -42,6 +42,7 @@ const SKIP_PATHS = [
   '.gif',
   '.svg',
   '.xml',
+  '.txt',
 ]
 
 function shouldSkip(pathname: string): boolean {
