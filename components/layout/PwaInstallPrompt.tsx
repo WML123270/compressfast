@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Download, X } from 'lucide-react'
+import { useT } from '@/lib/i18n/context'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -14,6 +15,8 @@ interface BeforeInstallPromptEvent extends Event {
  * Dismissed for 7 days after user closes it.
  */
 export function PwaInstallPrompt() {
+  const { locale } = useT()
+  const isZh = locale === 'zh'
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const [dismissed, setDismissed] = useState(false)
@@ -35,17 +38,24 @@ export function PwaInstallPrompt() {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
       // Show after 30s of engagement
-      const timer = setTimeout(() => setShowPrompt(true), 30_000)
+      const timer = setTimeout(() => {
+        setShowPrompt(true)
+        clearInterval(interval)
+      }, 30_000)
       // Also show after 3 compressions
       const checkStats = () => {
         try {
           const stats = JSON.parse(localStorage.getItem('png-compressor-stats') || '{}')
           if ((stats.total || 0) >= 3) {
             setShowPrompt(true)
+            clearTimeout(timer)
+            clearInterval(interval)
           }
         } catch {}
       }
       const interval = setInterval(checkStats, 5000)
+      // Also run immediately
+      checkStats()
       // Cleanup
       const cleanup = () => {
         clearTimeout(timer)
@@ -93,23 +103,23 @@ export function PwaInstallPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-neutral-900">
-            Install CompressFast
+            {isZh ? '安装极速压图' : 'Install CompressFast'}
           </p>
           <p className="text-xs text-neutral-600 mt-0.5">
-            Use offline, faster access, no browser tabs
+            {isZh ? '离线使用 · 快速访问 · 无需浏览器标签页' : 'Use offline, faster access, no browser tabs'}
           </p>
           <button
             onClick={handleInstall}
             className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white text-sm font-semibold transition-all active:scale-[0.97]"
           >
             <Download className="w-4 h-4" />
-            Install App
+            {isZh ? '安装应用' : 'Install App'}
           </button>
         </div>
         <button
           onClick={handleDismiss}
           className="flex-shrink-0 p-1 rounded-lg hover:bg-gray-100 text-neutral-400 hover:text-neutral-600 transition-colors"
-          aria-label="Dismiss"
+          aria-label={isZh ? '关闭' : 'Dismiss'}
         >
           <X className="w-4 h-4" />
         </button>

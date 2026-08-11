@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { estimateCompressedSize } from '@/lib/compression/utils'
 import { Package, Sparkles, Gauge, Brain } from 'lucide-react'
@@ -11,29 +11,21 @@ function estimateSize(originalBytes: number, quality: number): string {
   return estimateCompressedSize(originalBytes, quality)
 }
 
+interface SmartState {
+  result: ReturnType<typeof analyzeBatch>
+}
+
 export function QualityPresets() {
   const { t, locale } = useT()
   const { options, setOptions, files, totalOriginalSize } = useCompressionStore()
   const hasFiles = files.length > 0
-  const [smartActive, setSmartActive] = useState(false)
+  const [smartState, setSmartState] = useState<SmartState | null>(null)
   const isZh = locale === 'zh'
 
   if (!hasFiles || options.targetKB) return null
 
   const avgOriginalSize = files.length > 0 ? totalOriginalSize() / files.length : 0
-
-  // Smart analysis — computed once when smart becomes active
-  const smartResult = useMemo(() => {
-    if (!smartActive) return null
-    return analyzeBatch(files.map(f => ({
-      type: f.file.type,
-      originalSize: f.originalSize,
-      width: f.width,
-      height: f.height,
-    })))
-    // Only recompute when smartActive changes to true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [smartActive])
+  const smartActive = smartState !== null
 
   const handleSmart = () => {
     const result = analyzeBatch(files.map(f => ({
@@ -42,7 +34,7 @@ export function QualityPresets() {
       width: f.width,
       height: f.height,
     })))
-    setSmartActive(true)
+    setSmartState({ result })
     setOptions({
       quality: result.globalQuality,
       speed: result.globalSpeed,
@@ -60,6 +52,7 @@ export function QualityPresets() {
   ]
 
   const activePreset = smartActive ? 'smart' : PRESETS.find(p => p.key !== 'smart' && options.quality === p.quality && options.speed === p.speed)?.key
+  const smartResult = smartState?.result
 
   return (
     <div className="space-y-2">
@@ -75,7 +68,7 @@ export function QualityPresets() {
                 if (isSmart) {
                   handleSmart()
                 } else {
-                  setSmartActive(false)
+                  setSmartState(null)
                   setOptions({ quality, speed, targetKB: 0 })
                 }
               }}

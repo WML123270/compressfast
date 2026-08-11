@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState, useRef, Suspense } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { DropZone } from '@/components/compressor/DropZone'
 import { useCompressionStore } from '@/lib/store/compression-store'
