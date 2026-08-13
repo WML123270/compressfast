@@ -24,6 +24,7 @@ export function ImageAdjustModal({ imageUrl, fileName, onAdjust, onClose }: Imag
   const isZh = locale === 'zh'
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement | null>(null)
+  const rafRef = useRef<number | null>(null)
 
   const [loaded, setLoaded] = useState(false)
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 })
@@ -41,34 +42,49 @@ export function ImageAdjustModal({ imageUrl, fileName, onAdjust, onClose }: Imag
     return () => { img.onload = null }
   }, [imageUrl])
 
-  // Draw canvas with current filter values
+  // Draw canvas with current filter values (throttled via rAF)
   useEffect(() => {
     if (!loaded || !canvasRef.current || !imgRef.current) return
-    const canvas = canvasRef.current
-    const img = imgRef.current
+    // Cancel pending rAF from previous render
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
 
-    // Fit image to canvas
-    const maxW = Math.min(window.innerWidth - 32, 800)
-    const maxH = window.innerHeight - 340
-    const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1)
-    const dw = Math.round(img.naturalWidth * scale)
-    const dh = Math.round(img.naturalHeight * scale)
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const img = imgRef.current
+      if (!img) return
 
-    canvas.width = dw
-    canvas.height = dh
-    canvas.style.width = `${dw}px`
-    canvas.style.height = `${dh}px`
+      // Fit image to canvas
+      const maxW = Math.min(window.innerWidth - 32, 800)
+      const maxH = window.innerHeight - 340
+      const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1)
+      const dw = Math.round(img.naturalWidth * scale)
+      const dh = Math.round(img.naturalHeight * scale)
 
-    const ctx = canvas.getContext('2d')!
-    ctx.clearRect(0, 0, dw, dh)
+      canvas.width = dw
+      canvas.height = dh
+      canvas.style.width = `${dw}px`
+      canvas.style.height = `${dh}px`
 
-    // Apply CSS filters via canvas filter property
-    const b = values.brightness / 100
-    const c = values.contrast / 100
-    const s = values.saturation / 100
-    ctx.filter = `brightness(${b}) contrast(${c}) saturate(${s})`
-    ctx.drawImage(img, 0, 0, dw, dh)
-    ctx.filter = 'none'
+      const ctx = canvas.getContext('2d')!
+      ctx.clearRect(0, 0, dw, dh)
+
+      // Apply CSS filters via canvas filter property
+      const b = values.brightness / 100
+      const c = values.contrast / 100
+      const s = values.saturation / 100
+      ctx.filter = `brightness(${b}) contrast(${c}) saturate(${s})`
+      ctx.drawImage(img, 0, 0, dw, dh)
+      ctx.filter = 'none'
+    })
+
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
   }, [loaded, values, imgSize])
 
   const handleConfirm = useCallback(async () => {

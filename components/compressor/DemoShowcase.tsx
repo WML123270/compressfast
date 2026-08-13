@@ -24,6 +24,15 @@ export function DemoShowcase() {
     afterSize: number
   } | null>(null)
   const autoStarted = useRef(false)
+  const blobUrlsRef = useRef<string[]>([])
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      blobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
+      blobUrlsRef.current = []
+    }
+  }, [])
 
   const isZh = locale === 'zh'
 
@@ -44,12 +53,17 @@ export function DemoShowcase() {
     setState('loading')
 
     try {
+      // Revoke previous blob URLs before creating new ones
+      blobUrlsRef.current.forEach(url => URL.revokeObjectURL(url))
+      blobUrlsRef.current = []
+
       // Load real landscape photo from public directory
       const res = await fetch('/demo-photo.jpg?v=2')
       if (!res.ok) throw new Error('Failed to load demo photo')
       const blob = await res.blob()
       const file = new File([blob], 'sample-photo.jpg', { type: 'image/jpeg' })
       const beforeUrl = URL.createObjectURL(file)
+      blobUrlsRef.current.push(beforeUrl)
 
       // Compress via Canvas: decode PNG → re-encode as JPEG at quality 50
       const bitmap = await createImageBitmap(file)
@@ -64,6 +78,7 @@ export function DemoShowcase() {
         canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.5)
       )
       const afterUrl = URL.createObjectURL(compressedBlob)
+      blobUrlsRef.current.push(afterUrl)
 
       setDemoData({
         beforeUrl,

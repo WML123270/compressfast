@@ -33,6 +33,7 @@ export function ImageCropModal({ imageUrl, fileName, onCrop, onClose }: ImageCro
     cropX: number; cropY: number; cropW: number; cropH: number
   } | null>(null)
   const displayRef = useRef({ w: 0, h: 0, ox: 0, oy: 0, scale: 1 })
+  const rafRef = useRef<number | null>(null)
 
   const [loaded, setLoaded] = useState(false)
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 })
@@ -57,72 +58,87 @@ export function ImageCropModal({ imageUrl, fileName, onCrop, onClose }: ImageCro
     return () => { img.onload = null }
   }, [imageUrl])
 
-  // Draw canvas
+  // Draw canvas (throttled via rAF to avoid excessive redraws during drag)
   useEffect(() => {
     if (!loaded || !canvasRef.current || !imgRef.current) return
-    const canvas = canvasRef.current
-    const img = imgRef.current
-    const { w: iw, h: ih } = imgSize
+    // Cancel any pending rAF from previous render
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
 
-    // Fit image to canvas
-    const maxW = Math.min(window.innerWidth - 32, 900)
-    const maxH = window.innerHeight - 220
-    const scale = Math.min(maxW / iw, maxH / ih, 1)
-    const dw = Math.round(iw * scale); const dh = Math.round(ih * scale)
-    const ox = Math.round((maxW - dw) / 2)
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const img = imgRef.current
+      if (!img) return
+      const { w: iw, h: ih } = imgSize
 
-    displayRef.current = { w: dw, h: dh, ox, oy: 0, scale }
-    canvas.width = dw + ox * 2
-    canvas.height = dh
-    canvas.style.width = `${canvas.width}px`
-    canvas.style.height = `${canvas.height}px`
+      // Fit image to canvas
+      const maxW = Math.min(window.innerWidth - 32, 900)
+      const maxH = window.innerHeight - 220
+      const scale = Math.min(maxW / iw, maxH / ih, 1)
+      const dw = Math.round(iw * scale); const dh = Math.round(ih * scale)
+      const ox = Math.round((maxW - dw) / 2)
 
-    const ctx = canvas.getContext('2d')!
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+      displayRef.current = { w: dw, h: dh, ox, oy: 0, scale }
+      canvas.width = dw + ox * 2
+      canvas.height = dh
+      canvas.style.width = `${canvas.width}px`
+      canvas.style.height = `${canvas.height}px`
 
-    // Draw image
-    ctx.drawImage(img, ox, 0, dw, dh)
+      const ctx = canvas.getContext('2d')!
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Darken outside crop
-    const cx = ox + crop.x * scale
-    const cy = crop.y * scale
-    const cw = crop.w * scale
-    const ch = crop.h * scale
+      // Draw image
+      ctx.drawImage(img, ox, 0, dw, dh)
 
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'
-    ctx.fillRect(0, 0, canvas.width, cy)
-    ctx.fillRect(0, cy, cx, ch)
-    ctx.fillRect(cx + cw, cy, canvas.width - cx - cw, ch)
-    ctx.fillRect(0, cy + ch, canvas.width, canvas.height - cy - ch)
+      // Darken outside crop
+      const cx = ox + crop.x * scale
+      const cy = crop.y * scale
+      const cw = crop.w * scale
+      const ch = crop.h * scale
 
-    // Crop border
-    ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 2
-    ctx.setLineDash([6, 3])
-    ctx.strokeRect(cx, cy, cw, ch)
-    ctx.setLineDash([])
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'
+      ctx.fillRect(0, 0, canvas.width, cy)
+      ctx.fillRect(0, cy, cx, ch)
+      ctx.fillRect(cx + cw, cy, canvas.width - cx - cw, ch)
+      ctx.fillRect(0, cy + ch, canvas.width, canvas.height - cy - ch)
 
-    // Corner/edge handles
-    const handles = getHandles(cx, cy, cw, ch)
-    handles.forEach(h => {
+      // Crop border
+      ctx.strokeStyle = '#fff'
+      ctx.lineWidth = 2
+      ctx.setLineDash([6, 3])
+      ctx.strokeRect(cx, cy, cw, ch)
+      ctx.setLineDash([])
+
+      // Corner/edge handles
+      const handles = getHandles(cx, cy, cw, ch)
+      handles.forEach(h => {
+        ctx.fillStyle = '#fff'
+        ctx.fillRect(h.x - 3, h.y - 3, 6, 6)
+        ctx.strokeStyle = '#3b82f6'
+        ctx.lineWidth = 1
+        ctx.strokeRect(h.x - 3, h.y - 3, 6, 6)
+      })
+
+      // Size label
+      const cropW = Math.round(crop.w)
+      const cropH = Math.round(crop.h)
+      ctx.font = '12px system-ui'
+      ctx.fillStyle = 'rgba(0,0,0,0.7)'
+      const labelW = ctx.measureText(`${cropW}×${cropH}`).width + 16
+      const labelY = cy > 24 ? cy - 28 : cy + ch + 20
+      ctx.fillRect(cx + cw / 2 - labelW / 2, labelY, labelW, 22)
       ctx.fillStyle = '#fff'
-      ctx.fillRect(h.x - 3, h.y - 3, 6, 6)
-      ctx.strokeStyle = '#3b82f6'
-      ctx.lineWidth = 1
-      ctx.strokeRect(h.x - 3, h.y - 3, 6, 6)
+      ctx.textAlign = 'center'
+      ctx.fillText(`${cropW}×${cropH}`, cx + cw / 2, labelY + 15)
     })
 
-    // Size label
-    const cropW = Math.round(crop.w)
-    const cropH = Math.round(crop.h)
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'
-    const labelW = ctx.measureText(`${cropW}×${cropH}`).width + 16
-    const labelY = cy > 24 ? cy - 28 : cy + ch + 20
-    ctx.fillRect(cx + cw / 2 - labelW / 2, labelY, labelW, 22)
-    ctx.fillStyle = '#fff'
-    ctx.font = '12px system-ui'
-    ctx.textAlign = 'center'
-    ctx.fillText(`${cropW}×${cropH}`, cx + cw / 2, labelY + 15)
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
   }, [loaded, crop, imgSize])
 
   function getHandles(cx: number, cy: number, cw: number, ch: number) {

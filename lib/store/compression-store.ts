@@ -6,12 +6,18 @@ import { isCnDeploy } from '@/lib/utils'
 const IS_CN = isCnDeploy()
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
 
-/** SSR-safe localStorage reader */
+/** SSR-safe localStorage reader — validates stored value is a plain object before merging */
 function readStored<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback
   try {
     const raw = localStorage.getItem(key)
-    if (raw) return { ...fallback, ...JSON.parse(raw) }
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      // Only merge if parsed value is a plain object (not array, null, or primitive)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return { ...fallback, ...parsed } as T
+      }
+    }
   } catch {}
   return fallback
 }
@@ -286,7 +292,12 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     }
     // Push to undo stack (max 20 entries — keep it bounded)
     const entry: RemovedFileEntry = { file, index: idx }
-    const newStack = [...undoStack, entry].slice(-20)
+    const fullStack = [...undoStack, entry]
+    // Revoke previewUrl for entries that fall off the undo stack
+    if (fullStack.length > 20) {
+      fullStack.slice(0, fullStack.length - 20).forEach(e => URL.revokeObjectURL(e.file.previewUrl))
+    }
+    const newStack = fullStack.slice(-20)
     set({ files: files.filter(f => f.id !== id), undoStack: newStack })
   },
 

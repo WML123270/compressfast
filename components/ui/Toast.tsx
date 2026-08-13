@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { CheckCircle, AlertCircle, X } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'
@@ -26,24 +26,59 @@ let nextId = 0
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
+  const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+      // Clean all pending timers on unmount
+      timersRef.current.forEach(timer => clearTimeout(timer))
+      timersRef.current.clear()
+    }
+  }, [])
+
+  const addTimer = useCallback((id: number, timer: ReturnType<typeof setTimeout>) => {
+    timersRef.current.set(id, timer)
+  }, [])
+
+  const clearTimer = useCallback((id: number) => {
+    const timer = timersRef.current.get(id)
+    if (timer) {
+      clearTimeout(timer)
+      timersRef.current.delete(id)
+    }
+  }, [])
 
   const toast = useCallback((message: string, type: ToastType = 'info') => {
+    if (!mountedRef.current) return
     const id = nextId++
     setToasts(prev => [...prev, { id, message, type, leaving: false }])
-    setTimeout(() => {
+    const timer1 = setTimeout(() => {
+      if (!mountedRef.current) return
       setToasts(prev => prev.map(t => t.id === id ? { ...t, leaving: true } : t))
-      setTimeout(() => {
+      clearTimer(id)
+      const timer2 = setTimeout(() => {
+        if (!mountedRef.current) return
         setToasts(prev => prev.filter(t => t.id !== id))
+        clearTimer(id)
       }, 200)
+      addTimer(id, timer2)
     }, 3000)
-  }, [])
+    addTimer(id, timer1)
+  }, [addTimer, clearTimer])
 
   const dismiss = useCallback((id: number) => {
+    if (!mountedRef.current) return
+    clearTimer(id)
     setToasts(prev => prev.map(t => t.id === id ? { ...t, leaving: true } : t))
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      if (!mountedRef.current) return
       setToasts(prev => prev.filter(t => t.id !== id))
+      clearTimer(id)
     }, 200)
-  }, [])
+    addTimer(id, timer)
+  }, [addTimer, clearTimer])
 
   const icons: Record<ToastType, ReactNode> = {
     success: <CheckCircle className="w-4 h-4 text-emerald-400" />,
