@@ -71,9 +71,10 @@ if [ ! -f .env.local ]; then
   cp deploy/.env.production .env.local
 fi
 
-# 清理旧 node_modules 并重装 Linux 原生依赖
-rm -rf node_modules
-npm install --production --registry=https://registry.npmmirror.com
+# 仅在 node_modules 缺失时安装 Linux 原生依赖（避免每次部署重装导致 890MB 服务器 OOM）
+if [ ! -d node_modules ]; then
+  npm install --production --registry=https://registry.npmmirror.com
+fi
 
 # 启动/重启
 export NODE_ENV=production
