@@ -5,27 +5,7 @@ import { useIsCn } from '@/lib/use-is-cn'
 import { useT } from '@/lib/i18n/context'
 import { TOOLS } from '@/lib/tool-pages'
 import { ArrowRight } from 'lucide-react'
-
-const ICONS: Record<string, string> = {
-  'compress-png': '🖼️',
-  'compress-jpeg': '📸',
-  'convert-to-webp': '🌐',
-  'compress-images': '🗜️',
-  'compress-gif': '🎞️',
-  'resize-image': '📐',
-  'convert-jpg-to-png': '🔀',
-  'webp-to-png': '🔄',
-  'remove-metadata': '🧹',
-  'tinypng-alternative': '⚡',
-  'heic-to-jpg': '🍎',
-  'heic-to-png': '🍏',
-  'compress-svg': '📊',
-  'png-to-jpg': '🖼️',
-  'jpg-to-webp': '📸',
-  'png-to-webp': '🖼️',
-  'svg-to-png': '📊',
-  'webp-to-jpg': '🌐',
-}
+import { TOOL_ICONS } from '@/lib/tool-icons'
 
 const FEATURED = ['compress-png', 'compress-jpeg', 'convert-to-webp', 'webp-to-jpg', 'heic-to-jpg', 'compress-images']
 
@@ -54,7 +34,7 @@ export function PopularTools() {
               href={`/${locale}/tools/${tool.slug}`}
               className="group flex items-start gap-2.5 p-3 rounded-xl bg-white border border-gray-100 hover:border-blue-200 hover:shadow-md hover:bg-blue-50/30 transition-all"
             >
-              <span className="text-lg flex-shrink-0 mt-0.5">{ICONS[tool.slug] || '🔧'}</span>
+              <span className="text-lg flex-shrink-0 mt-0.5">{TOOL_ICONS[tool.slug] || '🔧'}</span>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-neutral-800 group-hover:text-blue-600 transition-colors truncate">
                   {isZh ? tool.heroTitleZh : tool.heroTitleEn}
@@ -86,7 +66,7 @@ export function PopularTools() {
               href={`/${locale}/tools/${tool.slug}`}
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-neutral-600 hover:text-blue-600 hover:border-blue-300 transition-colors"
             >
-              <span className="text-xs">{ICONS[tool.slug] || '🔧'}</span>
+              <span className="text-xs">{TOOL_ICONS[tool.slug] || '🔧'}</span>
               {tool.heroTitleEn}
             </Link>
           ))}

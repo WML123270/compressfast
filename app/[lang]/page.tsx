@@ -16,6 +16,8 @@ import { useToast } from '@/components/ui/Toast'
 import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
+import { TOOLS } from '@/lib/tool-pages'
+import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
 
 // Dynamic imports for heavy components — split from critical rendering path
 const DemoShowcase = dynamic(
@@ -154,6 +156,28 @@ export default function HomePage() {
           <p className="font-semibold text-neutral-800">{t('dropzone.drag')}</p>
           <p className="text-neutral-600 mt-2">{t('dropzone.paste')}</p>
         </div>
+
+        {/* All tools — server-rendered so crawlers see the full internal link list */}
+        <section className="pt-2">
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">
+            {locale === 'zh' ? '🔥 热门图片工具' : '🔥 Popular Image Tools'}
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+            {Object.values(TOOLS).map(tool => (
+              <Link
+                key={tool.slug}
+                href={`/${locale}/tools/${tool.slug}`}
+                className="flex items-center gap-2 p-3 rounded-xl bg-white border border-gray-100 hover:border-blue-200 transition-colors"
+              >
+                <span className="text-lg flex-shrink-0">{TOOL_ICONS[tool.slug] || '🔧'}</span>
+                <span className="text-sm font-medium text-neutral-800 truncate">
+                  {locale === 'zh' ? (TOOL_SHORT[tool.slug]?.zh || tool.heroTitleZh) : (TOOL_SHORT[tool.slug]?.en || tool.heroTitleEn)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <AdSlot />
       </div>
     )
