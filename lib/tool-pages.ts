@@ -1193,6 +1193,317 @@ Common scenarios: (a) You saved product photos from a supplier website — they 
 常见场景：(a) 你从供应商网站保存了产品图——全是.webp，但电商平台要求JPEG。(b) 从Google文档或幻灯片导出下载了图片——结果是WebP。(c) 邮件收到WebP附件，图片查看器打不开。(d) 正在为不支持WebP的平台（社交媒体、电商平台、文档）准备图片。所有情况，极速压图秒速转换，无需上传。`,
     relatedTools: ['convert-to-webp', 'webp-to-png', 'compress-jpeg', 'resize-image'],
   },
+
+  'avif-to-jpg': {
+    slug: 'avif-to-jpg',
+    titleEn: 'Convert AVIF to JPG Online Free — No Upload | CompressFast',
+    titleZh: '在线AVIF转JPG — 免费格式转换 | 极速压图',
+    descriptionEn: 'Convert AVIF to JPG online for free. 100% browser-based, no upload. Batch convert up to 30 AVIF images at once. AVIF files open everywhere as JPG.',
+    descriptionZh: '免费在线将AVIF转JPG，100%浏览器本地处理，无需上传。批量同时转换30张AVIF图片。AVIF转JPG后任何地方都能打开。',
+    keywords: ['avif to jpg', 'convert avif to jpg', 'avif to jpg converter', 'avif to jpeg', 'avif to jpg online', 'convert avif to jpeg online', 'free avif to jpg converter'],
+    heroTitleEn: 'Convert AVIF to JPG Online',
+    heroTitleZh: '在线AVIF转JPG',
+    heroSubEn: 'AVIF to JPG in seconds. No upload, batch 30, free forever — works offline too.',
+    heroSubZh: 'AVIF秒转JPG。无需上传、批量30张、永久免费——断网也能用。',
+    targetFormat: 'jpeg',
+    defaultSettings: { quality: 85, outputFormat: 'jpeg', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🔄', titleEn: 'Open Anywhere', titleZh: '处处可打开', descEn: 'AVIF is new and many apps, editors, and platforms still reject it. JPG opens on every device since 1992.', descZh: 'AVIF太新，很多软件、编辑器和平台还不支持。JPG自1992年起在所有设备上都能打开。' },
+      { icon: '📉', titleEn: 'Keep Files Light', titleZh: '保持文件轻量', descEn: 'AVIF is already efficient. Converting to optimized JPG keeps the file small while gaining universal compatibility.', descZh: 'AVIF本身已经很高效。转为优化过的JPG后，文件依旧小巧，同时获得通用兼容性。' },
+      { icon: '🔒', titleEn: '100% Private', titleZh: '100%隐私', descEn: 'AVIF is decoded locally in your browser. Your images never touch a server.', descZh: 'AVIF在你的浏览器本地解码，图片从不经过任何服务器。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload AVIF Files', titleZh: '上传AVIF文件', descEn: 'Drag AVIF images into the upload area, click to browse, or paste with Ctrl+V. Batch up to 30 files.', descZh: '将AVIF图片拖入上传区、点击选择、或Ctrl+V粘贴，一次最多30张。' },
+      { step: 2, titleEn: 'Select JPG as Output', titleZh: '选择JPG输出', descEn: 'Choose JPEG from the output format selector. Adjust quality — 85% is the sweet spot for photos.', descZh: '在输出格式中选JPEG。调节画质——照片推荐85%。' },
+      { step: 3, titleEn: 'Download JPG Files', titleZh: '下载JPG文件', descEn: 'Each converted file downloads as .jpg. Use batch ZIP download for all results.', descZh: '每张转换后以.jpg格式下载，批量ZIP一键下载全部结果。' },
+    ],
+    faqs: [
+      { qEn: 'What is AVIF format?', qZh: 'AVIF是什么格式？', aEn: 'AVIF is the newest image format, based on the AV1 video codec. It delivers the smallest file sizes of any format — often 30-50% smaller than JPEG at the same quality. But being new (2020+), many apps, image editors, and older devices still cannot open it.', aZh: 'AVIF是最新的图片格式，基于AV1视频编码。它提供所有格式中最小的文件体积——同等画质下通常比JPEG小30-50%。但因为太新（2020+），很多软件、图片编辑器和老旧设备仍无法打开。' },
+      { qEn: 'Why convert AVIF to JPG?', qZh: '为什么要转AVIF为JPG？', aEn: 'Compatibility. JPG works everywhere — social media, email, documents, every image viewer. AVIF support is growing but still patchy: some platforms reject AVIF uploads, some image editors can\'t open it. Converting to JPG guarantees your image displays anywhere.', aZh: '为了兼容性。JPG到处都能用——社交媒体、邮件、文档、所有看图软件。AVIF支持在增长但仍不完善：有些平台拒绝AVIF上传，有些编辑器打不开。转JPG确保图片在任何地方都能显示。' },
+      { qEn: 'Does converting AVIF to JPG lose quality?', qZh: 'AVIF转JPG会损失画质吗？', aEn: 'Some. AVIF is more efficient than JPG, so a JPG at equivalent size will have slightly lower quality. At 85% quality, the loss is barely visible for most photos. For maximum quality, use 90-95%.', aZh: '会有一点。AVIF比JPG更高效，所以同等体积下JPG画质略低。85%画质下，大多数照片的损失肉眼几乎看不出来。追求最高画质可用90-95%。' },
+      { qEn: 'Is AVIF to JPG conversion free?', qZh: 'AVIF转JPG免费吗？', aEn: 'Yes — completely free, no limits. Convert up to 30 AVIF files per batch. No account, no watermark, no hidden fees.', aZh: '是的——完全免费，无限制。每批最多转换30张AVIF。无需注册、无水印、无隐藏费用。' },
+      { qEn: 'Can I batch convert AVIF to JPG?', qZh: '能批量把AVIF转JPG吗？', aEn: 'Yes — drop up to 30 AVIF files at once and convert them all in parallel. Download everything as a single ZIP.', aZh: '可以——一次拖入最多30张AVIF并行转换，全部结果打包成一个ZIP下载。' },
+      { qEn: 'Does it work offline?', qZh: '可以离线使用吗？', aEn: 'Yes — decoding and encoding both happen in your browser via Web Workers. Load the page once and convert offline.', aZh: '可以——解码和编码都在浏览器内通过Web Worker完成。加载一次页面后断网也能转换。' },
+      { qEn: 'Should I convert AVIF to JPG or WebP?', qZh: 'AVIF转JPG还是WebP好？', aEn: 'For maximum compatibility (email, documents, print, old devices) → JPG. For web use with smaller files and transparency support → WebP. CompressFast supports both — pick based on where the image is going.', aZh: '追求最大兼容性（邮件、文档、打印、旧设备）→ JPG。网页使用、更小体积、支持透明 → WebP。极速压图两者都支持——根据图片去向选择。' },
+    ],
+    detailedGuideEn: `AVIF is the newest mainstream image format, built on the AV1 codec that powers modern video streaming. It produces the smallest files of any image format — routinely 30-50% smaller than JPEG at identical visual quality, and even beating WebP by 15-20%. Major browsers added AVIF support in 2021-2022, and it is slowly becoming the default format for high-performance websites.
+
+But AVIF has a real problem: outside the browser, support is still uneven. Many image editors, document tools, social media platforms, and older devices either cannot open AVIF or reject it entirely. When you download an image from a modern website, you increasingly get an .avif file — and then discover your local apps cannot handle it.
+
+CompressFast's AVIF to JPG converter bridges that gap instantly and privately:
+
+1. Browser-native AVIF decoding — The browser's own AVIF decoder reads your file with perfect accuracy, supporting 8-bit, 10-bit, and 12-bit color depths. No third-party libraries, no quality surprises.
+
+2. Quality-controlled JPEG encoding — After decoding, the image re-encodes as JPEG at your chosen quality (10-100%). At 85%, the result is visually indistinguishable from the source for most photos while staying reasonably small. Use 90-95% for archival quality.
+
+3. Automatic metadata stripping — EXIF, GPS, and camera data are removed by default for privacy, so you never accidentally share your location when posting a converted photo.
+
+4. Batch workflow — Drop up to 30 AVIF files, select JPG output at 85% quality, and click compress. All files convert in parallel. A single ZIP downloads every ready-to-use JPG.
+
+The trade-off to know: JPG cannot match AVIF's compression efficiency, so a converted JPG will be somewhat larger than the source AVIF (or slightly lower quality at the same size). That is the price of universal compatibility. For web use where you want to keep files small, converting to WebP is often the better choice.`,
+    detailedGuideZh: `AVIF是最新的主流图片格式，基于驱动现代视频流的AV1编解码器。它产生所有图片格式中最小的文件——同等视觉质量下通常比JPEG小30-50%，甚至比WebP还小15-20%。主流浏览器在2021-2022年加入AVIF支持，它正慢慢成为高性能网站的默认格式。
+
+但AVIF有个真实的问题：浏览器之外的支持仍然参差不齐。许多图片编辑器、文档工具、社交媒体平台和旧设备要么打不开AVIF，要么直接拒绝。当你从现代网站下载图片时，越来越多地得到.avif文件——然后发现本地应用无法处理。
+
+极速压图的AVIF转JPG转换器即时、私密地弥合了这个鸿沟：
+
+1. 浏览器原生AVIF解码——浏览器自带的AVIF解码器以完美精度读取文件，支持8位、10位、12位色彩深度。无需第三方库，画质无意外。
+
+2. 画质可控的JPEG编码——解码后，图片以你选择的画质（10-100%）重新编码为JPEG。85%时，大多数照片的结果与源文件视觉上无法区分，文件大小保持合理。追求存档画质用90-95%。
+
+3. 自动清除元数据——EXIF、GPS、相机数据默认清除以保护隐私，让你发布转换后的照片时不会意外泄露位置。
+
+4. 批量工作流——拖入最多30张AVIF，选择85%画质JPG输出，点击压缩。所有文件并行转换。单个ZIP下载所有即用JPG。
+
+需要了解的代价：JPG无法匹敌AVIF的压缩效率，所以转换后的JPG会比源AVIF稍大（或同等体积下画质略低）。这是通用兼容性的代价。对于想保持小体积的网页使用，转WebP往往是更好的选择。`,
+    relatedTools: ['avif-to-webp', 'avif-to-png', 'convert-to-webp', 'compress-jpeg'],
+  },
+
+  'avif-to-png': {
+    slug: 'avif-to-png',
+    titleEn: 'Convert AVIF to PNG Online Free — Lossless Quality | CompressFast',
+    titleZh: '在线AVIF转PNG — 无损画质 | 极速压图',
+    descriptionEn: 'Convert AVIF to PNG online for free. 100% browser-based, no upload. Preserve lossless quality and transparency. Batch convert up to 30 AVIF images.',
+    descriptionZh: '免费在线将AVIF转PNG，100%浏览器本地处理，无需上传。保留无损画质和透明背景。批量转换30张AVIF。',
+    keywords: ['avif to png', 'convert avif to png', 'avif to png converter', 'avif to png online', 'convert avif to png free', 'avif to png with transparency'],
+    heroTitleEn: 'Convert AVIF to PNG Online',
+    heroTitleZh: '在线AVIF转PNG',
+    heroSubEn: 'AVIF to PNG with lossless quality & transparency. No upload, batch 30, free.',
+    heroSubZh: 'AVIF转PNG，保留无损画质和透明背景。无需上传、批量30张、免费。',
+    targetFormat: 'png',
+    defaultSettings: { quality: 90, outputFormat: 'png', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🎨', titleEn: 'Lossless Quality', titleZh: '无损画质', descEn: 'PNG is lossless. Converting at 90%+ preserves every detail — ideal for editing and archiving.', descZh: 'PNG是无损格式。90%+转换保留所有细节——非常适合编辑和存档。' },
+      { icon: '🔍', titleEn: 'Transparency Support', titleZh: '透明背景支持', descEn: 'Preserve AVIF alpha channels as PNG transparency. Perfect for logos and UI assets.', descZh: '将AVIF的alpha通道保留为PNG透明背景，非常适合Logo和UI素材。' },
+      { icon: '🔒', titleEn: 'No Upload', titleZh: '无需上传', descEn: 'Everything decodes and encodes locally in your browser.', descZh: '所有解码和编码都在浏览器本地完成。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload AVIF Files', titleZh: '上传AVIF文件', descEn: 'Drag AVIF images into the upload area or click to browse. Batch up to 30 files.', descZh: '将AVIF图片拖入上传区或点击选择，一次最多30张。' },
+      { step: 2, titleEn: 'Select PNG as Output', titleZh: '选择PNG输出', descEn: 'Choose PNG from the output format selector. Use 90%+ quality for lossless results.', descZh: '在输出格式中选PNG。用90%+画质获得无损结果。' },
+      { step: 3, titleEn: 'Download PNG Files', titleZh: '下载PNG文件', descEn: 'Each converted file downloads as .png. Batch ZIP download for all results.', descZh: '每张转换后以.png格式下载，批量ZIP下载全部结果。' },
+    ],
+    faqs: [
+      { qEn: 'Why convert AVIF to PNG?', qZh: '为什么要转AVIF为PNG？', aEn: 'PNG is lossless and universally compatible — ideal for editing in Photoshop, creating graphics, or archiving. AVIF is efficient but many editors cannot open it. Converting to PNG gives you an editable, lossless master.', aZh: 'PNG无损且通用兼容——非常适合在Photoshop中编辑、制作图形或存档。AVIF高效但许多编辑器打不开。转PNG获得可编辑的无损母版。' },
+      { qEn: 'Does AVIF to PNG preserve transparency?', qZh: 'AVIF转PNG会保留透明背景吗？', aEn: 'Yes — both AVIF and PNG support alpha channels. Transparent areas in your AVIF are perfectly preserved in the PNG output.', aZh: '会——AVIF和PNG都支持alpha通道。AVIF中的透明区域在PNG输出中完美保留。' },
+      { qEn: 'Will the PNG be larger than the AVIF?', qZh: 'PNG会比AVIF大吗？', aEn: 'Usually yes. AVIF uses advanced lossy compression while PNG is lossless, so the PNG will typically be larger. This is the trade-off for lossless quality and universal compatibility.', aZh: '通常会。AVIF使用先进的有损压缩，而PNG是无损的，所以PNG通常更大。这是无损画质和通用兼容性的代价。' },
+      { qEn: 'Is AVIF to PNG free?', qZh: 'AVIF转PNG免费吗？', aEn: 'Yes — completely free. Convert up to 30 AVIF files per batch with no account or watermark.', aZh: '是的——完全免费。每批最多转换30张AVIF，无需注册、无水印。' },
+      { qEn: 'Can I batch convert AVIF to PNG?', qZh: '能批量把AVIF转PNG吗？', aEn: 'Yes — drop up to 30 AVIF files and convert them all in parallel. Download as a single ZIP.', aZh: '可以——一次拖入最多30张AVIF并行转换，打包成一个ZIP下载。' },
+      { qEn: 'Should I use PNG or WebP for my AVIF?', qZh: 'AVIF该转PNG还是WebP？', aEn: 'PNG for editing, archiving, or maximum compatibility with desktop apps. WebP for web use — smaller files, still supports transparency, 96% browser support.', aZh: '编辑、存档或最大化桌面软件兼容性用PNG。网页使用用WebP——文件更小、同样支持透明、96%浏览器支持。' },
+    ],
+    detailedGuideEn: `AVIF is technically the most efficient image format ever released, but its young age means the tooling ecosystem has not caught up. If you need to edit an AVIF in Photoshop, insert it into a document, or archive it in a lossless, future-proof format, PNG is the natural destination.
+
+CompressFast's AVIF to PNG converter makes this conversion instant and private:
+
+1. Perfect decoding — The browser's native AVIF decoder reads every pixel with full fidelity, including 10-bit and 12-bit color and alpha transparency. No information is lost in the decoding step.
+
+2. Lossless PNG encoding — At 90-100% quality, the PNG output preserves all visible detail from the AVIF source. The alpha channel is carried over perfectly, so transparent logos and UI assets stay transparent.
+
+3. Lossless mode for the smallest PNG — Enable lossless mode and the oxipng WASM engine optimizes the PNG further — trial-running zlib, Zopfli, and filter combinations to find the smallest mathematically-identical file. Expect 20-40% smaller than a naive PNG save.
+
+4. Batch workflow — Convert up to 30 AVIF files at once, all in parallel. ZIP download bundles the results.
+
+When to choose PNG over JPG or WebP: PNG is the right call for logos and icons (transparency), screenshots with text (crisp edges), images you plan to edit further (no generation loss), and archival masters. For web delivery, WebP is usually the better size/quality trade-off.`,
+    detailedGuideZh: `AVIF在技术上是史上最高效的图片格式，但它太年轻，工具生态还没跟上。如果你需要在Photoshop中编辑AVIF、插入文档、或以无损、面向未来的格式归档，PNG是天然的归宿。
+
+极速压图的AVIF转PNG转换器让转换即时、私密：
+
+1. 完美解码——浏览器原生AVIF解码器以完整保真度读取每个像素，包括10位、12位色彩和alpha透明度。解码步骤零信息丢失。
+
+2. 无损PNG编码——90-100%画质下，PNG输出保留AVIF源文件的所有可见细节。alpha通道完美保留，透明Logo和UI素材保持透明。
+
+3. 无损模式获得最小PNG——开启无损模式，oxipng WASM引擎进一步优化PNG——尝试zlib、Zopfli和滤镜组合，找到数学上完全相同的最小文件。通常比朴素PNG保存小20-40%。
+
+4. 批量工作流——一次转换最多30张AVIF，全部并行。ZIP打包下载结果。
+
+何时选PNG而非JPG或WebP：Logo和图标（透明）、带文字截图（锐利边缘）、计划继续编辑的图片（无世代损失）、存档母版。用于网页交付时，WebP通常是更好的体积/画质平衡。`,
+    relatedTools: ['avif-to-jpg', 'avif-to-webp', 'convert-jpg-to-png', 'compress-png'],
+  },
+
+  'avif-to-webp': {
+    slug: 'avif-to-webp',
+    titleEn: 'Convert AVIF to WebP Online Free — No Upload | CompressFast',
+    titleZh: '在线AVIF转WebP — 免费格式转换 | 极速压图',
+    descriptionEn: 'Convert AVIF to WebP online for free. 100% browser-based, no upload. Get broader compatibility while keeping modern compression. Batch 30 images.',
+    descriptionZh: '免费在线将AVIF转WebP，100%浏览器本地处理，无需上传。获得更广兼容性的同时保持现代压缩。批量30张。',
+    keywords: ['avif to webp', 'convert avif to webp', 'avif to webp converter', 'avif to webp online', 'convert avif to webp free', 'avif to webp with transparency'],
+    heroTitleEn: 'Convert AVIF to WebP Online',
+    heroTitleZh: '在线AVIF转WebP',
+    heroSubEn: 'AVIF to WebP for broader compatibility. No upload, batch 30, free.',
+    heroSubZh: 'AVIF转WebP，获得更广兼容性。无需上传、批量30张、免费。',
+    targetFormat: 'webp',
+    defaultSettings: { quality: 80, outputFormat: 'webp', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🌐', titleEn: 'Broader Support', titleZh: '更广支持', descEn: 'WebP works in 96%+ of browsers and most apps. AVIF support is newer and still patchy.', descZh: 'WebP在96%+浏览器和大多数应用中可用。AVIF支持较新且仍不完善。' },
+      { icon: '📦', titleEn: 'Still Compact', titleZh: '依旧小巧', descEn: 'WebP keeps modern compression — only slightly larger than AVIF, far smaller than JPEG.', descZh: 'WebP保持现代压缩——只比AVIF略大，比JPEG小得多。' },
+      { icon: '🔍', titleEn: 'Transparency Kept', titleZh: '透明保留', descEn: 'WebP supports alpha channels, so transparent AVIF images stay transparent.', descZh: 'WebP支持alpha通道，透明AVIF图片保持透明。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload AVIF Files', titleZh: '上传AVIF文件', descEn: 'Drag AVIF images into the upload area. Batch up to 30 files at once.', descZh: '将AVIF图片拖入上传区，一次最多30张。' },
+      { step: 2, titleEn: 'Select WebP as Output', titleZh: '选择WebP输出', descEn: 'Choose WebP from the output format selector. Adjust quality — 80% is recommended for web.', descZh: '在输出格式中选WebP。调节画质——网页推荐80%。' },
+      { step: 3, titleEn: 'Download WebP Files', titleZh: '下载WebP文件', descEn: 'Each converted file downloads as .webp. Batch ZIP download for all results.', descZh: '每张转换后以.webp格式下载，批量ZIP下载全部结果。' },
+    ],
+    faqs: [
+      { qEn: 'Why convert AVIF to WebP instead of JPG?', qZh: '为什么转WebP而不是JPG？', aEn: 'WebP is 25-35% smaller than JPG at the same quality and supports transparency. If you don\'t need universal JPG compatibility, WebP gives you near-AVIF efficiency with much broader support than AVIF.', aZh: 'WebP同等画质比JPG小25-35%且支持透明。如果不需要JPG的通用兼容性，WebP在接近AVIF效率的同时，支持范围远比AVIF广。' },
+      { qEn: 'Is WebP smaller than AVIF?', qZh: 'WebP比AVIF小吗？', aEn: 'No — AVIF is typically 15-20% smaller than WebP. But WebP has broader compatibility and is faster to encode. Converting AVIF to WebP trades a little size for much wider support.', aZh: '不是——AVIF通常比WebP小15-20%。但WebP兼容性更广、编码更快。AVIF转WebP是用一点点体积换广得多的支持。' },
+      { qEn: 'Does AVIF to WebP preserve transparency?', qZh: 'AVIF转WebP会保留透明背景吗？', aEn: 'Yes — WebP supports full alpha transparency, so transparent areas in your AVIF are preserved in the WebP output.', aZh: '会——WebP支持完整alpha透明，AVIF中的透明区域在WebP输出中保留。' },
+      { qEn: 'Is AVIF to WebP free?', qZh: 'AVIF转WebP免费吗？', aEn: 'Yes — completely free. Convert up to 30 AVIF files per batch, no account needed.', aZh: '是的——完全免费。每批最多转换30张AVIF，无需注册。' },
+      { qEn: 'Can I batch convert AVIF to WebP?', qZh: '能批量把AVIF转WebP吗？', aEn: 'Yes — drop up to 30 AVIF files and convert them all in parallel. Download as a single ZIP.', aZh: '可以——一次拖入最多30张AVIF并行转换，打包成一个ZIP下载。' },
+      { qEn: 'What quality setting should I use?', qZh: '该用什么画质参数？', aEn: '80% is the recommended default for web — excellent compression with no visible quality loss. Use 90%+ for archival quality or 70% for aggressive size reduction.', aZh: '网页推荐默认80%——压缩优秀且无可见画质损失。存档用90%+，激进压缩用70%。' },
+    ],
+    detailedGuideEn: `AVIF and WebP are both modern formats, but they occupy different niches. AVIF delivers the absolute smallest files (thanks to the AV1 codec), while WebP delivers the best combination of efficiency and compatibility. When you have an AVIF file that needs to work in more places — a CMS that accepts WebP but not AVIF, a design tool with WebP support, or a web workflow where you want broad but not universal compatibility — WebP is the sweet spot.
+
+CompressFast's AVIF to WebP converter handles the transition instantly and privately:
+
+1. Native AVIF decoding — The browser's AVIF decoder reads your file with full fidelity, including alpha transparency and high bit depths.
+
+2. Quality-controlled WebP encoding — At 80% quality, the output is visually indistinguishable from the source for most images while staying compact. WebP also supports lossless mode for pixel-perfect preservation.
+
+3. Transparency preserved — Both formats support alpha channels, so transparent AVIF images convert cleanly to transparent WebP without any white-box fill.
+
+4. Batch workflow — Convert up to 30 AVIF files at once, all processed in parallel. Download a single ZIP of ready-to-serve WebP files.
+
+The bottom line: if your image is going to the web and you want a modern, compact, widely-supported format, WebP is the best destination for your AVIF. If you need maximum compatibility with offline apps and documents, JPG is the safer bet. CompressFast supports both paths.`,
+    detailedGuideZh: `AVIF和WebP都是现代格式，但占据不同的生态位。AVIF提供绝对最小的文件（得益于AV1编解码器），而WebP提供效率与兼容性的最佳组合。当你的AVIF文件需要在更多地方使用——接受WebP但不接受AVIF的CMS、支持WebP的设计工具、或想要广泛但非通用兼容性的网页工作流——WebP是最佳平衡点。
+
+极速压图的AVIF转WebP转换器即时、私密地完成转换：
+
+1. 原生AVIF解码——浏览器AVIF解码器以完整保真度读取文件，包括alpha透明和高位深。
+
+2. 画质可控的WebP编码——80%画质下，大多数图片的输出与源文件视觉上无法区分，同时保持紧凑。WebP还支持无损模式实现像素级保真。
+
+3. 透明保留——两种格式都支持alpha通道，透明AVIF图片干净地转换为透明WebP，没有白底填充。
+
+4. 批量工作流——一次转换最多30张AVIF，全部并行处理。下载单个包含即用WebP文件的ZIP。
+
+结论：如果你的图片要用于网页，想要现代、紧凑、广泛支持的格式，WebP是AVIF的最佳归宿。如果需要与离线应用和文档的最大兼容性，JPG是更安全的选择。极速压图支持两条路径。`,
+    relatedTools: ['avif-to-jpg', 'avif-to-png', 'convert-to-webp', 'webp-to-png'],
+  },
+
+  'heic-to-webp': {
+    slug: 'heic-to-webp',
+    titleEn: 'Convert HEIC to WebP Online Free — No Upload | CompressFast',
+    titleZh: '在线HEIC转WebP — 免费格式转换 | 极速压图',
+    descriptionEn: 'Convert iPhone HEIC photos to WebP online for free. 100% browser-based, no upload. Batch convert up to 30 HEIC images. Modern, compact, web-ready.',
+    descriptionZh: '免费在线将iPhone的HEIC照片转WebP，100%浏览器本地处理，无需上传。批量转换30张HEIC。现代、紧凑、网页就绪。',
+    keywords: ['heic to webp', 'convert heic to webp', 'heic to webp converter', 'heic to webp online', 'iphone heic to webp', 'convert heic to webp free', 'heic to webp converter online'],
+    heroTitleEn: 'Convert HEIC to WebP Online',
+    heroTitleZh: '在线HEIC转WebP',
+    heroSubEn: 'iPhone HEIC to WebP in seconds. No upload, batch 30, free forever.',
+    heroSubZh: 'iPhone的HEIC秒转WebP。无需上传、批量30张、永久免费。',
+    targetFormat: 'webp',
+    defaultSettings: { quality: 80, outputFormat: 'webp', speed: 5, stripMetadata: true },
+    benefits: [
+      { icon: '🍎', titleEn: 'iPhone Ready', titleZh: 'iPhone专属', descEn: 'Every iPhone photo is HEIC. Convert them to WebP for web use without uploading to any server.', descZh: '每张iPhone照片都是HEIC。转WebP用于网页，无需上传到任何服务器。' },
+      { icon: '📦', titleEn: 'Small & Modern', titleZh: '小巧现代', descEn: 'WebP is 25-35% smaller than JPEG at the same quality — perfect for websites and apps.', descZh: 'WebP同等画质比JPEG小25-35%——非常适合网站和应用。' },
+      { icon: '🔒', titleEn: '100% Private', titleZh: '100%隐私', descEn: 'HEIC is decoded locally. Your iPhone photos never leave your device.', descZh: 'HEIC在本地解码，iPhone照片从不离开你的设备。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload HEIC Files', titleZh: '上传HEIC文件', descEn: 'Drag HEIC photos from your iPhone into the upload area. Batch up to 30 files.', descZh: '将iPhone的HEIC照片拖入上传区，一次最多30张。' },
+      { step: 2, titleEn: 'Select WebP as Output', titleZh: '选择WebP输出', descEn: 'Choose WebP from the output format selector. 80% quality is recommended for web.', descZh: '在输出格式中选WebP。网页推荐80%画质。' },
+      { step: 3, titleEn: 'Download WebP Files', titleZh: '下载WebP文件', descEn: 'Each HEIC downloads as .webp. Batch ZIP for all results, ready for your website.', descZh: '每张HEIC以.webp下载，批量ZIP获取全部结果，直接用于网站。' },
+    ],
+    faqs: [
+      { qEn: 'What is HEIC format?', qZh: 'HEIC是什么格式？', aEn: 'HEIC is Apple\'s default photo format on iPhone and iPad. It uses the HEVC codec to store photos at roughly half the size of JPEG with the same quality. The downside: HEIC only works natively on Apple devices and Windows 11+. Many web platforms and apps reject it.', aZh: 'HEIC是苹果在iPhone和iPad上的默认照片格式。它用HEVC编码以约JPEG一半的体积存储同等画质的照片。缺点：HEIC只在苹果设备和Windows 11+上原生支持。许多网页平台和应用拒绝它。' },
+      { qEn: 'Why convert HEIC to WebP?', qZh: '为什么要转HEIC为WebP？', aEn: 'HEIC is Apple-specific and widely rejected on the web. WebP is a modern, universally-browser-supported format that is 25-35% smaller than JPEG. Converting HEIC to WebP gives you compact, web-ready images without uploading anything.', aZh: 'HEIC是苹果专属，网页上广泛被拒。WebP是现代、浏览器通用支持的格式，比JPEG小25-35%。HEIC转WebP让你获得紧凑、网页就绪的图片，无需上传任何东西。' },
+      { qEn: 'Does HEIC to WebP lose quality?', qZh: 'HEIC转WebP会损失画质吗？', aEn: 'Minimal at 80% quality — the difference is invisible for most photos. HEIC and WebP are both efficient modern formats, so the quality holds up well through conversion.', aZh: '80%画质下损失极小——大多数照片看不出差异。HEIC和WebP都是高效的现代格式，转换过程中画质保持良好。' },
+      { qEn: 'Can I batch convert HEIC to WebP?', qZh: '能批量把HEIC转WebP吗？', aEn: 'Yes — drop up to 30 HEIC photos and convert them all in parallel. Download as a single ZIP.', aZh: '可以——一次拖入最多30张HEIC并行转换，打包成一个ZIP下载。' },
+      { qEn: 'Does it preserve transparency?', qZh: '会保留透明背景吗？', aEn: 'HEIC photos from iPhone cameras don\'t carry transparency (they are photos), but WebP does support alpha channels. If your HEIC has transparency, it is preserved in the WebP output.', aZh: 'iPhone相机拍的HEIC照片不带透明（它们是照片），但WebP确实支持alpha通道。如果你的HEIC有透明背景，会在WebP输出中保留。' },
+      { qEn: 'Is HEIC to WebP conversion free?', qZh: 'HEIC转WebP免费吗？', aEn: 'Yes — completely free, no limits, no account, no watermark. Convert up to 30 HEIC files per batch.', aZh: '是的——完全免费、无限制、无需注册、无水印。每批最多转换30张HEIC。' },
+      { qEn: 'Does it work on any device?', qZh: '在任何设备上都能用吗？', aEn: 'Yes — it runs in the browser. You can convert HEIC photos even on non-Apple devices, since decoding happens locally via the heic2any engine.', aZh: '可以——它在浏览器中运行。即使是非苹果设备也能转换HEIC照片，因为解码通过heic2any引擎在本地完成。' },
+    ],
+    detailedGuideEn: `If you shoot photos on an iPhone, your camera roll is full of HEIC files. Apple's HEIC format is genuinely impressive — it stores photos at about half the size of JPEG with identical quality. But it has a fundamental problem: HEIC is an Apple-centric format, and the rest of the world is slow to adopt it. Upload a HEIC photo to many web platforms, and it gets rejected. Email it to a friend on an older device, and it will not open.
+
+CompressFast's HEIC to WebP converter turns those iPhone photos into a web-friendly modern format, instantly and privately:
+
+1. Local HEIC decoding — HEIC files are decoded in your browser using the heic2any engine. This is important: it means you can convert HEIC photos even on non-Apple devices that cannot natively open them.
+
+2. Efficient WebP encoding — The decoded photo re-encodes as WebP at your chosen quality. At 80%, you get a file that is 25-35% smaller than an equivalent JPEG, with no visible quality loss for most photos.
+
+3. Automatic metadata stripping — GPS location, camera model, and other EXIF data are removed by default, protecting your privacy when you publish the converted photos.
+
+4. Batch workflow — Drag up to 30 HEIC photos at once and convert them all in parallel. A single ZIP downloads all the web-ready WebP files.
+
+HEIC → WebP is the ideal pipeline for moving iPhone photos to the web: it keeps the modern compression advantage while producing files that every browser and most platforms accept. If you need maximum compatibility (email attachments, documents, print), HEIC → JPG is the alternative — CompressFast supports both.`,
+    detailedGuideZh: `如果你用iPhone拍照，相册里全是HEIC文件。苹果的HEIC格式确实令人印象深刻——以约JPEG一半的体积存储同等画质的照片。但它有个根本问题：HEIC是苹果中心化的格式，世界其他地区采用得很慢。把HEIC照片上传到许多网页平台会被拒绝，发给用旧设备的朋友打不开。
+
+极速压图的HEIC转WebP转换器把这些iPhone照片变成网页友好的现代格式，即时、私密：
+
+1. 本地HEIC解码——HEIC文件通过heic2any引擎在浏览器中解码。这很重要：意味着即使在不支持原生打开HEIC的非苹果设备上，你也能转换HEIC照片。
+
+2. 高效WebP编码——解码后的照片以你选择的画质重新编码为WebP。80%时，你得到的文件比同等JPEG小25-35%，大多数照片无可见画质损失。
+
+3. 自动清除元数据——GPS位置、相机型号等EXIF数据默认删除，发布转换后照片时保护你的隐私。
+
+4. 批量工作流——一次拖入最多30张HEIC照片并行转换。单个ZIP下载所有网页就绪的WebP文件。
+
+HEIC→WebP是把iPhone照片搬到网页的理想管线：保留现代压缩优势，同时产出每个浏览器和大多数平台都接受的文件。如果需要最大兼容性（邮件附件、文档、打印），HEIC→JPG是替代方案——极速压图两者都支持。`,
+    relatedTools: ['heic-to-jpg', 'heic-to-png', 'convert-to-webp', 'avif-to-webp'],
+  },
+
+  'gif-to-webp': {
+    slug: 'gif-to-webp',
+    titleEn: 'Convert GIF to WebP Online Free — Animated WebP | CompressFast',
+    titleZh: '在线GIF转WebP — 动态WebP | 极速压图',
+    descriptionEn: 'Convert GIF to animated WebP online for free. 100% browser-based, no upload. Get 60-80% smaller files with the same animation. Batch convert up to 30 GIFs.',
+    descriptionZh: '免费在线将GIF转为动态WebP，100%浏览器本地处理，无需上传。同等动画效果体积减小60-80%。批量转换30个GIF。',
+    keywords: ['gif to webp', 'convert gif to webp', 'gif to webp converter', 'animated gif to webp', 'gif to webp online', 'convert gif to animated webp', 'free gif to webp converter'],
+    heroTitleEn: 'Convert GIF to Animated WebP',
+    heroTitleZh: 'GIF转动态WebP',
+    heroSubEn: 'Same animation, 60-80% smaller. No upload, batch 30, free forever.',
+    heroSubZh: '同样的动画，小60-80%。无需上传、批量30个、永久免费。',
+    targetFormat: 'webp',
+    defaultSettings: { quality: 80, outputFormat: 'webp', speed: 5 },
+    benefits: [
+      { icon: '🎞️', titleEn: 'Keep Animation', titleZh: '保留动画', descEn: 'Convert GIF to animated WebP — the motion stays, the file shrinks 60-80%.', descZh: 'GIF转动态WebP——动效保留，文件缩小60-80%。' },
+      { icon: '📉', titleEn: '60-80% Smaller', titleZh: '小60-80%', descEn: 'WebP uses modern compression and 24-bit color, dramatically beating 1987-era GIF.', descZh: 'WebP用现代压缩和24位色彩，远超1987年的GIF。' },
+      { icon: '🌐', titleEn: '96% Browser Support', titleZh: '96%浏览器支持', descEn: 'Animated WebP works in Chrome, Firefox, Safari, and Edge.', descZh: '动态WebP支持Chrome、Firefox、Safari、Edge。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Upload GIF Files', titleZh: '上传GIF文件', descEn: 'Drag animated GIFs into the upload area. Batch up to 30 files at once.', descZh: '将GIF动图拖入上传区，一次最多30个。' },
+      { step: 2, titleEn: 'Select WebP as Output', titleZh: '选择WebP输出', descEn: 'Choose WebP from the output format selector. Animation is preserved automatically.', descZh: '在输出格式中选WebP。动画自动保留。' },
+      { step: 3, titleEn: 'Download WebP Files', titleZh: '下载WebP文件', descEn: 'Each GIF downloads as .webp with animation intact. Batch ZIP for all results.', descZh: '每个GIF以.webp下载且动画完整。批量ZIP获取全部结果。' },
+    ],
+    faqs: [
+      { qEn: 'Why convert GIF to WebP?', qZh: '为什么要转GIF为WebP？', aEn: 'GIF is a 1987 format with terrible compression — a short animation can be 15-20MB. Animated WebP delivers the same motion at 60-80% smaller file size with better color (24-bit vs GIF\'s 256 colors).', aZh: 'GIF是1987年的格式，压缩极差——一个短动画可能15-20MB。动态WebP以60-80%更小的体积提供同样的动效，色彩更好（24位 vs GIF的256色）。' },
+      { qEn: 'Will my GIF animation be preserved?', qZh: 'GIF动画会被保留吗？', aEn: 'Yes — converting GIF to WebP preserves all animation frames and timing. The WebP output plays exactly like the original GIF.', aZh: '会——GIF转WebP保留所有动画帧和时序。WebP输出的播放效果和原GIF完全一致。' },
+      { qEn: 'How much smaller will the WebP be?', qZh: 'WebP会小多少？', aEn: 'Typically 60-80% smaller than the GIF. The exact savings depend on the GIF\'s complexity and frame count, but animated WebP is almost always dramatically smaller.', aZh: '通常比GIF小60-80%。具体取决于GIF的复杂度和帧数，但动态WebP几乎总是小得多。' },
+      { qEn: 'Do all browsers support animated WebP?', qZh: '所有浏览器都支持动态WebP吗？', aEn: 'Yes — all modern browsers support animated WebP: Chrome, Firefox, Edge, and Safari (since 2023). For very old browsers, keep a GIF fallback.', aZh: '是的——所有现代浏览器都支持动态WebP：Chrome、Firefox、Edge、Safari（2023年起）。极老的浏览器可保留GIF兜底。' },
+      { qEn: 'Is GIF to WebP conversion free?', qZh: 'GIF转WebP免费吗？', aEn: 'Yes — completely free. Convert up to 30 GIFs per batch, no account or watermark.', aZh: '是的——完全免费。每批最多转换30个GIF，无需注册、无水印。' },
+      { qEn: 'Can I batch convert GIFs to WebP?', qZh: '能批量把GIF转WebP吗？', aEn: 'Yes — drop up to 30 GIFs and convert them all in parallel. Download as a single ZIP.', aZh: '可以——一次拖入最多30个GIF并行转换，打包成一个ZIP下载。' },
+      { qEn: 'Should I convert GIF to WebP or MP4?', qZh: 'GIF该转WebP还是MP4？', aEn: 'For short looping animations, memes, and reaction clips → animated WebP (great compatibility, 60-80% smaller). For long screen recordings or video clips → MP4 (up to 90% smaller). WebP is the drop-in GIF replacement; MP4 is better for actual video.', aZh: '短循环动画、表情包、反应片段 → 动态WebP（兼容性好，小60-80%）。长录屏或视频片段 → MP4（可小90%）。WebP是GIF的直接替代品；MP4更适合真正的视频。' },
+    ],
+    detailedGuideEn: `GIF is 38 years old and it shows. Every frame is stored as a full bitmap with a 256-color palette, there is no real inter-frame compression, and even a 5-second animation can balloon to 15-20MB. The result: slow-loading pages, blown mobile data budgets, and frustration.
+
+Animated WebP is the modern replacement. It uses the same VP8 compression as WebP still images, supports 24-bit color (16.7 million colors vs GIF's 256), and preserves animation frames and timing perfectly. The payoff: the same animation at 60-80% smaller file size.
+
+CompressFast's GIF to WebP converter makes the switch trivial:
+
+1. Frame-preserving conversion — Every GIF frame and its timing are preserved in the WebP output. Looping behavior carries over, so the animation plays identically.
+
+2. Dramatic size reduction — Because WebP compresses each frame with modern codecs and a full color palette, most GIFs shrink 60-80%. A 15MB GIF becomes a 3-5MB WebP.
+
+3. Batch workflow — Convert up to 30 GIFs at once, all in parallel. Download a single ZIP of animated WebP files.
+
+4. No upload — Everything happens locally in your browser. Your GIFs never leave your device.
+
+When to use WebP vs MP4: WebP is the true GIF replacement — perfect for memes, reaction clips, and short looping animations where you want a lightweight image-format file with broad compatibility. For longer video content (screen recordings, tutorials), MP4 offers even better compression. CompressFast handles the GIF-to-WebP path with animation fully intact.`,
+    detailedGuideZh: `GIF已经38岁了，这一点显而易见。每帧都以256色调色板的完整位图存储，没有真正的帧间压缩，甚至一个5秒的动画都能膨胀到15-20MB。结果是：页面加载缓慢、移动流量超标、令人沮丧。
+
+动态WebP是现代替代品。它使用与WebP静态图相同的VP8压缩，支持24位色彩（1670万色 vs GIF的256色），完美保留动画帧和时序。回报：同样的动画，体积小60-80%。
+
+极速压图的GIF转WebP转换器让切换轻而易举：
+
+1. 帧保留转换——GIF的每个帧和时序都在WebP输出中保留。循环行为一并继承，动画播放完全一致。
+
+2. 体积大幅缩减——因为WebP用现代编解码器和完整调色板压缩每帧，大多数GIF缩小60-80%。15MB的GIF变成3-5MB的WebP。
+
+3. 批量工作流——一次转换最多30个GIF，全部并行。下载单个包含动态WebP文件的ZIP。
+
+4. 无需上传——一切在浏览器本地完成。你的GIF从不离开设备。
+
+何时用WebP而非MP4：WebP是真正的GIF替代品——非常适合表情包、反应片段和短循环动画，你想要一个轻量、兼容性广的图片格式文件。对于更长的视频内容（录屏、教程），MP4提供更好的压缩。极速压图以完整保留动画的方式处理GIF转WebP路径。`,
+    relatedTools: ['compress-gif', 'convert-to-webp', 'avif-to-webp', 'compress-images'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)
