@@ -18,6 +18,7 @@ import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
 import { TOOLS } from '@/lib/tool-pages'
 import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
+import { GUIDES, GUIDE_SLUGS } from '@/lib/guide-pages'
 
 // Dynamic imports for heavy components — split from critical rendering path
 const DemoShowcase = dynamic(
@@ -172,6 +173,26 @@ export default function HomePage() {
                 <span className="text-lg flex-shrink-0">{TOOL_ICONS[tool.slug] || '🔧'}</span>
                 <span className="text-sm font-medium text-neutral-800 truncate">
                   {locale === 'zh' ? (TOOL_SHORT[tool.slug]?.zh || tool.heroTitleZh) : (TOOL_SHORT[tool.slug]?.en || tool.heroTitleEn)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Guides — informational pages, server-rendered for crawler internal linking */}
+        <section className="pt-2">
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">
+            {locale === 'zh' ? '📖 图片压缩指南' : '📖 Image Compression Guides'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {GUIDE_SLUGS.map(slug => (
+              <Link
+                key={slug}
+                href={`/${locale}/guides/${slug}`}
+                className="flex items-center gap-2 p-3 rounded-xl bg-white border border-gray-100 hover:border-blue-200 transition-colors"
+              >
+                <span className="text-sm font-medium text-neutral-800">
+                  {locale === 'zh' ? GUIDES[slug].heroTitleZh : GUIDES[slug].heroTitleEn}
                 </span>
               </Link>
             ))}

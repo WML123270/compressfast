@@ -72,6 +72,9 @@ export function Footer() {
         <p className="text-neutral-700 text-sm">{t('footer.tech')}</p>
 
         <div className="mt-5 flex items-center justify-center gap-5 text-sm flex-wrap">
+          <Link href={`/${locale}/guides`} className="text-neutral-700 hover:text-blue-600 transition-colors">
+            {isZh ? '指南' : 'Guides'}
+          </Link>
           <Link href={`/${locale}/help`} className="text-neutral-700 hover:text-blue-600 transition-colors">
             {isZh ? '帮助中心' : 'Help'}
           </Link>

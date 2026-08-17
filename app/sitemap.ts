@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next'
 import { TOOL_SLUGS } from '@/lib/tool-pages'
+import { GUIDE_SLUGS } from '@/lib/guide-pages'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.vercel.app'
 
-const STATIC_PAGES = ['', 'vs-tinypng', 'about', 'help', 'contact', 'privacy', 'terms', 'pro']
+const STATIC_PAGES = ['', 'vs-tinypng', 'about', 'help', 'contact', 'privacy', 'terms', 'pro', 'guides']
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = []
@@ -32,6 +33,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
+      })
+    }
+  }
+
+  // SEO guide (informational) pages
+  for (const guide of GUIDE_SLUGS) {
+    for (const lang of ['zh', 'en']) {
+      entries.push({
+        url: `${BASE_URL}/${lang}/guides/${guide}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
       })
     }
   }
