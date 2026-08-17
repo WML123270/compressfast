@@ -269,13 +269,13 @@ async function applyWatermark(img: ImageData, wm: WatermarkOpts, imgWidth: numbe
 // ─── 质量评级 ───────────────────────────────────────────
 
 function calcQualityTier(orig: number, compressed: number): string {
-  if (orig === 0 || compressed === 0) return 'ok'
+  if (orig === 0 || compressed === 0) return 'minimal'
   const r = (orig - compressed) / orig
-  if (r <= 0) return 'overcompressed'
-  if (r < 0.15) return 'excellent'
-  if (r < 0.45) return 'good'
-  if (r < 0.75) return 'ok'
-  return 'overcompressed'
+  if (r <= 0) return 'minimal'
+  if (r < 0.15) return 'minimal'
+  if (r < 0.45) return 'light'
+  if (r < 0.75) return 'balanced'
+  return 'aggressive'
 }
 
 /** Apply rotation + flip to an ImageData via canvas transform */

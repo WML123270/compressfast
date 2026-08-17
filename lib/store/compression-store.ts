@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions, MonthlyQuota } from '@/lib/compression/types'
 import { DEFAULT_OPTIONS, getLimits, getMonthlyQuota, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY } from '@/lib/compression/types'
 import { isCnDeploy } from '@/lib/utils'
+import { getDeviceFingerprint } from '@/lib/device-fingerprint'
 
 const IS_CN = isCnDeploy()
 import { generateId, getCompressionRatio } from '@/lib/compression/utils'
@@ -174,7 +175,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
       const res = await fetch('/api/verify-license', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, fingerprint: getDeviceFingerprint() }),
       })
       const data = await res.json()
 

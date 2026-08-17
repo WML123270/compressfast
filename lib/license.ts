@@ -54,10 +54,11 @@ export function generateLicenseCode(): string {
   return segments.join('-')
 }
 
-export function generateDeviceFingerprint(userAgent: string, _ip?: string): string {
-  // 使用 UA 作为设备指纹（同一设备浏览器 UA 基本不变）
-  // 不依赖 IP，避免 WiFi/VPN 切换导致"新设备"误判
-  return simpleHash(userAgent.slice(0, 150))
+export function generateDeviceFingerprint(userAgent: string, ip?: string): string {
+  // 服务端 fallback：UA + IP 前 3 段（/24），比单纯 UA 更能区分不同网络的设备
+  // 前端会优先传更精确的多因子指纹（见 lib/device-fingerprint.ts）
+  const ipSeg = ip ? ip.split('.').slice(0, 3).join('.') : 'unknown'
+  return simpleHash(`${userAgent.slice(0, 150)}|${ipSeg}`)
 }
 
 function simpleHash(str: string): string {
@@ -120,6 +121,7 @@ export async function verifyLicense(
   code: string,
   userAgent?: string,
   ip?: string,
+  fingerprint?: string,
 ): Promise<{ valid: boolean; reason?: string; email?: string }> {
   const r = getRedis()
   let record: LicenseRecord | null = null
@@ -138,8 +140,8 @@ export async function verifyLicense(
   if (!record.active) return { valid: false, reason: 'revoked' }
 
   // Check device limit
-  if (userAgent && ip) {
-    const fp = generateDeviceFingerprint(userAgent, ip)
+  if (fingerprint || userAgent) {
+    const fp = fingerprint || generateDeviceFingerprint(userAgent || '', ip)
     if (!record.devices.includes(fp)) {
       if (record.devices.length >= MAX_DEVICES) {
         return { valid: false, reason: 'device_limit' }

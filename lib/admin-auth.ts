@@ -10,7 +10,10 @@ const COOKIE_NAME = 'admin_token'
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 // 7 天
 
 function getAdminKey(): string {
-  return process.env.ADMIN_KEY || 'compressfast2026'
+  if (process.env.ADMIN_KEY) return process.env.ADMIN_KEY
+  // 生产环境不允许退回公开的默认值（compressfast2026 已出现在代码/文档中）
+  if (process.env.NODE_ENV === 'production') return ''
+  return 'compressfast2026' // 仅本地开发
 }
 
 /** HMAC-SHA256 token（不可伪造） */

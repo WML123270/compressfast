@@ -46,7 +46,11 @@ async function checkRateLimit(ip: string): Promise<boolean> {
  * 若 webhook 延迟，用户可通过"忘记激活码"自行查询
  */
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  // Cloudflare 后面优先用 cf-connecting-ip，避免拿到 CDN IP
+  const ip = request.headers.get('cf-connecting-ip')?.trim()
+    || request.headers.get('x-real-ip')?.trim()
+    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || 'unknown'
 
   // Rate limiting (Redis-based on Vercel, memory fallback)
   if (!(await checkRateLimit(ip))) {

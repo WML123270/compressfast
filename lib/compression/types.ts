@@ -116,25 +116,25 @@ export interface SavedPreset {
   createdAt: number
 }
 
-/** 压缩质量评级 */
-export type QualityTier = 'excellent' | 'good' | 'ok' | 'overcompressed'
+/** 压缩强度评级（按节省率，省得越多画质越可能受损） */
+export type QualityTier = 'minimal' | 'light' | 'balanced' | 'aggressive'
 
-/** 根据压缩率计算质量评级 */
+/** 根据压缩率计算压缩强度 */
 export function getQualityTier(originalSize: number, compressedSize: number): QualityTier {
-  if (originalSize === 0 || compressedSize === 0) return 'ok'
+  if (originalSize === 0 || compressedSize === 0) return 'minimal'
   const ratio = (originalSize - compressedSize) / originalSize
-  if (ratio <= 0) return 'overcompressed'
-  if (ratio < 0.15) return 'excellent'    // <15% 压缩 → 高质量
-  if (ratio < 0.45) return 'good'         // 15-45% → 良好
-  if (ratio < 0.75) return 'ok'           // 45-75% → 可接受
-  return 'overcompressed'                  // >75% → 过度压缩
+  if (ratio <= 0) return 'minimal'      // 没变小或变大
+  if (ratio < 0.15) return 'minimal'    // <15% 几乎没压
+  if (ratio < 0.45) return 'light'      // 15-45% 轻度
+  if (ratio < 0.75) return 'balanced'   // 45-75% 均衡（推荐）
+  return 'aggressive'                    // >75% 激进，画质可能受损
 }
 
 export const QUALITY_TIER_COLORS: Record<QualityTier, string> = {
-  excellent: 'bg-green-900/30 text-blue-500',
-  good: 'bg-blue-900/30 text-blue-400',
-  ok: 'bg-amber-900/30 text-amber-400',
-  overcompressed: 'bg-red-900/30 text-red-400',
+  minimal: 'bg-gray-800/40 text-gray-400',
+  light: 'bg-blue-900/30 text-blue-400',
+  balanced: 'bg-green-900/30 text-green-400',
+  aggressive: 'bg-amber-900/30 text-amber-400',
 }
 
 export interface NamingOptions {

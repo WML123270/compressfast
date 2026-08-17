@@ -42,7 +42,11 @@ async function checkRateLimit(ip: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  // Cloudflare 后面优先用 cf-connecting-ip，避免拿到 CDN IP
+  const ip = request.headers.get('cf-connecting-ip')?.trim()
+    || request.headers.get('x-real-ip')?.trim()
+    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || 'unknown'
   const userAgent = request.headers.get('user-agent') || undefined
 
   // Rate limiting
@@ -53,13 +57,18 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { code } = body
+    const { code, fingerprint } = body
 
     if (!code || typeof code !== 'string' || code.length < 8) {
       return NextResponse.json({ valid: false, reason: 'invalid_format' })
     }
 
-    const result = await verifyLicense(code.toUpperCase().trim(), userAgent, ip)
+    const result = await verifyLicense(
+      code.toUpperCase().trim(),
+      userAgent,
+      ip,
+      typeof fingerprint === 'string' ? fingerprint : undefined,
+    )
     return NextResponse.json(result)
   } catch {
     return NextResponse.json({ valid: false, reason: 'server_error' }, { status: 500 })

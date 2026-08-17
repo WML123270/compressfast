@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     if (reset) {
       // Admin reset (requires admin key)
       const adminKey = request.headers.get('x-admin-key')
-      if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'compressfast2026') {
+      if (!process.env.ADMIN_KEY || adminKey !== process.env.ADMIN_KEY) {
         return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
       }
       await r.del(key)

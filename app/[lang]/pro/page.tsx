@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useIsCn } from '@/lib/use-is-cn'
+import { getDeviceFingerprint } from '@/lib/device-fingerprint'
 
 /** 功能对比行数据 */
 interface FeatureRow {
@@ -77,7 +78,7 @@ export default function ProPage() {
       const res = await fetch('/api/verify-license', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: activateCode }),
+        body: JSON.stringify({ code: activateCode, fingerprint: getDeviceFingerprint() }),
       })
       const data = await res.json()
       if (data.valid) {
