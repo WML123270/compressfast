@@ -1,0 +1,106 @@
+========================================================
+  CompressFast 新外链清单 — 未投过的高权重目录站（2026-08-20）
+========================================================
+说明：这些是之前没投过的目录/社区站，按「外链价值 / 提交难度」排序。
+文案已写好，登录后复制粘贴即可。做完一项打勾。
+
+【统一产品信息】（所有站都用这套，复制即可）
+  名称：CompressFast
+  网址：https://compressfast.site
+  一句话：Privacy-first image compression in your browser — 100% local, zero uploads
+  分类：Developer Tools / Design Tools / Image Optimization
+  标签：image compression, image optimization, webp, avif, png, jpeg, batch, privacy
+  Logo：png-compressor/public/app-icon.png（512px，之前给 AlternativeTo 做的）
+
+【长描述】（200-400 字，大多数站要填这个）
+  CompressFast is a browser-based image compressor that processes files
+  entirely on-device — nothing is ever uploaded to a server. It supports
+  PNG, JPEG, WebP, AVIF, GIF, BMP, SVG and HEIC, batches up to 30 images
+  at once, resizes and converts between formats, strips EXIF metadata,
+  and downloads everything as a ZIP. Built with Canvas API and Web Workers,
+  it runs offline as a PWA and costs $0/month to operate.
+
+--------------------------------------------------------
+① SourceForge  ⭐最高优先（DR 92，dofollow，免费软件目录）
+--------------------------------------------------------
+网址：https://sourceforge.net/create/ （先注册账号）
+价值：DR 92 老牌软件目录，免费软件必投，dofollow 外链，Google 高频抓取。
+步骤：
+  1. 注册登录 sourceforge.net
+  2. 点 "Create" → 选 "Create a project"
+  3. 项目名：compressfast
+  4. 分类：Graphics → 选 "Raster Graphics" 或 "Conversion"
+  5. 描述粘贴上方【长描述】
+  6. 项目 URL / Homepage 填 https://compressfast.site
+  7. License 选 MIT
+  ⚠️ SourceForge 会要求有可下载文件，可选「External link only」模式，
+     或在 GitHub 填 https://github.com/WML123270/compressfast 作为代码仓库。
+
+--------------------------------------------------------
+② StackShare  ⭐高优先（DA 79，dofollow，开发者工具栈）
+--------------------------------------------------------
+网址：https://stackshare.io/tools/new （先注册）
+价值：开发者工具专属目录，与目标用户高度重合，dofollow。
+步骤：
+  1. 注册登录 stackshare.io
+  2. "Add a tool" → 名称 CompressFast
+  3. 网站 https://compressfast.site
+  4. 描述粘贴【长描述】
+  5. Stack：归类到 "Image" / "Media" / "Developer Tools"
+  6. 可以顺手把它加进你自己的 tech stack 列表，增加出现频率。
+
+--------------------------------------------------------
+③ G2  ⭐中高（DA 90，免费基础列表，需公司信息）
+--------------------------------------------------------
+网址：https://www.g2.com/products/new （需注册 + 公司验证）
+价值：DA 90 顶级软件评价站，免费列表也有外链，但提交流程较繁琐。
+步骤：
+  1. 注册 G2 账号
+  2. 创建产品 CompressFast
+  3. 类别：Graphics & Design → Image Compression / Image Optimization
+  4. 描述粘贴【长描述】，定价填 "Free / Pro $24.99 one-time"
+  5. 官网 https://compressfast.site
+  ⚠️ G2 审核严，可能要等几天。可放后面做。
+
+--------------------------------------------------------
+④ Capterra  ⭐中（DA 90，免费，偏 B2B）
+--------------------------------------------------------
+网址：https://www.capterra.com/vendors/sign-up
+价值：DA 90，但偏企业软件，消费者工具匹配度一般。
+备注：可投可不投，时间富余再弄。类别选 "Image Editing" / "File Compression"。
+
+--------------------------------------------------------
+⑤ F6S  ⭐中（DR 83，创业公司目录，dofollow）
+--------------------------------------------------------
+网址：https://www.f6s.com/startups/add
+价值：全球创业公司目录，dofollow，免费，还能被投资人/媒体发现。
+步骤：
+  1. 注册 f6s.com
+  2. 创建 startup "CompressFast"
+  3. 一句话 + 【长描述】+ 官网 URL + GitHub URL
+  4. 行业选 "SaaS" / "Developer Tools"
+
+--------------------------------------------------------
+⑥ CrunchBase  ⭐低（DR 91，创业公司数据库）
+--------------------------------------------------------
+网址：https://www.crunchbase.com/add-new
+价值：DR 91 但需要公司实体信息，个人项目难通过，且多为 nofollow。
+备注：没有公司主体就先跳过。以后注册公司再补。
+
+--------------------------------------------------------
+⑦ GitHub Awesome List  ⭐中高（免费，PR 提交，dofollow）
+--------------------------------------------------------
+思路：给「awesome-image-compression / awesome-web-tools」类开源列表
+      提 PR，把自己的工具加进去，拿到 GitHub 内的 dofollow 外链。
+步骤：
+  1. GitHub 搜 "awesome image compression" / "awesome web tools"
+  2. 挑 star 高、还在维护的列表（README 里加一条）
+  3. Fork → 在合适分类加：
+       - [CompressFast](https://compressfast.site) — Browser-side image
+         compressor (PNG/JPEG/WebP/AVIF/HEIC), 100% local, zero uploads.
+  4. 提 PR，说明"added a free browser-based image compression tool"
+
+========================================================
+📌 优先级建议：先做 ① SourceForge + ② StackShare（都免费、dofollow、
+   提交快、与开发者用户匹配），其余按时间富余推进。
+========================================================
