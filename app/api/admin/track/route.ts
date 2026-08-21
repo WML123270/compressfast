@@ -6,9 +6,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes } from '@/lib/stats'
+import { isLikelyBot } from '@/lib/bot-detection'
 
 export async function POST(request: NextRequest) {
   try {
+    // 过滤爬虫/自动化流量，避免污染统计
+    if (isLikelyBot(request.headers.get('user-agent'))) {
+      return NextResponse.json({ success: true, skipped: 'bot' })
+    }
+
     const { event, count, visitorId, host, sizes } = await request.json()
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
