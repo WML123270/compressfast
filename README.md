@@ -42,6 +42,23 @@
 
 👉 **[jisuyatu.com](https://jisuyatu.com)** — China (中文)
 
+## Tool Pages
+
+Deep-link pages for specific tasks (same local engine, no upload):
+
+- [Compress PNG](https://compressfast.site/en/tools/compress-png) — lossless PNG via oxipng WASM
+- [Compress JPEG](https://compressfast.site/en/tools/compress-jpeg) — quality slider + EXIF strip
+- [Convert to WebP](https://compressfast.site/en/tools/convert-to-webp) — PNG/JPEG → WebP
+- [HEIC to JPG](https://compressfast.site/en/tools/heic-to-jpg) — iPhone photo conversion
+- [Resize Image](https://compressfast.site/en/tools/resize-image) — pixel / percentage resize
+
+## Guides
+
+- [How to Compress Images for Web](https://compressfast.site/en/guides/how-to-compress-images-for-web)
+- [Best Image Format for Web (2026)](https://compressfast.site/en/guides/best-image-format-for-web)
+- [How to Reduce Image File Size](https://compressfast.site/en/guides/reduce-image-file-size)
+- [How to Compress Images for Email](https://compressfast.site/en/guides/compress-images-for-email)
+
 ## Pro
 
 - $24.99 lifetime (one-time payment)
