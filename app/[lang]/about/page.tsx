@@ -32,7 +32,7 @@ export default function AboutPage() {
       </section>
 
       {/* Story */}
-      <section className="bg-gradient-to-r from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 border border-brand-200 dark:border-brand-700/50 rounded-2xl p-6">
+      <section className="bg-gradient-to-r from-brand-50 to-cyan-50 dark:from-brand-900/20 dark:to-cyan-900/20 border border-brand-200 dark:border-brand-700/50 rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-3">
           <Heart className="w-6 h-6 text-red-500" />
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('about.story')}</h2>

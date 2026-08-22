@@ -332,7 +332,7 @@ export function ImageList() {
         <div className="sm:hidden fixed bottom-6 left-4 right-4 z-40 animate-slide-up">
           <button
             onClick={compressAll}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 rounded-2xl shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all text-base"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 font-semibold text-white bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 rounded-2xl shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all text-base"
           >
             <Zap className="w-5 h-5" />
             {t('list.compressAll', { n: pendingCount })}

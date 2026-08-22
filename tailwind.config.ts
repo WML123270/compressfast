@@ -24,9 +24,8 @@ const config: Config = {
           950: '#172554',
         },
         accent: {
-          cyan: '#06b6d4',
+          cyan: '#22d3ee',
           blue: '#3b82f6',
-          purple: '#8b5cf6',
         },
       },
       fontFamily: {

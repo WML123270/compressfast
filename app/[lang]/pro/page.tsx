@@ -218,17 +218,17 @@ export default function ProPage() {
             ]
             return features.map((row, i) => {
               const bg = row.highlight
-                ? 'bg-purple-50'
+                ? 'bg-blue-50'
                 : i % 2 === 0
                   ? 'bg-gray-50'
                   : 'bg-white'
               return (
                 <div key={i} className={`contents text-xs`}>
                   <div className={`${bg} p-3 flex items-center gap-2 font-medium text-neutral-800`}>
-                    {row.highlight && <Sparkles className="w-3 h-3 text-purple-500 flex-shrink-0" />}
+                    {row.highlight && <Sparkles className="w-3 h-3 text-blue-500 flex-shrink-0" />}
                     {row.feature}
                     {row.highlight && (
-                      <span className="px-1 py-0.5 rounded bg-purple-100 text-purple-700 font-bold text-[10px]">NEW</span>
+                      <span className="px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-bold text-[10px]">NEW</span>
                     )}
                   </div>
                   <div className={`${bg} p-3 text-center text-neutral-700`}>

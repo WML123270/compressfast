@@ -102,7 +102,7 @@ export default function GuidePage({ params }: Props) {
       </div>
 
       {/* CTA */}
-      <section className="p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 text-center space-y-3">
+      <section className="p-6 rounded-2xl bg-gradient-to-r from-cyan-50 to-blue-50 border border-blue-100 text-center space-y-3">
         <h2 className="font-bold text-gray-900 text-lg">
           {isZh ? '开始压缩你的图片' : 'Start compressing your images'}
         </h2>
@@ -114,7 +114,7 @@ export default function GuidePage({ params }: Props) {
         <div className="flex flex-wrap justify-center gap-2 pt-1">
           <Link
             href={`/${params.lang}/tools/compress-images`}
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-sm font-semibold text-white transition-all"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-sm font-semibold text-white transition-all"
           >
             {isZh ? '开始压缩' : 'Compress Now'} <ArrowRight className="w-4 h-4" />
           </Link>

@@ -16,15 +16,13 @@ import { useToast } from '@/components/ui/Toast'
 import { useKeyboardShortcuts } from '@/lib/use-keyboard-shortcuts'
 import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
+import { AnimatedBackground } from '@/components/layout/AnimatedBackground'
+import { Mascot } from '@/components/compressor/Mascot'
 import { TOOLS } from '@/lib/tool-pages'
 import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
 import { GUIDES, GUIDE_SLUGS } from '@/lib/guide-pages'
 
 // Dynamic imports for heavy components — split from critical rendering path
-const DemoShowcase = dynamic(
-  () => import('@/components/compressor/DemoShowcase').then(m => m.DemoShowcase),
-  { ssr: false }
-)
 const CompressionControls = dynamic(
   () => import('@/components/compressor/CompressionControls').then(m => m.CompressionControls),
   { ssr: false }
@@ -206,16 +204,22 @@ export default function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-5">
+      {/* 科技感动画背景（无文件时） */}
+      {!hasFiles && <AnimatedBackground />}
+
       {/* Hero + Pro button */}
       {!hasFiles && (
         <section className="text-center space-y-3 sm:space-y-4 pb-2 sm:pb-4 pt-2 sm:pt-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium mb-1 sm:mb-2">
             <Shield className="w-3 h-3" /> {t('hero.badge')}
           </div>
-          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight max-w-2xl mx-auto px-2">
-            <span className="text-neutral-900">{t('hero.title')}</span>{' '}
-            <span className="text-gradient">{t('hero.highlight')}</span>
-          </h1>
+          <div className="relative max-w-2xl mx-auto">
+            <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight px-2">
+              <span className="text-neutral-900">{t('hero.title')}</span>{' '}
+              <span className="text-gradient">{t('hero.highlight')}</span>
+            </h1>
+            <Mascot width={170} className="absolute top-1/2 -translate-y-[20%] -right-14 sm:-right-44 animate-mascot hidden sm:block" />
+          </div>
           <p className="text-sm sm:text-lg max-w-lg mx-auto text-neutral-700">
             {t('hero.subtitle')}
           </p>
@@ -232,7 +236,7 @@ export default function HomePage() {
           {!isCn && (
             <div className="flex items-center justify-center gap-4 pt-4">
               {isPro ? (
-                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-sm font-semibold text-white transition-all">
+                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-sm font-semibold text-white transition-all">
                   <Crown className="w-4 h-4" /> {t('pro.active')}
                 </Link>
               ) : (
@@ -249,9 +253,6 @@ export default function HomePage() {
           )}
         </section>
       )}
-
-      {/* Demo showcase — only when no files loaded */}
-      {!hasFiles && <DemoShowcase />}
 
       {/* Upload & Tool Area */}
       <DropZone />

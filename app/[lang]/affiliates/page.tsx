@@ -278,7 +278,7 @@ export default function AffiliatesPage() {
         </div>
 
         {/* Referral Link */}
-        <div translate="no" className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+        <div translate="no" className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-blue-200 rounded-xl p-5">
           <p className="text-sm font-semibold text-blue-800 mb-2">
             {locale === 'zh' ? '🔗 你的推荐链接' : '🔗 Your Referral Link'}
           </p>
@@ -319,7 +319,7 @@ export default function AffiliatesPage() {
             <div className="text-xs text-neutral-600">{locale === 'zh' ? '总佣金' : 'Earned'}</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <DollarSign className="w-5 h-5 text-purple-600 mx-auto mb-1" />
+            <DollarSign className="w-5 h-5 text-blue-600 mx-auto mb-1" />
             <div className="text-2xl font-bold text-neutral-900">${pending}</div>
             <div className="text-xs text-neutral-600">{locale === 'zh' ? '待付' : 'Pending'}</div>
           </div>
@@ -540,7 +540,7 @@ export default function AffiliatesPage() {
           <div className="text-xs text-neutral-600 mt-1">{locale === 'zh' ? 'Cookie有效期' : 'Cookie Window'}</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-purple-600">$12.50</div>
+          <div className="text-2xl font-bold text-blue-600">$12.50</div>
           <div className="text-xs text-neutral-600 mt-1">{locale === 'zh' ? '每单佣金' : 'Per Sale'}</div>
         </div>
       </div>

@@ -9,12 +9,12 @@
 
   html {
     scroll-behavior: smooth;
+    background-color: #fafafc;
   }
 
   body {
     @apply text-slate-800 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    background-color: #fafafc;
   }
 }
 
@@ -35,7 +35,7 @@
     width: 60px;
     height: 2px;
     border-radius: 2px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(90deg, #22d3ee, #3b82f6);
   }
 }
 
@@ -45,7 +45,7 @@
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent;
   }
   .text-gradient-warm {
     @apply bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent;
@@ -55,7 +55,7 @@
     background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.08), transparent);
   }
   .bg-glow-bottom {
-    background: radial-gradient(ellipse 60% 50% at 50% 120%, rgba(139,92,246,0.06), transparent);
+    background: radial-gradient(ellipse 60% 50% at 50% 120%, rgba(34,211,238,0.06), transparent);
   }
 }
 
@@ -74,4 +74,17 @@
 }
 .animate-toast-out {
   animation: toast-out 0.2s ease-in forwards;
+}
+
+/* ===== 吉祥物漂浮动画 ===== */
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0) rotate(-2.5deg); }
+  50% { transform: translateY(-9px) rotate(2.5deg); }
+}
+.animate-mascot {
+  animation: mascot-bob 3.5s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-mascot { animation: none; }
 }

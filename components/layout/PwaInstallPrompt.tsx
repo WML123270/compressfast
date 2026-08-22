@@ -98,7 +98,7 @@ export function PwaInstallPrompt() {
   return (
     <div className="fixed bottom-4 right-4 z-50 animate-slide-up max-w-sm">
       <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 flex items-start gap-3">
-        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg">
+        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white text-lg">
           📦
         </div>
         <div className="flex-1 min-w-0">
@@ -110,7 +110,7 @@ export function PwaInstallPrompt() {
           </p>
           <button
             onClick={handleInstall}
-            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white text-sm font-semibold transition-all active:scale-[0.97]"
+            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-white text-sm font-semibold transition-all active:scale-[0.97]"
           >
             <Download className="w-4 h-4" />
             {isZh ? '安装应用' : 'Install App'}

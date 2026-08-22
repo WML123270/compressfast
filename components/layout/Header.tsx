@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ImageIcon, Globe, Crown, BookOpen } from 'lucide-react'
+import { Globe, Crown, BookOpen } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 import { ToolsMenu } from './ToolsMenu'
+import { BrandLogo } from './BrandLogo'
 
 export function Header() {
   const { t, locale } = useT()
@@ -28,9 +29,7 @@ export function Header() {
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2.5 sm:gap-4">
           <Link href={`/${locale}`} className="flex items-center gap-2.5 font-bold text-neutral-900 hover:text-blue-600 transition-colors group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-              <ImageIcon className="w-4 h-4 text-white" />
-            </div>
+            <BrandLogo size={32} className="flex-none drop-shadow-sm group-hover:scale-110 transition-transform" />
             <span>{t('app.name')}</span>
           </Link>
           <ToolsMenu />
