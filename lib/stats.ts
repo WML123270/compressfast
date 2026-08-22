@@ -113,6 +113,33 @@ export async function incrementCompression(count: number, site: string = 'os'): 
   ])
 }
 
+// ---- 压缩事件 IP 限流（防爬虫污染统计） ----
+
+const DAILY_COMPRESSION_LIMIT_PER_IP = 200
+
+/**
+ * 单 IP 每日压缩统计上限。真实用户日压缩个位数~几十，爬虫一次暴增数百
+ * （8/18=209、8/21=295）。超过阈值后当天不再计入统计（返回 false），
+ * 但绝不阻断实际压缩 —— 压缩在浏览器本地完成，这里只控制统计口径。
+ * 无 Redis / 无真实 IP 时放行（fail-open）。
+ */
+export async function checkCompressionRateLimit(ip: string, count: number): Promise<boolean> {
+  if (!ip || ip === '0.0.0.0') return true
+  const r = getRedis()
+  if (!r) return true
+  try {
+    const d = new Date()
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const key = `rl:comp:${ip}:${date}`
+    const total = await r.incrby(key, count)
+    await r.expire(key, 2 * 24 * 3600) // 2 天 TTL
+    // 本次请求「之前」未超限才计入（允许恰好越过阈值的那一批）
+    return total - count < DAILY_COMPRESSION_LIMIT_PER_IP
+  } catch {
+    return true // fail-open
+  }
+}
+
 export async function incrementProPurchase(amount = 24.99): Promise<void> {
   await Promise.all([
     incr('stats:pro_purchases:total'),

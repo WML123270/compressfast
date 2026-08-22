@@ -24,9 +24,38 @@ const BOT_TOKENS = [
 /** 无头 Chrome 跑在 ARM 云服务器上的典型签名 */
 const HEADLESS_ARM = /x11; linux aarch64/i
 
+/**
+ * 手机厂商浏览器 —— 只存在于特定品牌手机，永远不该出现在桌面平台。
+ * 爬虫 UA 轮换库常把「手机浏览器 + 桌面 OS」拼成矛盾 UA
+ * （如 8/21 的 "Windows NT 5.2 + VivoBrowser"）。
+ */
+const MOBILE_ONLY_BROWSERS = [
+  'vivobrowser',
+  'miuibrowser',
+  'huaweibrowser',
+  'oppobrowser',
+  'mzbrowser',      // 魅族
+  'samsungbrowser', // 三星 Internet（Android 独占）
+]
+
+/**
+ * 桌面平台签名。注意：故意不含 "x11; linux" —— 真实小米 MiuiBrowser 会报
+ * "X11; Linux x86_64"（带 Device/Model），加 x11 会误伤真实用户。
+ */
+const DESKTOP_PLATFORMS = [
+  'windows nt',
+  'macintosh',
+  'mac os x',
+]
+
 export function isLikelyBot(userAgent: string | null | undefined): boolean {
   if (!userAgent) return true // 真实浏览器必带 UA
   const ua = userAgent.toLowerCase()
   if (HEADLESS_ARM.test(ua)) return true
-  return BOT_TOKENS.some((token) => ua.includes(token))
+  if (BOT_TOKENS.some((token) => ua.includes(token))) return true
+  // 手机厂商浏览器 + 桌面平台 = 矛盾 UA（爬虫轮换库典型破绽）
+  const hasMobileBrowser = MOBILE_ONLY_BROWSERS.some((t) => ua.includes(t))
+  const hasDesktopPlatform = DESKTOP_PLATFORMS.some((t) => ua.includes(t))
+  if (hasMobileBrowser && hasDesktopPlatform) return true
+  return false
 }

@@ -5,8 +5,19 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
+
+function getIP(request: NextRequest): string {
+  // Vercel 走 Cloudflare：cf-connecting-ip 才是真实客户端 IP
+  const cf = request.headers.get('cf-connecting-ip')
+  if (cf) return cf.trim()
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp.trim()
+  const xff = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  if (xff) return xff
+  return '0.0.0.0'
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,13 +38,20 @@ export async function POST(request: NextRequest) {
           trackUniqueVisitor(visitorId || '', site),
         ])
         break
-      case 'compression':
-        await incrementCompression(count || 1, site)
+      case 'compression': {
+        const n = Math.max(1, Math.min(Number(count) || 1, 500))
+        // 单 IP 每日限流：爬虫暴增时不污染统计（不阻断实际压缩）
+        const allowed = await checkCompressionRateLimit(getIP(request), n)
+        if (!allowed) {
+          return NextResponse.json({ success: true, skipped: 'rate_limit' })
+        }
+        await incrementCompression(n, site)
         // Track file size distribution
         if (sizes && Array.isArray(sizes)) {
           await recordFileSizes(sizes, site)
         }
         break
+      }
       default:
         return NextResponse.json({ error: '未知事件' }, { status: 400 })
     }
