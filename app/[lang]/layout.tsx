@@ -8,6 +8,7 @@ import { FeedbackButton } from '@/components/ui/FeedbackButton'
 import { BaiduAutoPush } from '@/components/layout/BaiduAutoPush'
 import { PwaInstallPrompt } from '@/components/layout/PwaInstallPrompt'
 import { Analytics } from '@vercel/analytics/react'
+import { isCnDeploy } from '@/lib/utils'
 import type { Locale } from '@/lib/i18n/dictionaries'
 import type { Metadata } from 'next'
 
@@ -98,7 +99,8 @@ export default function LangLayout({
           <Header />
           <JsonLd />
           <PageViewTracker />
-          <Analytics />
+          {/* Vercel Analytics 仅海外版：国内版部署在 ECS，无 /_vercel/insights 端点（每次加载 404） */}
+          {!isCnDeploy() && <Analytics />}
           <BaiduAutoPush />
           <main className="flex-1 relative z-10">{children}</main>
           <Footer />

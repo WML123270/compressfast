@@ -49,3 +49,7 @@ next-env.d.ts
 *.7z
 
 .vercel
+
+# UI 验证截图产物 (scripts/verify-ui.js)
+verify-*.png
+verify-*.jpg

@@ -12,3 +12,5 @@ test-results/
 docs/
 scripts/
 dp.tar.gz
+verify-*.png
+verify-*.jpg
