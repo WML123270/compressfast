@@ -9,7 +9,7 @@ import { QuotaBanner } from '@/components/compressor/QuotaBanner'
 import { formatFileSize } from '@/lib/compression/utils'
 import { getExtensionFromType } from '@/lib/utils'
 import Link from 'next/link'
-import { Shield, Zap, Image, Crown } from 'lucide-react'
+import { Shield, Zap, Image, Crown, Camera } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 import { useToast } from '@/components/ui/Toast'
@@ -18,6 +18,7 @@ import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
 import { AnimatedBackground } from '@/components/layout/AnimatedBackground'
 import { Mascot } from '@/components/compressor/Mascot'
+import { ProductWindow } from '@/components/compressor/ProductWindow'
 import { TOOLS } from '@/lib/tool-pages'
 import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
 import { GUIDES, GUIDE_SLUGS } from '@/lib/guide-pages'
@@ -138,23 +139,74 @@ export default function HomePage() {
     { icon: Zap, label: t('trust.batch') },
   ]
 
-  // SSR placeholder for crawlers — minimal structure, key content visible
+  const formatChips = isCn
+    ? ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
+    : ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
+
+  /**
+   * Hero 主体 —— SSR 占位版与水合后共用，避免两处样式漂移。
+   * 只放不依赖 store 的内容（Pro 按钮读 isPro，留在水合后的分支里）。
+   */
+  const heroCore = (
+    <>
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium mb-1 sm:mb-2">
+        <Shield className="w-3 h-3" /> {t('hero.badge')}
+      </div>
+      <div className="relative max-w-2xl mx-auto">
+        <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight px-2">
+          <span className="text-neutral-900">{t('hero.title')}</span>{' '}
+          <span className="text-gradient">{t('hero.highlight')}</span>
+        </h1>
+        <Mascot width={170} className="absolute top-1/2 -translate-y-[20%] -right-14 sm:-right-44 animate-mascot hidden sm:block" />
+      </div>
+      <p className="text-sm sm:text-lg max-w-lg mx-auto text-neutral-700">
+        {t('hero.subtitle')}
+      </p>
+      <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+        {formatChips.map(f => (
+          <span key={f} className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border border-gray-300 text-neutral-700">
+            {f}
+          </span>
+        ))}
+      </div>
+      {isCn && (
+        <p className="text-neutral-600 mt-1">
+          {locale === 'zh' ? '🔒 纯本地处理 · 文件绝不上传 · 始终免费' : '🔒 Local Processing · No Upload · Always Free'}
+        </p>
+      )}
+    </>
+  )
+
+  // SSR placeholder for crawlers — 视觉与水合后保持一致，否则用户会看到界面闪变
   if (!mounted) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-5" aria-busy="true">
-        <section className="text-center space-y-3 pb-2 pt-2">
-          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto px-2">
-            <span className="text-neutral-900">{t('hero.title')}</span>{' '}
-            <span className="text-gradient">{t('hero.highlight')}</span>
-          </h1>
-          <p className="text-sm sm:text-lg max-w-lg mx-auto text-neutral-700">
-            {t('hero.subtitle')}
-          </p>
+        <AnimatedBackground />
+
+        <section className="text-center space-y-3 sm:space-y-4 pb-2 sm:pb-4 pt-2 sm:pt-8">
+          {heroCore}
         </section>
-        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-10 text-center">
-          <p className="font-semibold text-neutral-800">{t('dropzone.drag')}</p>
-          <p className="text-neutral-600 mt-2">{t('dropzone.paste')}</p>
-        </div>
+
+        <ProductWindow locale={locale}>
+          <div className="border-[1.5px] border-dashed border-[#cfe0fb] bg-blue-50/60 rounded-2xl px-5 py-7 sm:py-8 text-center">
+            <p className="font-medium text-neutral-700 mb-1">{t('dropzone.drag')}</p>
+            <p className="text-sm text-neutral-500">
+              {t('dropzone.hint', { maxFiles: getLimits(false).maxFiles, maxSize: formatFileSize(getLimits(false).maxSizePerFile) })}
+            </p>
+            <p className="text-neutral-500 mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-blue-100 text-xs">
+              {t('dropzone.paste')}
+              <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-blue-50 text-neutral-600 font-mono">⌘V</kbd>
+            </p>
+
+            {/* 拍照压缩 —— 占位版用惰性 span 对齐水合后按钮的高度，避免布局跳动 */}
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg shadow-blue-500/20">
+                <Camera className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span>{t('dropzone.camera')}</span>
+              </span>
+            </div>
+          </div>
+        </ProductWindow>
 
         {/* All tools — server-rendered so crawlers see the full internal link list */}
         <section className="pt-2">
@@ -210,29 +262,7 @@ export default function HomePage() {
       {/* Hero + Pro button */}
       {!hasFiles && (
         <section className="text-center space-y-3 sm:space-y-4 pb-2 sm:pb-4 pt-2 sm:pt-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium mb-1 sm:mb-2">
-            <Shield className="w-3 h-3" /> {t('hero.badge')}
-          </div>
-          <div className="relative max-w-2xl mx-auto">
-            <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight px-2">
-              <span className="text-neutral-900">{t('hero.title')}</span>{' '}
-              <span className="text-gradient">{t('hero.highlight')}</span>
-            </h1>
-            <Mascot width={170} className="absolute top-1/2 -translate-y-[20%] -right-14 sm:-right-44 animate-mascot hidden sm:block" />
-          </div>
-          <p className="text-sm sm:text-lg max-w-lg mx-auto text-neutral-700">
-            {t('hero.subtitle')}
-          </p>
-          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2">
-            {(isCn
-              ? ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
-              : ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
-            ).map(f => (
-              <span key={f} className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border border-gray-300 text-neutral-700">
-                {f}
-              </span>
-            ))}
-          </div>
+          {heroCore}
           {!isCn && (
             <div className="flex items-center justify-center gap-4 pt-4">
               {isPro ? (

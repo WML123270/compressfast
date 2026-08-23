@@ -8,6 +8,7 @@ import { getLimits, MONTHLY_FREE_QUOTA, getMonthlyQuota } from '@/lib/compressio
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
 import { isCnDeploy } from '@/lib/utils'
+import { ProductWindow } from '@/components/compressor/ProductWindow'
 import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
 
 const ACCEPT = {
@@ -127,82 +128,62 @@ export function DropZone() {
   return (
     <div className="space-y-3">
       {/* 产品窗口（标题栏 + 拖拽区） */}
-      <div className="rounded-[22px] p-[1.5px] bg-gradient-to-b from-transparent via-blue-500/10 to-transparent">
-        <div className="rounded-[20px] bg-white/70 backdrop-blur-xl overflow-hidden shadow-[0_24px_70px_rgba(16,24,40,0.14)]">
-          {/* 标题栏 */}
-          <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-100 bg-white/55">
-            <span className="flex gap-1.5 flex-none">
-              <i className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-              <i className="w-3 h-3 rounded-full bg-[#febc2e]" />
-              <i className="w-3 h-3 rounded-full bg-[#28c840]" />
-            </span>
-            <span className="text-[13px] text-neutral-500 font-medium truncate">
-              {isZh ? '极速压图 — 浏览器本地' : 'CompressFast — In Browser'}
-            </span>
-            <span className="ml-auto text-[11px] text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full flex-none">
-              ⚡ Web Worker
-            </span>
-          </div>
+      <ProductWindow locale={locale}>
+        <div
+          {...getRootProps()}
+          className={[
+            'relative border-[1.5px] border-dashed rounded-2xl px-5 py-7 sm:py-8 text-center cursor-pointer transition-all duration-300',
+            isDragActive
+              ? 'border-cyan-400 bg-blue-50 shadow-[0_0_40px_rgba(34,211,238,0.18)]'
+              : 'border-[#cfe0fb] bg-blue-50/60 hover:border-cyan-400 hover:bg-blue-50',
+            isCompressing ? 'opacity-50 pointer-events-none' : '',
+          ].join(' ')}
+        >
+          <input {...getInputProps()} />
+          <p className="font-medium text-neutral-700 mb-1">
+            {isDragActive ? t('dropzone.dragActive') : t('dropzone.drag')}
+          </p>
+          <p className="text-sm text-neutral-500">
+            {isPro
+              ? t('dropzone.hintPro', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
+              : t('dropzone.hint', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
+            }
+          </p>
+          <p className="text-neutral-500 mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-blue-100 text-xs">
+            {t('dropzone.paste')}
+            <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-blue-50 text-neutral-600 font-mono">⌘V</kbd>
+          </p>
 
-          {/* 主体 */}
-          <div className="p-4 sm:p-5">
-            <div
-              {...getRootProps()}
-              className={[
-                'relative border-[1.5px] border-dashed rounded-2xl px-5 py-7 sm:py-8 text-center cursor-pointer transition-all duration-300',
-                isDragActive
-                  ? 'border-cyan-400 bg-blue-50 shadow-[0_0_40px_rgba(34,211,238,0.18)]'
-                  : 'border-[#cfe0fb] bg-blue-50/60 hover:border-cyan-400 hover:bg-blue-50',
-                isCompressing ? 'opacity-50 pointer-events-none' : '',
-              ].join(' ')}
+          {/* Camera capture — primary action for mobile users */}
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleCameraCapture}
+              multiple
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                cameraInputRef.current?.click()
+              }}
+              disabled={isCompressing}
+              className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <input {...getInputProps()} />
-              <p className="font-medium text-neutral-700 mb-1">
-                {isDragActive ? t('dropzone.dragActive') : t('dropzone.drag')}
-              </p>
-              <p className="text-sm text-neutral-500">
-                {isPro
-                  ? t('dropzone.hintPro', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
-                  : t('dropzone.hint', { maxFiles: limits.maxFiles, maxSize: formatFileSize(limits.maxSizePerFile) })
-                }
-              </p>
-              <p className="text-neutral-500 mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-blue-100 text-xs">
-                {t('dropzone.paste')}
-                <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-blue-50 text-neutral-600 font-mono">⌘V</kbd>
-              </p>
-
-              {/* Camera capture — primary action for mobile users */}
-              <div className="mt-4 flex items-center justify-center gap-3">
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleCameraCapture}
-                  multiple
-                />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    cameraInputRef.current?.click()
-                  }}
-                  disabled={isCompressing}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Camera className="w-5 h-5 sm:w-4 sm:h-4" />
-                  <span>{t('dropzone.camera')}</span>
-                </button>
-              </div>
-
-              {remaining < limits.maxFiles && remaining > 0 && (
-                <p className="text-blue-600 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
-              )}
-            </div>
+              <Camera className="w-5 h-5 sm:w-4 sm:h-4" />
+              <span>{t('dropzone.camera')}</span>
+            </button>
           </div>
+
+          {remaining < limits.maxFiles && remaining > 0 && (
+            <p className="text-blue-600 mt-3">{t('dropzone.remaining', { n: remaining })}</p>
+          )}
         </div>
-      </div>
+      </ProductWindow>
 
       {/* Sample images — only show when no files loaded */}
       {files.length === 0 && (
