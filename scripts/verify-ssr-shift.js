@@ -41,6 +41,10 @@ const probe = () => {
   console.log('--- 位移 (SSR vs 水合后) ---')
   for (const k of Object.keys(out.ssr)) {
     const a = out.ssr[k], z = out.hydrated[k]
+    if (typeof a === 'number' || typeof z === 'number') {
+      console.log(`${k}: ${a} vs ${z} ${a === z ? '✅' : '⚠️'}`)
+      continue
+    }
     if (!a || !z) { console.log(`${k}: ${a ? '' : 'SSR缺失 '}${z ? '' : '水合后缺失'}`); continue }
     const d = ['t', 'l', 'w', 'h'].map(x => Math.abs(a[x] - z[x]))
     console.log(`${k}: top±${d[0]} left±${d[1]} w±${d[2]} h±${d[3]} ${Math.max(...d) <= 2 ? '✅' : '⚠️'}`)
