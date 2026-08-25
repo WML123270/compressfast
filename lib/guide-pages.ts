@@ -238,6 +238,61 @@ export const GUIDES: Record<string, GuidePageData> = {
     ],
     relatedTools: ['compress-images', 'compress-jpeg', 'resize-image', 'convert-to-webp', 'remove-metadata'],
   },
+
+  'compress-image-to-100kb': {
+    slug: 'compress-image-to-100kb',
+    titleEn: 'Compress Image to 100KB Online Free — Exact File Size | CompressFast',
+    titleZh: '图片压缩到100KB——精确控制文件大小 | 极速压图',
+    descriptionEn: 'Need an image at exactly 100KB, 50KB, or 200KB? Learn how to compress to a precise target file size — for websites, forums, and forms — without guessing with a quality slider.',
+    descriptionZh: '需要图片正好 100KB、50KB 或 200KB？教你压缩到精确的目标文件大小，适配网站、论坛、表单上传要求，不用画质滑块瞎猜。',
+    keywords: ['compress image to 100kb', 'compress image to 50kb', 'compress image to 200kb', 'reduce image to 100kb', 'compress image to exact size', 'compress image to 20kb', 'compress image to 10kb', 'compress photo to 100kb', 'image size reducer to 100kb'],
+    heroTitleEn: 'Compress an Image to Exactly 100KB',
+    heroTitleZh: '把图片精确压缩到 100KB',
+    heroSubEn: 'Hit a precise file-size target — 100KB, 50KB, 200KB — instead of guessing with a quality slider.',
+    heroSubZh: '精确命中目标体积——100KB、50KB、200KB——而不是用画质滑块瞎猜。',
+    introEn: 'Most compressors give you a quality slider and hope for the best. But upload forms don\'t ask "what quality?" — they ask "must be under 100KB." Website speed checkers, forum avatars, job applications, and government forms all have hard file-size limits.\n\nThat\'s why "compress image to 100KB" is one of the most searched image tasks on the internet — and why a quality slider is the wrong tool for it. What you need is target-size compression: tell the tool the exact size you want, and it adjusts quality automatically until the file lands there. Here\'s how it works.',
+    introZh: '大多数压缩工具给你一个画质滑块，然后听天由命。但上传表单不会问"画质多少"——它只问"必须小于 100KB"。网站测速、论坛头像、求职申请、政府表单，都有硬性的文件大小上限。\n\n所以"图片压缩到 100KB"是全网搜索量最高的图片任务之一——也正因为如此，画质滑块是做这件事的错误工具。你需要的是目标大小压缩：告诉工具你想要的确切大小，它自动调节画质，直到文件落在这个大小上。下面讲清楚怎么用。',
+    sections: [
+      {
+        headingEn: 'Why a quality slider can\'t hit a size target',
+        headingZh: '为什么画质滑块打不中目标大小',
+        bodyEn: 'A quality slider controls compression strength, but the resulting file size depends on the image\'s content. A busy, detailed photo at 80% quality might be 400KB, while a simple graphic at the same 80% might be 40KB. There\'s no fixed "quality → size" mapping — every image is different.\n\nSo you end up in a frustrating loop: guess a quality, check the size, nudge the slider, check again, repeat. Target-size compression eliminates the guesswork: you input the size you need, and the tool automatically searches for the quality setting that produces it.',
+        bodyZh: '画质滑块控制的是压缩强度，但最终文件大小取决于图片内容。一张细节丰富的照片在 80% 画质下可能是 400KB，而一张简单图形在同样 80% 下可能只有 40KB。画质和大小之间没有固定的映射——每张图都不一样。\n\n于是你陷入一个烦人的循环：猜个画质、看下大小、拨一下滑块、再看一下、反复重来。目标大小压缩消除了这种猜测：你输入想要的大小，工具自动寻找能产生这个大小的画质设置。',
+      },
+      {
+        headingEn: 'How target-size compression works',
+        headingZh: '目标大小压缩是怎么工作的',
+        bodyEn: 'When you set a target (say, 100KB), the tool compresses the image and checks the result. If it\'s over the target, it lowers the quality slightly and tries again; if it\'s under, it raises the quality. It repeats this a few times to land as close to the target as possible — without ever going over.\n\nFor a 2MB photo targeting 100KB, this usually means a quality around 60–75%. The result is a file that\'s exactly under your limit, at the highest quality that still fits. No more manual trial and error.',
+        bodyZh: '当你设置目标（比如 100KB）后，工具压缩图片并检查结果。如果超过目标，就稍微降低画质重试；如果低于目标，就提高画质。反复几次后，落点尽可能接近目标——而且绝不会超。\n\n一张 2MB 的照片要压到 100KB，通常意味着 60–75% 的画质。结果是：一个恰好低于上限的文件，而且在能装下的前提下画质最高。再也不用手动试来试去。',
+      },
+      {
+        headingEn: 'Common file-size targets and where they come from',
+        headingZh: '常见的文件大小目标从哪来',
+        bodyEn: 'Different upload forms have different limits. Here are the most common targets you\'ll run into:\n\n• 10–20KB — email signatures, tiny icons, forum emotes.\n• 50KB — some avatar systems, thumbnail placeholders, low-bandwidth embeds.\n• 100KB — the most common web target: SEO recommendations, WordPress image guidelines, and many CMS upload caps.\n• 200KB — forum avatars, job-application portals, and government form uploads.\n• 500KB–1MB — social media posts, portfolio images, and print-adjacent uses.\n\nIf a form says "under 100KB," aim for 80–95KB to leave a small safety margin for encoding overhead.',
+        bodyZh: '不同的上传表单有不同的限制。下面是你最常遇到的几个目标：\n\n• 10–20KB —— 邮件签名、小图标、论坛表情。\n• 50KB —— 部分头像系统、缩略图占位、低带宽嵌入。\n• 100KB —— 最常见的网页目标：SEO 建议、WordPress 图片规范、许多 CMS 的上传上限。\n• 200KB —— 论坛头像、求职申请门户、政府表单上传。\n• 500KB–1MB —— 社媒发帖、作品集图片、接近印刷的用途。\n\n如果表单写"小于 100KB"，建议压到 80–95KB，留一点安全余量给编码开销。',
+      },
+      {
+        headingEn: 'If the target makes the image look bad, resize first',
+        headingZh: '如果目标大小让图变糊，先调尺寸',
+        bodyEn: 'There\'s a limit to how far you can compress an image before quality visibly collapses. Squeezing a 12-megapixel, 4MB photo down to 20KB will always look terrible — not because the tool is bad, but because you\'re asking the impossible.\n\nThe fix is to resize before you target. If a 4000×3000 photo can\'t reach 100KB without falling apart, first resize it to the size it\'ll actually be displayed at (say, 1200×900 or 800×600). Fewer pixels means less data to compress, so you can hit a small target at a much higher quality.\n\nRule of thumb: if hitting your target forces quality below ~60%, resize smaller and try again.',
+        bodyZh: '在画质明显崩塌之前，图片能被压缩的程度是有极限的。把一张 1200 万像素、4MB 的照片硬塞到 20KB，永远都会很难看——不是工具不行，而是你在强人所难。\n\n解决办法是：先调尺寸，再定目标。如果一张 4000×3000 的照片压到 100KB 就散架，那就先把它调到实际显示大小（比如 1200×900 或 800×600）。像素越少，需要压缩的数据越少，就能在更高画质下命中小目标。\n\n经验法则：如果命中目标需要把画质压到 60% 以下，就先把尺寸调小再试。',
+      },
+      {
+        headingEn: 'Do it in your browser — no upload',
+        headingZh: '在浏览器里完成——不上传',
+        bodyEn: 'You shouldn\'t have to upload a private photo to a server just to shrink it to 100KB. Browser-based tools like CompressFast run the whole target-size search locally in a Web Worker — your images never leave your device.\n\nDrop in an image, type your target size, and download the result in seconds. You can batch up to 30 images at once (500 with Pro), each hitting its own target, then grab everything as a ZIP. No account, no upload queue, no quality-slider guessing.',
+        bodyZh: '不该为了把私人照片缩到 100KB 就把它上传到服务器。极速压图这类浏览器工具把整个目标大小搜索都放在本地 Web Worker 里运行——图片从不出设备。\n\n拖入图片、输入目标大小、几秒内下载结果。一次最多批量 30 张（Pro 版 500 张），每张各自命中目标，然后一键打包 ZIP。无需注册、无需排队上传、不用画质滑块瞎猜。',
+      },
+    ],
+    faqs: [
+      { qEn: 'How do I compress an image to exactly 100KB?', qZh: '怎么把图片压缩到正好 100KB？', aEn: 'Use a target-size compressor: upload the image, set the target to 100KB (or 95KB for a safety margin), and the tool automatically adjusts quality until the file lands under that size. No quality-slider trial and error needed.', aZh: '用目标大小压缩工具：上传图片，把目标设为 100KB（或留余量设 95KB），工具会自动调节画质，直到文件落在这个大小以下。不用画质滑块反复试。' },
+      { qEn: 'Why won\'t my image compress below 100KB?', qZh: '为什么我的图片压不到 100KB 以下？', aEn: 'If an image is very large or very detailed, hitting a small target forces quality down to where it looks bad. Resize the image to its actual display dimensions first (fewer pixels = less data), then target the size again.', aZh: '如果图片很大或细节很多，要命中小目标就得把画质压到很难看。先把图片调到实际显示尺寸（像素少=数据少），再重新定目标大小。' },
+      { qEn: 'Does compressing to a target size lose quality?', qZh: '压缩到目标大小会损失画质吗？', aEn: 'Some, yes — it\'s lossy compression. But the tool hits the target at the highest quality that still fits, so for typical targets (100KB+ for a web-sized image) the quality loss is barely visible. Below ~60% quality, artifacts become noticeable — resize first if that happens.', aZh: '会有一些——这是有损压缩。但工具会在"能装下"的前提下用最高画质命中目标，所以对典型目标（网页尺寸的图 100KB+）而言，画质损失几乎看不见。低于约 60% 画质时伪影就明显了——出现这种情况就先调尺寸。' },
+      { qEn: 'What\'s the difference between a quality slider and target size?', qZh: '画质滑块和目标大小有什么区别？', aEn: 'A quality slider sets compression strength (resulting size varies by image). Target size sets the desired file size (quality auto-adjusts to hit it). If you have a hard upload limit, target size is what you want.', aZh: '画质滑块设置的是压缩强度（结果大小因图而异）。目标大小设置的是期望的文件大小（画质自动调节来命中它）。如果你有硬性的上传上限，你需要的是目标大小。' },
+      { qEn: 'Can I compress a batch of images to the same size?', qZh: '能批量把图片压到相同大小吗？', aEn: 'Yes. With a browser tool like CompressFast, drop up to 30 images, set one target size, and each image is compressed to hit that target. Download everything as a single ZIP.', aZh: '能。用极速压图这类浏览器工具，一次拖入最多 30 张，设置一个目标大小，每张图都会被压缩到命中该目标。最后打包成一个 ZIP 下载。' },
+    ],
+    relatedTools: ['compress-images', 'compress-jpeg', 'compress-png', 'resize-image', 'convert-to-webp'],
+  },
 }
 
 export const GUIDE_SLUGS = Object.keys(GUIDES)
