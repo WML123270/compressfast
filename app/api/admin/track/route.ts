@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
 
 function getIP(request: NextRequest): string {
@@ -36,16 +36,22 @@ export async function POST(request: NextRequest) {
         await Promise.all([
           incrementPageView(site),
           trackUniqueVisitor(visitorId || '', site),
+          markVisitorActive(visitorId || ''),
         ])
         break
       case 'compression': {
         const n = Math.max(1, Math.min(Number(count) || 1, 500))
+        // 校验：压缩事件必须带 visitorId，且该 visitorId 先有 pageview 前置
+        // （防脚本直连 POST /api/admin/track 伪造压缩量，8/25 第 3 次爬虫暴增）
+        if (!(await isVisitorActive(visitorId || ''))) {
+          return NextResponse.json({ success: true, skipped: 'no_session' })
+        }
         // 单 IP 每日限流：爬虫暴增时不污染统计（不阻断实际压缩）
         const allowed = await checkCompressionRateLimit(getIP(request), n)
-        if (!allowed) {
+        if (allowed <= 0) {
           return NextResponse.json({ success: true, skipped: 'rate_limit' })
         }
-        await incrementCompression(n, site)
+        await incrementCompression(allowed, site)
         // Track file size distribution
         if (sizes && Array.isArray(sizes)) {
           await recordFileSizes(sizes, site)

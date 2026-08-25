@@ -113,30 +113,68 @@ export async function incrementCompression(count: number, site: string = 'os'): 
   ])
 }
 
-// ---- 压缩事件 IP 限流（防爬虫污染统计） ----
+// ---- 压缩事件限流（防爬虫污染统计） ----
 
 const DAILY_COMPRESSION_LIMIT_PER_IP = 200
+// pageview 后多久内视为「真实浏览器会话」：压缩事件要求 visitorId 先有 pageview
+const VISITOR_ACTIVE_TTL = 6 * 3600 // 6 小时
+
+/**
+ * 标记 visitorId 为「最近访问过页面」（由 pageview 事件调用）。
+ * 压缩事件要求 visitorId 必须先有 pageview 前置，否则视为脚本直连 POST 爬虫。
+ */
+export async function markVisitorActive(visitorId: string): Promise<void> {
+  if (!visitorId) return
+  const r = getRedis()
+  if (!r) return
+  try {
+    await r.set(`vid:active:${visitorId}`, '1', { ex: VISITOR_ACTIVE_TTL })
+  } catch {
+    // fail-open：统计口径，不影响实际压缩
+  }
+}
+
+/**
+ * visitorId 是否在最近 pageview 活跃集里。直连脚本（无 pageview 前置）返回 false。
+ * 无 Redis 时 fail-open（开发环境）。
+ * 用 exists 而非 get 判断：Upstash 会把 "1" 反序列化成 number 1，`=== '1'` 会误判。
+ */
+export async function isVisitorActive(visitorId: string): Promise<boolean> {
+  if (!visitorId) return false
+  const r = getRedis()
+  if (!r) return true
+  try {
+    return (await r.exists(`vid:active:${visitorId}`)) === 1
+  } catch {
+    return true // fail-open
+  }
+}
 
 /**
  * 单 IP 每日压缩统计上限。真实用户日压缩个位数~几十，爬虫一次暴增数百
- * （8/18=209、8/21=295）。超过阈值后当天不再计入统计（返回 false），
- * 但绝不阻断实际压缩 —— 压缩在浏览器本地完成，这里只控制统计口径。
- * 无 Redis / 无真实 IP 时放行（fail-open）。
+ * （8/18=209、8/21=295、8/25=279）。返回「允许计入的数量」（≤count），
+ * 超过每日上限后返回 0。绝不阻断实际压缩 —— 压缩在浏览器本地完成，
+ * 这里只控制统计口径。无 Redis / 无真实 IP 时放行（fail-open）。
+ *
+ * 修复 8/25 绕过：旧实现 `total - count < LIMIT` 对单次大 count（如 500）
+ * 完全放行；新实现先读 prev，只计入 `min(count, LIMIT - prev)`。
  */
-export async function checkCompressionRateLimit(ip: string, count: number): Promise<boolean> {
-  if (!ip || ip === '0.0.0.0') return true
+export async function checkCompressionRateLimit(ip: string, count: number): Promise<number> {
+  if (!ip || ip === '0.0.0.0') return count
   const r = getRedis()
-  if (!r) return true
+  if (!r) return count
   try {
     const d = new Date()
     const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     const key = `rl:comp:${ip}:${date}`
-    const total = await r.incrby(key, count)
+    const prev = Number(await r.get(key)) || 0
+    if (prev >= DAILY_COMPRESSION_LIMIT_PER_IP) return 0
+    const allowed = Math.min(count, DAILY_COMPRESSION_LIMIT_PER_IP - prev)
+    await r.incrby(key, allowed)
     await r.expire(key, 2 * 24 * 3600) // 2 天 TTL
-    // 本次请求「之前」未超限才计入（允许恰好越过阈值的那一批）
-    return total - count < DAILY_COMPRESSION_LIMIT_PER_IP
+    return allowed
   } catch {
-    return true // fail-open
+    return count // fail-open
   }
 }
 

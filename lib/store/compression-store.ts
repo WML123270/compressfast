@@ -82,11 +82,16 @@ function incrementQuota(n: number = 1) {
 
 /** Shared tracking + quota update after compression completes (used by both compressAll and compressOne) */
 function trackCompressionComplete(get: () => CompressionState, set: (s: Partial<CompressionState>) => void, count: number, sizes: number[]) {
+  // visitorId 由 PageViewTracker 生成并写入 localStorage['cf_vid']（须与该 key 保持一致）
+  let visitorId = ''
+  try {
+    visitorId = localStorage.getItem('cf_vid') || ''
+  } catch {}
   // Fire analytics event
   fetch('/api/admin/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event: 'compression', count, host: window.location.hostname, sizes }),
+    body: JSON.stringify({ event: 'compression', count, host: window.location.hostname, sizes, visitorId }),
   }).catch(() => {})
   // Free users: update local + server quota
   if (!get().isPro && !IS_CN) {
