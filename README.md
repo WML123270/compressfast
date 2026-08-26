@@ -51,6 +51,12 @@ Deep-link pages for specific tasks (same local engine, no upload):
 - [Convert to WebP](https://compressfast.site/en/tools/convert-to-webp) — PNG/JPEG → WebP
 - [HEIC to JPG](https://compressfast.site/en/tools/heic-to-jpg) — iPhone photo conversion
 - [Resize Image](https://compressfast.site/en/tools/resize-image) — pixel / percentage resize
+- [PNG to WebP](https://compressfast.site/en/tools/png-to-webp) — lossless & lossy PNG conversion
+- [WebP to JPG](https://compressfast.site/en/tools/webp-to-jpg) — WebP → JPEG
+- [AVIF to WebP](https://compressfast.site/en/tools/avif-to-webp) — AVIF conversion
+- [AVIF to JPG](https://compressfast.site/en/tools/avif-to-jpg) — AVIF → JPEG
+- [GIF to WebP](https://compressfast.site/en/tools/gif-to-webp) — animated GIF conversion
+- [HEIC to WebP](https://compressfast.site/en/tools/heic-to-webp) — iPhone → WebP
 
 ## Guides
 
@@ -58,6 +64,9 @@ Deep-link pages for specific tasks (same local engine, no upload):
 - [Best Image Format for Web (2026)](https://compressfast.site/en/guides/best-image-format-for-web)
 - [How to Reduce Image File Size](https://compressfast.site/en/guides/reduce-image-file-size)
 - [How to Compress Images for Email](https://compressfast.site/en/guides/compress-images-for-email)
+- [Compress Image to 100KB](https://compressfast.site/en/guides/compress-image-to-100kb) — exact target file size
+- [WebP vs PNG (2026)](https://compressfast.site/en/guides/webp-vs-png) — which format to use
+- [AVIF vs WebP vs JPEG](https://compressfast.site/en/guides/avif-vs-webp) — smallest image format
 
 ## Pro
 
