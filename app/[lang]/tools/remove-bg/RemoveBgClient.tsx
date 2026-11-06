@@ -124,11 +124,13 @@ export default function RemoveBgClient() {
           <div className="p-4 flex flex-wrap items-center gap-3">
             <button
               onClick={run}
-              disabled={status === 'loading-model' || status === 'processing'}
+              disabled={locked || status === 'loading-model' || status === 'processing'}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:opacity-90 disabled:opacity-50"
             >
               {status === 'loading-model' || status === 'processing' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
+              ) : locked ? (
+                <Lock className="w-4 h-4" />
               ) : (
                 <Scissors className="w-4 h-4" />
               )}
@@ -136,7 +138,9 @@ export default function RemoveBgClient() {
                 ? (isZh ? '加载模型中…' : 'Loading model…')
                 : status === 'processing'
                   ? (isZh ? '抠图中…' : 'Removing background…')
-                  : (isZh ? 'AI 抠图' : 'Remove Background')}
+                  : locked
+                    ? (isZh ? 'Pro 专属功能' : 'Pro Only')
+                    : (isZh ? 'AI 抠图' : 'Remove Background')}
             </button>
             <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:border-cyan-300">
               <ImagePlus className="w-4 h-4" /> {isZh ? '换图' : 'Change'}
