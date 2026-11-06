@@ -3,10 +3,12 @@
 import { useT } from '@/lib/i18n/context'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export default function TermsPage() {
   const { t, locale } = useT()
   const isZh = locale === 'zh'
+  const isCn = useIsCn()
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-6">
@@ -22,7 +24,7 @@ export default function TermsPage() {
       </div>
 
       <p className="text-slate-400">
-        {isZh ? '最后更新：2026年7月4日' : 'Last updated: July 4, 2026'}
+        {isZh ? '最后更新：2026年11月6日' : 'Last updated: November 6, 2026'}
       </p>
 
       <div className="prose prose-sm max-w-none text-neutral-700 space-y-6">
@@ -33,16 +35,25 @@ export default function TermsPage() {
           <p>{isZh ? '极速压图（CompressFast）是一款在线图片压缩工具，提供纯浏览器端的图片压缩、格式转换、尺寸调整、水印添加等功能。' : 'CompressFast is an online image compression tool providing browser-side image compression, format conversion, resizing, watermarking, and more.'}</p>
           <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.1 免费版' : '1.1 Free Tier'}</h3>
           <ul className="space-y-1">
-            <li>{isZh ? '每次最多 20 张图片，月免费额度 400 张' : 'Up to 20/batch, 400 free/month'}</li>
+            <li>{isCn ? (isZh ? '每次最多 15 张图片，月免费额度 100 张' : 'Up to 15/batch, 100 free/month') : (isZh ? '每次最多 20 张图片，月免费额度 400 张' : 'Up to 20/batch, 400 free/month')}</li>
             <li>{isZh ? '单张不超过 10MB' : 'Max 10MB per file'}</li>
             <li>{isZh ? '支持 PNG / JPEG / WebP 输出格式' : 'PNG / JPEG / WebP output formats'}</li>
             <li>{isZh ? '核心压缩、尺寸调整、格式转换功能免费' : 'Core compression, resizing, and format conversion free'}</li>
           </ul>
           <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.2 Pro 专业版' : '1.2 Pro Tier'}</h3>
           <ul className="space-y-1">
-            <li>{isZh ? '一次性付费 $24.99，永久有效，无需订阅' : 'One-time $24.99 purchase, lifetime access, no subscription'}</li>
+            <li>{isCn ? (isZh ? '一次性付费 ¥9.9，永久有效，无需订阅' : 'One-time ¥9.9 purchase, lifetime access, no subscription') : (isZh ? '一次性付费 $24.99，永久有效，无需订阅' : 'One-time $24.99 purchase, lifetime access, no subscription')}</li>
             <li>{isZh ? '每次最多 500 张，单张 50MB' : 'Up to 500/batch, 50MB per file'}</li>
             <li>{isZh ? 'AVIF 输出、水印、自定义预设、场景预设等高级功能' : 'AVIF output, watermark, custom presets, scene presets, and more'}</li>
+          </ul>
+          <h3 className="font-medium text-neutral-800 mt-3">{isZh ? '1.3 服务的性质与本地处理' : '1.3 Nature of the Service & Local Processing'}</h3>
+          <p>{isZh ? '极速压图本质上是一款在浏览器本地运行的软件工具，而非基于云端处理的信息服务。为明确本服务的性质，特作如下说明：' : 'CompressFast is, in essence, a software tool that runs locally in your browser — not a cloud-based information service. To clarify the nature of this service:'}</p>
+          <ul className="space-y-1">
+            <li>{isZh ? '所有图片处理均在本地完成：图片的压缩、格式转换、尺寸调整、水印添加、EXIF 清除等全部操作，均在您自己的设备（浏览器）内完成，图片文件不会上传至任何服务器。' : 'All image processing happens locally: compression, format conversion, resizing, watermarking, and EXIF removal all run entirely within your own device (browser). Image files are never uploaded to any server.'}</li>
+            <li>{isZh ? '我们不接收、不存储、不分析您的图片：服务器不会获取、留存或读取您图片的文件内容。' : 'We do not receive, store, or analyze your images: our servers never access, retain, or read the contents of your files.'}</li>
+            <li>{isZh ? '服务器仅承担与图片无关的必要职能：加载工具本身的网页与代码、验证 Pro 激活码的合法性、处理订单及支付回调。以上均不涉及您的图片文件或图片内容。' : 'Servers are used only for functions unrelated to your images: serving the tool\'s web pages and code, verifying Pro license codes, and processing orders/payment callbacks. None of these involve your image files or their contents.'}</li>
+            <li>{isZh ? '核心功能支持离线使用：图片压缩等核心功能在断开网络连接后仍可正常使用，这是本产品「本地处理」性质的直接体现。' : 'Core features work offline: core functions such as compression remain fully usable without a network connection — a direct reflection of the local-processing nature of this product.'}</li>
+            <li>{isZh ? '据此，本产品的 Pro 付费所购买的，是本地软件功能的永久使用许可，而非任何在线信息服务的订阅或云端处理服务。' : 'Accordingly, a Pro purchase grants a perpetual license to local software features, not a subscription to any online information service or cloud processing.'}</li>
           </ul>
         </section>
 
@@ -134,7 +145,7 @@ export default function TermsPage() {
           </h2>
           <p>{isZh ? '如对服务条款有任何疑问，请通过以下方式联系：' : 'For questions about these terms of service:'}</p>
           <p className="mt-2">{isZh ? '邮箱：' : 'Email: '}<a href="mailto:support@compressfast.site" className="text-blue-600 hover:underline">support@compressfast.site</a></p>
-          <p className="text-neutral-700 mt-4">{isZh ? '最后更新：2026年7月9日' : 'Last updated: July 9, 2026'}</p>
+          <p className="text-neutral-700 mt-4">{isZh ? '最后更新：2026年11月6日' : 'Last updated: November 6, 2026'}</p>
         </section>
       </div>
     </div>
