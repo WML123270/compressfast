@@ -3,10 +3,12 @@
 import { useT } from '@/lib/i18n/context'
 import Link from 'next/link'
 import { ArrowLeft, Shield } from 'lucide-react'
+import { useIsCn } from '@/lib/use-is-cn'
 
 export default function PrivacyPage() {
   const { t, locale } = useT()
   const isZh = locale === 'zh'
+  const isCn = useIsCn()
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-6">
@@ -22,7 +24,7 @@ export default function PrivacyPage() {
       </div>
 
       <p className="text-slate-400">
-        {isZh ? '最后更新：2026年7月4日' : 'Last updated: July 4, 2026'}
+        {isZh ? '最后更新：2026年11月6日' : 'Last updated: November 6, 2026'}
       </p>
 
       <div className="prose prose-sm max-w-none text-neutral-700 space-y-6">
@@ -69,7 +71,7 @@ export default function PrivacyPage() {
             <li>{isZh ? '图片数据从不离开您的设备——所有压缩处理完全在浏览器本地完成' : 'Image data NEVER leaves your device — all compression is entirely local.'}</li>
             <li>{isZh ? '我们使用 HTTPS 加密所有网络通信，保护您的浏览安全' : 'We use HTTPS to encrypt all network communications.'}</li>
             <li>{isZh ? '我们不会存储您的原始图片或压缩后的图片' : 'We do NOT store your original or compressed images.'}</li>
-            <li>{isZh ? '付款信息由第三方支付平台（Creem）直接处理，我们不接触您的银行卡信息' : 'Payment info is processed directly by Creem — we never see your card details.'}</li>
+            <li>{isCn ? (isZh ? '付款信息由第三方支付平台（虎皮椒，微信/支付宝扫码）直接处理，我们不接触您的银行卡信息' : 'Payment is processed directly by HupiJiao (WeChat/Alipay) — we never see your card details.') : (isZh ? '付款信息由第三方支付平台（Creem）直接处理，我们不接触您的银行卡信息' : 'Payment info is processed directly by Creem — we never see your card details.')}</li>
           </ul>
         </section>
 
@@ -79,8 +81,17 @@ export default function PrivacyPage() {
           </h2>
           <p>{isZh ? '我们使用以下第三方服务，它们各自有独立的隐私政策：' : 'We use the following third-party services, each with their own privacy policies:'}</p>
           <ul className="space-y-2">
-            <li><strong>Creem</strong> — {isZh ? '支付处理。当您购买 Pro 时，支付信息直接由 Creem 安全处理。' : 'Payment processing. Your payment details are handled securely by Creem.'} <a href="https://creem.io/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
-            <li><strong>Resend</strong> — {isZh ? '邮件发送。用于发送激活码和服务通知。' : 'Email delivery for activation codes and service notifications.'} <a href="https://resend.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
+            {isCn ? (
+              <>
+                <li><strong>{isZh ? '虎皮椒' : 'HupiJiao'}</strong> — {isZh ? '支付处理。购买 Pro 时，通过虎皮椒进行微信/支付宝扫码支付。' : 'Payment processing. CN purchases are handled via HupiJiao (WeChat/Alipay).'}</li>
+                <li><strong>QQ {isZh ? '邮箱 SMTP' : 'Mail SMTP'}</strong> — {isZh ? '邮件发送。通过 QQ 邮箱 SMTP 服务发送激活码和服务通知。' : 'Email delivery via QQ Mail SMTP for activation codes and service notifications.'}</li>
+              </>
+            ) : (
+              <>
+                <li><strong>Creem</strong> — {isZh ? '支付处理。当您购买 Pro 时，支付信息直接由 Creem 安全处理。' : 'Payment processing. Your payment details are handled securely by Creem.'} <a href="https://creem.io/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
+                <li><strong>Resend</strong> — {isZh ? '邮件发送。用于发送激活码和服务通知。' : 'Email delivery for activation codes and service notifications.'} <a href="https://resend.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
+              </>
+            )}
             <li><strong>Upstash</strong> — {isZh ? '数据库。存储激活码和许可证验证数据。' : 'Database for license codes and verification data.'} <a href="https://upstash.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
             <li><strong>{isZh ? '百度统计' : 'Baidu Analytics'}</strong> — {isZh ? '网站分析。仅中国版使用，收集匿名访问数据。' : 'Site analytics for CN version. Anonymous visit data only.'}</li>
             <li><strong>Vercel</strong> — {isZh ? '托管平台。海外版部署在 Vercel，可能收集访问日志。' : 'Hosting. Global version is deployed on Vercel, which may collect access logs.'} <a href="https://vercel.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline text-xs">{isZh ? '隐私政策' : 'Privacy Policy'} →</a></li>
@@ -131,7 +142,7 @@ export default function PrivacyPage() {
           </h2>
           <p>{isZh ? '如果您对隐私政策有任何疑问、或希望行使您的数据权利，请通过以下方式联系：' : 'For questions about this privacy policy or to exercise your data rights:'}</p>
           <p className="mt-2">{isZh ? '邮箱：' : 'Email: '}<a href="mailto:support@compressfast.site" className="text-blue-600 hover:underline">support@compressfast.site</a></p>
-          <p className="text-neutral-700 mt-4">{isZh ? '最后更新：2026年7月9日' : 'Last updated: July 9, 2026'}</p>
+          <p className="text-neutral-700 mt-4">{isZh ? '最后更新：2026年11月6日' : 'Last updated: November 6, 2026'}</p>
         </section>
       </div>
     </div>
