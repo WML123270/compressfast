@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createLicense } from '@/lib/license'
 import { saveAttribution, getAffiliate } from '@/lib/affiliate'
 import { Redis } from '@upstash/redis'
 
@@ -41,9 +40,9 @@ async function checkRateLimit(ip: string): Promise<boolean> {
  * POST /api/create-license
  * Body: { email: string, locale?: string }
  *
- * 付款前生成激活码 → 存 Redis（不发邮件）
- * 邮件由 Creem webhook 在付款成功后统一发送，避免重复
- * 若 webhook 延迟，用户可通过"忘记激活码"自行查询
+ * 只返回带邮箱的 Creem 支付链接，不在付款前预生成激活码。
+ * 激活码由 Creem webhook 在付款成功后统一生成并发邮件。
+ * 安全：付款前不产生任何可用的激活码，杜绝「白拿码 / 预占码」。
  */
 export async function POST(request: NextRequest) {
   // Cloudflare 后面优先用 cf-connecting-ip，避免拿到 CDN IP
@@ -71,9 +70,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email too long' }, { status: 400 })
     }
 
-    // 生成激活码存入 Redis（不发邮件，等 webhook 确认付款后发）
-    const license = await createLicense(email)
-
     // 联盟分销归属：读取 aff_ref cookie，存储待归属关系
     const affRef = request.cookies.get('aff_ref')?.value
     if (affRef) {
@@ -84,11 +80,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 构建带邮箱的 Creem 支付链接
+    // 构建带邮箱的 Creem 支付链接（不预生成激活码）
     const checkoutUrl = new URL(CREEM_CHECKOUT)
     checkoutUrl.searchParams.set('customer_email', email)
 
-    console.log(`[CreateLicense] Generated ${license.code} for ${email}, awaiting payment`)
+    console.log(`[CreateLicense] Redirecting ${email} to Creem checkout, awaiting payment`)
 
     return NextResponse.json({
       success: true,

@@ -10,11 +10,9 @@ import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
-import { useIsCn } from '@/lib/use-is-cn'
 
 export function ImageList() {
   const { t, locale } = useT()
-  const isCn = useIsCn()
   const { files, isCompressing, compressAll, clearFiles, totalOriginalSize, totalCompressedSize, overallRatio, allDone, reorderFiles, naming, options, isPro, retryFailed, undoStack, undoRemove } = useCompressionStore()
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
@@ -277,7 +275,7 @@ export function ImageList() {
       </div>
 
       {/* Pro value prop — shown after compression completes for free overseas users */}
-      {allProcessed && !isPro && !isCn && doneCount > 0 && (
+      {allProcessed && !isPro && doneCount > 0 && (
         <div className="mt-4 rounded-2xl border border-purple-700/30 bg-gradient-to-br from-purple-950/40 via-indigo-950/30 to-blue-950/20 overflow-hidden">
           <div className="p-4 sm:p-5 space-y-3">
             {/* Header */}

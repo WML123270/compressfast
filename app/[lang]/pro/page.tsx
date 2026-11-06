@@ -34,6 +34,12 @@ export default function ProPage() {
   const [buyLoading, setBuyLoading] = useState(false)
   const [buyError, setBuyError] = useState('')
 
+  // 国内购买流程（虎皮椒 API 全自动）
+  const [cnEmail, setCnEmail] = useState('')
+  const [cnLoading, setCnLoading] = useState(false)
+  const [cnQrcode, setCnQrcode] = useState('')
+  const [cnError, setCnError] = useState('')
+
   useEffect(() => {
     checkProStatus()
     const pendingEmail = localStorage.getItem('pro_pending_email')
@@ -69,6 +75,41 @@ export default function ProPage() {
       setBuyError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
       setBuyLoading(false)
     }
+  }
+
+  const handleCnPay = async () => {
+    const email = cnEmail.trim()
+    if (!email || !email.includes('@')) {
+      setCnError(locale === 'zh' ? '请输入有效邮箱' : 'Please enter a valid email')
+      return
+    }
+    setCnLoading(true)
+    setCnError('')
+    setCnQrcode('')
+    try {
+      const res = await fetch('/api/cn-create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        localStorage.setItem('pro_pending_email', email)
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+        if (isMobile && data.url) {
+          window.location.href = data.url
+        } else if (data.qrcode) {
+          setCnQrcode(data.qrcode)
+        } else {
+          setCnError(locale === 'zh' ? '支付链接生成失败，请重试' : 'Failed to create payment, please retry')
+        }
+      } else {
+        setCnError(data.error || 'Server error')
+      }
+    } catch {
+      setCnError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
+    }
+    setCnLoading(false)
   }
 
   const handleActivate = async () => {
@@ -142,29 +183,6 @@ export default function ProPage() {
     } catch {}
   }
 
-  if (isCn) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="text-5xl">🆓</div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
-          {locale === 'zh' ? '国内版完全免费' : 'Free in China Region'}
-        </h1>
-        <p className="text-neutral-800 max-w-md mx-auto">
-          {locale === 'zh'
-            ? '极速压图国内版永久免费，无需付费解锁。批量压缩、格式转换、尺寸调整等全部功能免费使用。'
-            : 'CompressFast domestic version is permanently free. All features including batch compression, format conversion, and resizing are free to use.'}
-        </p>
-        <Link
-          href={`/${locale}`}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {locale === 'zh' ? '开始压缩' : 'Start Compressing'}
-        </Link>
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
       <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-600 hover:text-blue-600 transition-colors">
@@ -204,7 +222,7 @@ export default function ProPage() {
           {(() => {
             const isZh = locale === 'zh'
             const features: FeatureRow[] = [
-              { feature: t('pro.feature.batch'), free: t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
+              { feature: t('pro.feature.batch'), free: isCn ? '15 张/次' : t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
               { feature: t('pro.feature.sizePerFile'), free: t('pro.free.sizePerFile'), pro: t('pro.pro.sizePerFile'), proDesc: isZh ? '大图不受限' : 'Handle larger files' },
               { feature: t('pro.feature.formats'), free: t('pro.free.formats'), pro: t('pro.pro.formats'), proDesc: t('pro.proDesc.formats'), highlight: true },
               { feature: t('pro.feature.watermark'), free: false, pro: true, proDesc: t('pro.proDesc.watermark') },
@@ -246,7 +264,7 @@ export default function ProPage() {
         {/* 价格 CTA */}
         <div className="mt-6 text-center space-y-3">
           <div>
-            <span className="text-3xl font-bold text-neutral-900">{t('pro.price')}</span>
+            <span className="text-3xl font-bold text-neutral-900">{isCn ? '¥9.9' : t('pro.price')}</span>
             <span className="text-neutral-700 ml-2">{t('pro.priceLabel')}</span>
           </div>
           <p className="text-neutral-700">
@@ -254,34 +272,77 @@ export default function ProPage() {
               ? '一次付费，永久有效。无需订阅，无需登录。'
               : 'Pay once, own forever. No subscription. No login.'}
           </p>
-          <div className="max-w-sm mx-auto space-y-2">
-            <input
-              type="email"
-              value={buyEmail}
-              onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
-              placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
-              className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
-            />
-            {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-            <button
-              onClick={handleBuy}
-              disabled={buyLoading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
-            >
-              {buyLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+
+          {isCn ? (
+            <div className="max-w-sm mx-auto space-y-3 text-left">
+              <input
+                type="email"
+                value={cnEmail}
+                onChange={(e) => { setCnEmail(e.target.value); setCnError('') }}
+                placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
+              />
+              {cnError && <p className="text-red-500 text-sm text-center">{cnError}</p>}
+
+              {cnQrcode ? (
+                <div className="text-center space-y-2 py-2">
+                  <p className="text-sm font-medium text-neutral-800">
+                    {locale === 'zh' ? '用微信/支付宝扫码支付 ¥9.9' : 'Scan with WeChat/Alipay to pay ¥9.9'}
+                  </p>
+                  <img src={cnQrcode} alt="支付二维码" className="w-48 h-48 mx-auto rounded-lg border border-gray-200" />
+                  <button
+                    onClick={() => setCnQrcode('')}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    {locale === 'zh' ? '重新选择' : 'Start over'}
+                  </button>
+                </div>
               ) : (
-                <>
-                  <Crown className="w-4 h-4" /> {t('pro.buyButton')}
-                </>
+                <button
+                  onClick={handleCnPay}
+                  disabled={cnLoading}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
+                >
+                  {cnLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (locale === 'zh' ? '去支付 ¥9.9（跳转虎皮椒）' : 'Pay ¥9.9 via HupiJiao')}
+                </button>
               )}
-            </button>
-            <p className="text-neutral-600 text-xs">
-              {locale === 'zh'
-                ? '🔒 安全支付由 Creem 处理 · 支持 Visa/Mastercard'
-                : '🔒 Secure payment via Creem · Visa/Mastercard'}
-            </p>
-          </div>
+
+              <p className="text-xs text-neutral-600 text-center">
+                {locale === 'zh'
+                  ? '支付在虎皮椒（第三方平台）完成，付款成功后激活码自动发到你的邮箱。'
+                  : 'Payment happens on HupiJiao (third-party). Your code is emailed automatically after payment.'}
+              </p>
+            </div>
+          ) : (
+            <div className="max-w-sm mx-auto space-y-2">
+              <input
+                type="email"
+                value={buyEmail}
+                onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
+                placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
+                className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
+              />
+              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+              <button
+                onClick={handleBuy}
+                disabled={buyLoading}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
+              >
+                {buyLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Crown className="w-4 h-4" /> {t('pro.buyButton')}
+                  </>
+                )}
+              </button>
+              <p className="text-neutral-600 text-xs">
+                {locale === 'zh'
+                  ? '🔒 安全支付由 Creem 处理 · 支持 Visa/Mastercard'
+                  : '🔒 Secure payment via Creem · Visa/Mastercard'}
+              </p>
+            </div>
+          )}
         </div>
       </section>
       )}

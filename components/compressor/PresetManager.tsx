@@ -3,17 +3,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { Bookmark, Lock, Save, Check, Trash2, Upload, Download } from 'lucide-react'
-import { useIsCn } from '@/lib/use-is-cn'
 import { useT } from '@/lib/i18n/context'
 import { PRESETS_STORAGE_KEY } from '@/lib/compression/types'
 import { saveAs } from 'file-saver'
 
 export function PresetManager() {
   const { t, locale } = useT()
-  const isCn = useIsCn()
   const { presets, options, isPro, loadPresets, savePreset, deletePreset, applyPreset, setOptions } = useCompressionStore()
   const hasFiles = useCompressionStore.getState().files.length > 0
-  if (!hasFiles || isCn) return null
+  if (!hasFiles) return null
 
   const isZh = locale === 'zh'
 

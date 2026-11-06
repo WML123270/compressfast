@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { ImageFile, CompressionOptions, SavedPreset, NamingOptions, WatermarkOptions, MonthlyQuota } from '@/lib/compression/types'
-import { DEFAULT_OPTIONS, getLimits, getMonthlyQuota, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY } from '@/lib/compression/types'
+import { DEFAULT_OPTIONS, getLimits, getMonthlyQuota, getMonthlyFreeQuota, PRESETS_STORAGE_KEY, DEFAULT_NAMING, NAMING_STORAGE_KEY, DEFAULT_WATERMARK, WATERMARK_STORAGE_KEY, MONTHLY_FREE_QUOTA, QUOTA_STORAGE_KEY } from '@/lib/compression/types'
 import { isCnDeploy } from '@/lib/utils'
 import { getDeviceFingerprint } from '@/lib/device-fingerprint'
 
@@ -93,15 +93,17 @@ function trackCompressionComplete(get: () => CompressionState, set: (s: Partial<
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event: 'compression', count, host: window.location.hostname, sizes, visitorId }),
   }).catch(() => {})
-  // Free users: update local + server quota
-  if (!get().isPro && !IS_CN) {
+  // Free users: update local quota (all regions) + server quota (overseas only)
+  if (!get().isPro) {
     incrementQuota(count)
     set({ monthlyUsed: getMonthlyQuota().count })
-    fetch('/api/quota', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ count }),
-    }).catch(() => {})
+    if (!IS_CN) {
+      fetch('/api/quota', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count }),
+      }).catch(() => {})
+    }
   }
 }
 
@@ -163,13 +165,11 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   naming: readStored(NAMING_STORAGE_KEY, DEFAULT_NAMING),
   watermark: readStored(WATERMARK_STORAGE_KEY, DEFAULT_WATERMARK),
   monthlyUsed: typeof window !== 'undefined' ? getMonthlyQuota().count : 0,
-  monthlyQuota: MONTHLY_FREE_QUOTA,
+  monthlyQuota: getMonthlyFreeQuota(),
   serverQuotaExceeded: false,
   undoStack: [],
 
   checkProStatus: async () => {
-    // 国内版：无 Pro，直接返回免费
-    if (IS_CN) { set({ isPro: false, proLoading: false }); return }
     try {
       const code = localStorage.getItem('pro_license')
       if (!code) { set({ proLoading: false, isPro: false }); return }
@@ -228,21 +228,22 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
     const remaining = limits.maxFiles - files.length
     if (remaining <= 0) return
 
-    // Monthly quota check for free users
+    // Monthly quota check for free users (all regions; CN 用 localStorage 计)
     let allowFiles = newFiles
-    if (!isPro && !IS_CN) {
+    if (!isPro) {
+      const quota = getMonthlyFreeQuota()
       const q = getMonthlyQuota()
       const usedThisMonth = q.count
       // Use the higher of localStorage vs server-synced value for display
       if (usedThisMonth > get().monthlyUsed) {
         set({ monthlyUsed: usedThisMonth })
       }
-      if (usedThisMonth >= MONTHLY_FREE_QUOTA) {
+      if (usedThisMonth >= quota) {
         // Quota exceeded — let the UI handle the prompt
         return
       }
       // Limit how many can be added within quota
-      const quotaRemaining = MONTHLY_FREE_QUOTA - usedThisMonth
+      const quotaRemaining = quota - usedThisMonth
       allowFiles = newFiles.slice(0, Math.min(remaining, quotaRemaining))
     }
 
@@ -694,8 +695,6 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
   },
 
   savePreset: (name: string) => {
-    // 国内版：不支持自定义预设
-    if (IS_CN) return false
     const { options, presets } = get()
     if (presets.some(p => p.name === name.trim())) return false
     if (presets.length >= 10) return false

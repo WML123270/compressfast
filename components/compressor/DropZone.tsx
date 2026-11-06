@@ -4,10 +4,9 @@ import { useCallback, useState, useRef } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
 import { AlertCircle, Loader2, Camera } from 'lucide-react'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { getLimits, MONTHLY_FREE_QUOTA, getMonthlyQuota } from '@/lib/compression/types'
+import { getLimits, getMonthlyFreeQuota, getMonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
-import { isCnDeploy } from '@/lib/utils'
 import { ProductWindow } from '@/components/compressor/ProductWindow'
 import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
 
@@ -48,9 +47,9 @@ export function DropZone() {
     }
 
     // Monthly quota check for free users
-    if (!isPro && !isCnDeploy()) {
+    if (!isPro) {
       const q = getMonthlyQuota()
-      if (q.count >= MONTHLY_FREE_QUOTA) {
+      if (q.count >= getMonthlyFreeQuota()) {
         setError(t('pro.quotaExceeded'))
         return
       }
@@ -84,10 +83,10 @@ export function DropZone() {
         setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
         return
       }
-      // Monthly quota check for free users (overseas only)
-      if (!isPro && !isCnDeploy()) {
+      // Monthly quota check for free users
+      if (!isPro) {
         const q = getMonthlyQuota()
-        if (q.count >= MONTHLY_FREE_QUOTA) {
+        if (q.count >= getMonthlyFreeQuota()) {
           setError(t('pro.quotaExceeded'))
           return
         }

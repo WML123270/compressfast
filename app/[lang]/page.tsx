@@ -139,9 +139,7 @@ export default function HomePage() {
     { icon: Zap, label: t('trust.batch') },
   ]
 
-  const formatChips = isCn
-    ? ['PNG', 'JPEG', 'WebP', 'GIF', 'BMP', 'SVG', 'HEIC']
-    : ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
+  const formatChips = ['PNG', 'JPEG', 'WebP', 'AVIF', 'GIF', 'BMP', 'SVG', 'HEIC']
 
   /**
    * Hero 主体 —— SSR 占位版与水合后共用，避免两处样式漂移。
@@ -171,7 +169,7 @@ export default function HomePage() {
       </div>
       {isCn && (
         <p className="text-neutral-600 mt-1">
-          {locale === 'zh' ? '🔒 纯本地处理 · 文件绝不上传 · 始终免费' : '🔒 Local Processing · No Upload · Always Free'}
+          {locale === 'zh' ? '🔒 纯本地处理 · 文件绝不上传' : '🔒 Local Processing · No Upload'}
         </p>
       )}
     </>
@@ -263,22 +261,20 @@ export default function HomePage() {
       {!hasFiles && (
         <section className="text-center space-y-3 sm:space-y-4 pb-2 sm:pb-4 pt-2 sm:pt-8">
           {heroCore}
-          {!isCn && (
-            <div className="flex items-center justify-center gap-4 pt-4">
-              {isPro ? (
-                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-sm font-semibold text-white transition-all">
-                  <Crown className="w-4 h-4" /> {t('pro.active')}
-                </Link>
-              ) : (
-                <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-sm font-semibold text-white transition-all">
-                  <Crown className="w-4 h-4" /> {t('pro.badgePrice')}
-                </Link>
-              )}
-            </div>
-          )}
+          <div className="flex items-center justify-center gap-4 pt-4">
+            {isPro ? (
+              <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-sm font-semibold text-white transition-all">
+                <Crown className="w-4 h-4" /> {t('pro.active')}
+              </Link>
+            ) : (
+              <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-sm font-semibold text-white transition-all">
+                <Crown className="w-4 h-4" /> {isCn ? '¥9.9 解锁 Pro' : t('pro.badgePrice')}
+              </Link>
+            )}
+          </div>
           {isCn && (
             <p className="text-neutral-600 mt-1">
-              {locale === 'zh' ? '🔒 纯本地处理 · 文件绝不上传 · 始终免费' : '🔒 Local Processing · No Upload · Always Free'}
+              {locale === 'zh' ? '🔒 纯本地处理 · 文件绝不上传' : '🔒 Local Processing · No Upload'}
             </p>
           )}
         </section>

@@ -3,7 +3,6 @@
 import { useCompressionStore } from '@/lib/store/compression-store'
 import type { CompressionOptions } from '@/lib/compression/types'
 import { Lock, AlertTriangle, FileImage, Camera, Globe, Dna, RotateCcw } from 'lucide-react'
-import { useIsCn } from '@/lib/use-is-cn'
 import { useT } from '@/lib/i18n/context'
 
 interface FormatDef {
@@ -16,7 +15,6 @@ interface FormatDef {
 
 export function FormatSelector() {
   const { t, locale } = useT()
-  const isCn = useIsCn()
   const { options, setOptions, files, isPro } = useCompressionStore()
   const hasFiles = files.length > 0
   if (!hasFiles) return null
@@ -34,7 +32,7 @@ export function FormatSelector() {
     { value: 'png', label: 'PNG', desc: t('controls.format.pngDesc'), icon: FileImage, color: 'border-emerald-700/50 bg-emerald-900/10 text-emerald-400 hover:border-emerald-400' },
     { value: 'jpeg', label: 'JPEG', desc: t('controls.format.jpegDesc'), icon: Camera, color: 'border-amber-700/50 bg-amber-900/10 text-amber-400 hover:border-amber-400' },
     { value: 'webp', label: 'WebP', desc: t('controls.format.webpDesc'), icon: Globe, color: 'border-blue-200 bg-blue-50 text-blue-600 hover:border-blue-400' },
-    ...(isCn ? [] : [{ value: 'avif' as CompressionOptions['outputFormat'], label: 'AVIF', desc: t('controls.format.avifDesc'), icon: Dna, color: 'border-purple-700/50 bg-purple-900/10 text-purple-400 hover:border-purple-400' }]),
+    { value: 'avif' as CompressionOptions['outputFormat'], label: 'AVIF', desc: t('controls.format.avifDesc'), icon: Dna, color: 'border-purple-700/50 bg-purple-900/10 text-purple-400 hover:border-purple-400' },
   ]
 
   return (

@@ -76,13 +76,28 @@ export async function createLicense(
   orderId?: string,
   orderAmount?: string,
 ): Promise<LicenseRecord> {
-  // 检查是否已有激活码（防止 LS 重复回调覆盖）
+  // 安全关键：orderId 只在「支付确认后」（Creem/虎皮椒/LS 回调）才会传入。
+  //   - 无 orderId（付款前，如 /api/create-license）→ active=false，码不可用
+  //   - 有 orderId（支付回调）→ active=true，码才可用
+  // 防止「调 create-license 白拿一个可用激活码」的绕过。
+  const paid = !!orderId
+
+  // 检查是否已有激活码（防止重复回调覆盖）
   const existing = await getLicenseByEmail(email)
   if (existing) {
+    let changed = false
     // 更新订单信息（可能第一次没记录）
     if (orderId && !existing.orderId) {
       existing.orderId = orderId
       existing.orderAmount = orderAmount
+      changed = true
+    }
+    // 支付确认 → 从未支付/撤销状态激活
+    if (paid && !existing.active) {
+      existing.active = true
+      changed = true
+    }
+    if (changed) {
       const r = getRedis()
       if (r) {
         await r.set(`license:${existing.code}`, JSON.stringify(existing))
@@ -98,7 +113,7 @@ export async function createLicense(
     code,
     email,
     created_at: new Date().toISOString(),
-    active: true,
+    active: paid,
     devices: [],
     orderId,
     orderAmount,

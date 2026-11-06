@@ -25,10 +25,10 @@ export default function VsPage() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.vercel.app'
   const tools = [
     { name: t('app.name'), url: siteUrl,
-      price: isCn ? (locale === 'zh' ? '完全免费' : 'Free') : t('vs.compressfast.price'),
+      price: isCn ? (locale === 'zh' ? '免费版 / ¥9.9 Pro' : 'Free / ¥9.9 Pro') : t('vs.compressfast.price'),
       privacy: t('vs.compressfast.privacy'),
-      batch: isCn ? (locale === 'zh' ? '30 张/次' : '30/batch') : '20/batch (Free) / 500/batch (Pro)',
-      maxSize: isCn ? '50MB' : t('vs.compressfast.maxSize'),
+      batch: isCn ? (locale === 'zh' ? '15 张/次 (免费) / 500 张/次 (Pro)' : '15/batch (Free) / 500/batch (Pro)') : '20/batch (Free) / 500/batch (Pro)',
+      maxSize: isCn ? '10MB (免费) / 50MB (Pro)' : t('vs.compressfast.maxSize'),
       formats: t('vs.compressfast.formats'), lossless: true, highlight: true },
     { name: 'TinyPNG', url: 'https://tinypng.com', price: t('vs.tinypng.price'), privacy: t('vs.tinypng.privacy'), batch: t('vs.tinypng.batch'), maxSize: t('vs.tinypng.maxSize'), formats: t('vs.tinypng.formats'), lossless: false },
     { name: 'Squoosh', url: 'https://squoosh.app', price: t('vs.squoosh.price'), privacy: t('vs.squoosh.privacy'), batch: t('vs.squoosh.batch'), maxSize: t('vs.squoosh.maxSize'), formats: t('vs.squoosh.formats'), lossless: true },

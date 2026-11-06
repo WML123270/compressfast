@@ -3,11 +3,9 @@
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, Zap, Image, Settings, Download } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
-import { useIsCn } from '@/lib/use-is-cn'
 
 export default function HelpPage() {
   const { t, locale } = useT()
-  const isCn = useIsCn()
   const isZh = locale === 'zh'
 
   const sections = [
@@ -18,8 +16,7 @@ export default function HelpPage() {
     { id: 'watermark', icon: BookOpen, title: t('help.guide.watermark'), desc: t('help.guide.watermarkDesc') },
     { id: 'resize', icon: Image, title: t('help.guide.resize'), desc: t('help.guide.resizeDesc') },
     { id: 'presets', icon: Zap, title: t('help.guide.presets'), desc: t('help.guide.presetsDesc') },
-    // Pro section — only for overseas version
-    ...(isCn ? [] : [{ id: 'pro', icon: Zap, title: t('help.guide.pro'), desc: t('help.guide.proDesc') }]),
+    { id: 'pro', icon: Zap, title: t('help.guide.pro'), desc: t('help.guide.proDesc') },
   ]
 
   return (
@@ -189,8 +186,7 @@ export default function HelpPage() {
         </div>
       </section>
 
-      {/* Pro Info — overseas only */}
-      {!isCn && (
+      {/* Pro Info */}
       <section id="pro">
         <h2 className="text-xl font-bold text-slate-900 mb-3">{t('help.guide.pro')}</h2>
         <p className="text-sm text-neutral-700 mb-4">{t('help.guide.proDesc')}</p>
@@ -210,7 +206,6 @@ export default function HelpPage() {
           </Link>
         </div>
       </section>
-      )}
 
       {/* Bottom nav */}
       <div className="border-t border-gray-200 dark:border-gray-200 pt-6 text-center">

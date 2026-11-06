@@ -61,14 +61,22 @@ export const FREE_LIMITS: Limits = {
   maxSizePerFile: 10 * 1024 * 1024, // 10MB
 }
 
-/** 国内版（永久免费，无限制） */
+/** 国内版免费额度（15 张/次 · 10MB/张） */
 export const CN_LIMITS: Limits = {
-  maxFiles: 100,
-  maxSizePerFile: 50 * 1024 * 1024, // 50MB
+  maxFiles: 15,
+  maxSizePerFile: 10 * 1024 * 1024, // 10MB
 }
 
-/** 免费用户每月总压缩张数（仅海外） */
+/** 免费用户每月总压缩张数（海外） */
 export const MONTHLY_FREE_QUOTA = 400
+
+/** 免费用户每月总压缩张数（国内） */
+export const CN_MONTHLY_FREE_QUOTA = 100
+
+/** 按部署区域返回免费月配额（国内 100 / 海外 400） */
+export function getMonthlyFreeQuota(): number {
+  return isCnDeploy() ? CN_MONTHLY_FREE_QUOTA : MONTHLY_FREE_QUOTA
+}
 
 export const QUOTA_STORAGE_KEY = 'png-compressor-monthly-quota'
 
