@@ -15,7 +15,7 @@ let ort: any = null
 async function getOrt(): Promise<any> {
   if (!ort) {
     // @ts-ignore —— 运行时从自托管 URL 加载，TS 无需解析该模块类型
-    ort = await import(/* webpackIgnore: true */ '/ort/ort.min.mjs')
+    ort = await import(/* webpackIgnore: true */ '/ort/ort.min.mjs?v=1')
     ort.env.wasm.numThreads = 1 // 单线程，无 SharedArrayBuffer / COOP/COEP 依赖
     ort.env.wasm.wasmPaths = '/ort/'
   }
