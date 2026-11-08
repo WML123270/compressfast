@@ -65,10 +65,13 @@ function bitmapToTensor(ort: any, bitmap: ImageBitmap, size = INPUT_SIZE): any {
   return new ort.Tensor('float32', floatData, [1, 3, size, size])
 }
 
-// ─── 后处理：logits → [0,1] 前景概率 ───
+// ─── 后处理：logits → [0,1] 前景概率 + 连通域保主体 + 羽化 ───
 // 若模型已输出 [0,1] 概率则直接用；若输出是 logits 则套 sigmoid
 function toAlphaMask(output: Float32Array): Float32Array {
   const n = output.length
+  const W = INPUT_SIZE
+  const H = INPUT_SIZE
+
   let min = Infinity
   let max = -Infinity
   const sample = Math.min(n, 200000)
@@ -78,19 +81,68 @@ function toAlphaMask(output: Float32Array): Float32Array {
   }
   const needSigmoid = min < -1 || max > 1
 
-  // 软阈值（保主体优先）：低于 LOW 归 0（去背景），高于 HIGH 归 1（保主体），中间线性。
-  // 关键：中心定在 ~0.3 而非 0.5 —— 手/发丝等低置信主体的置信度常落 0.3~0.5，
-  // 以 0.5 为中心的对比度会把它们压没（之前手被扣没的根因）。
-  const LOW = 0.12
-  const HIGH = 0.45
-  const mask = new Float32Array(n)
+  // 1. soft 概率（sigmoid 后 [0,1]）
+  const soft = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     let v = output[i]
     if (needSigmoid) v = 1 / (1 + Math.exp(-v))
-    v = (v - LOW) / (HIGH - LOW)
-    mask[i] = Math.max(0, Math.min(1, v))
+    soft[i] = Math.max(0, Math.min(1, v))
   }
-  return mask
+
+  // 2. 连通域保主体：从高置信种子洪泛，保留与之连通的低置信区域（手/发丝/细突起）
+  //    孤立背景噪点（不与主体连通）会被剔除 —— 同时解决「手被扣没」和「背景残留」
+  const SEED = 0.4 // 高置信主体种子
+  const KEEP = 0.08 // 连通区域的最低置信
+  const visited = new Uint8Array(n)
+  const queue = new Int32Array(n)
+  let qHead = 0
+  let qTail = 0
+  for (let i = 0; i < n; i++) {
+    if (soft[i] > SEED) { visited[i] = 1; queue[qTail++] = i }
+  }
+  while (qHead < qTail) {
+    const idx = queue[qHead++]
+    const x = idx % W
+    if (x > 0) { const j = idx - 1; if (!visited[j] && soft[j] > KEEP) { visited[j] = 1; queue[qTail++] = j } }
+    if (x < W - 1) { const j = idx + 1; if (!visited[j] && soft[j] > KEEP) { visited[j] = 1; queue[qTail++] = j } }
+    if (idx >= W) { const j = idx - W; if (!visited[j] && soft[j] > KEEP) { visited[j] = 1; queue[qTail++] = j } }
+    if (idx < n - W) { const j = idx + W; if (!visited[j] && soft[j] > KEEP) { visited[j] = 1; queue[qTail++] = j } }
+  }
+
+  // 3. 二值化 + 羽化（box blur 让边缘平滑）
+  const bin = new Float32Array(n)
+  for (let i = 0; i < n; i++) bin[i] = visited[i] ? 1 : 0
+  return boxBlur(bin, W, H, 2)
+}
+
+// 两遍 box blur（水平+垂直），半径 radius，用于羽化二值 mask 边缘
+function boxBlur(src: Float32Array, w: number, h: number, radius: number): Float32Array {
+  const tmp = new Float32Array(src.length)
+  for (let y = 0; y < h; y++) {
+    const row = y * w
+    for (let x = 0; x < w; x++) {
+      let sum = 0
+      let cnt = 0
+      for (let dx = -radius; dx <= radius; dx++) {
+        const xx = x + dx
+        if (xx >= 0 && xx < w) { sum += src[row + xx]; cnt++ }
+      }
+      tmp[row + x] = sum / cnt
+    }
+  }
+  const out = new Float32Array(src.length)
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      let sum = 0
+      let cnt = 0
+      for (let dy = -radius; dy <= radius; dy++) {
+        const yy = y + dy
+        if (yy >= 0 && yy < h) { sum += tmp[yy * w + x]; cnt++ }
+      }
+      out[y * w + x] = sum / cnt
+    }
+  }
+  return out
 }
 
 // ─── 合成：把 alpha 遮罩缩放回原图尺寸，作为原图的透明通道 ───
