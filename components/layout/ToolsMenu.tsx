@@ -81,7 +81,7 @@ export function ToolsMenu() {
 
           <div className="absolute top-full mt-2 z-50 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/50 p-4
                           left-1/2 -translate-x-1/2 w-[calc(100vw-1.5rem)] max-w-[760px]
-                          sm:left-auto sm:right-0 sm:translate-x-0 sm:w-[760px]
+                          sm:left-0 sm:translate-x-0 sm:w-[760px]
                           max-h-[72vh] overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               {GROUPS.map(group => (
