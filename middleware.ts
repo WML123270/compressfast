@@ -18,6 +18,8 @@ const SKIP_PATHS = [
   '/api/',
   '/admin',
   '/_next/',
+  '/models/',
+  '/ort/',
   '/favicon.ico',
   '/robots.txt',
   '/sitemap.xml',
@@ -43,6 +45,9 @@ const SKIP_PATHS = [
   '.svg',
   '.xml',
   '.txt',
+  '.onnx',
+  '.wasm',
+  '.mjs',
 ]
 
 function shouldSkip(pathname: string): boolean {
