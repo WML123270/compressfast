@@ -3,11 +3,15 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { LayoutGrid, ChevronDown } from 'lucide-react'
-import { TOOLS } from '@/lib/tool-pages'
 import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
 import { useT } from '@/lib/i18n/context'
 
 const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] }[] = [
+  {
+    key: 'ai',
+    label: { en: 'AI Tools', zh: 'AI 工具' },
+    slugs: ['remove-bg'],
+  },
   {
     key: 'compress',
     label: { en: 'Compress', zh: '压缩' },
@@ -91,9 +95,8 @@ export function ToolsMenu() {
                   </p>
                   <div className="flex flex-col gap-0.5">
                     {group.slugs.map(slug => {
-                      const tool = TOOLS[slug]
                       const short = TOOL_SHORT[slug]
-                      if (!tool || !short) return null
+                      if (!short) return null
                       return (
                         <Link
                           key={slug}

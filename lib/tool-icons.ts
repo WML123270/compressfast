@@ -26,6 +26,7 @@ export const TOOL_ICONS: Record<string, string> = {
   'avif-to-webp': '🅰️',
   'heic-to-webp': '🍎',
   'gif-to-webp': '🎞️',
+  'remove-bg': '✂️',
 }
 
 export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
@@ -52,4 +53,5 @@ export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
   'avif-to-webp': { en: 'AVIF to WebP', zh: 'AVIF 转 WebP' },
   'heic-to-webp': { en: 'HEIC to WebP', zh: 'HEIC 转 WebP' },
   'gif-to-webp': { en: 'GIF to WebP', zh: 'GIF 转 WebP' },
+  'remove-bg': { en: 'AI Remove Background', zh: 'AI 抠图' },
 }

@@ -27,6 +27,25 @@ export function PopularTools() {
             18款免费在线工具，全部浏览器本地处理，不上传服务器
           </p>
         </div>
+
+        {/* AI 抠图 —— 招牌 Pro 功能，置顶高亮 */}
+        <Link
+          href={`/${locale}/tools/remove-bg`}
+          className="group flex items-center gap-3 p-4 mb-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:from-cyan-400 hover:to-blue-500 transition-all"
+        >
+          <span className="text-3xl flex-shrink-0">✂️</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-base flex items-center gap-2">
+              {isZh ? 'AI 抠图' : 'AI Background Remover'}
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/25">Pro</span>
+            </p>
+            <p className="text-xs text-white/85 mt-0.5">
+              {isZh ? '本地 AI 一键去背景，换纯色/图片背景，图片不上传' : 'Local AI background removal + solid/image background replacement'}
+            </p>
+          </div>
+          <ArrowRight className="w-5 h-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
           {allTools.map((tool) => (
             <Link
@@ -60,6 +79,12 @@ export function PopularTools() {
           Quick tools:
         </span>
         <div className="flex items-center gap-1 flex-wrap">
+          <Link
+            href={`/${locale}/tools/remove-bg`}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:opacity-90 transition-opacity"
+          >
+            <span>✂️</span> AI Remove BG
+          </Link>
           {featured.map((tool: any) => (
             <Link
               key={tool.slug}
