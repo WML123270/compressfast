@@ -22,7 +22,7 @@ async function getOrt(): Promise<any> {
   return ort
 }
 
-const MODEL_URL = '/models/isnet-general-use.onnx'
+const MODEL_URL = '/models/isnet-general-use-fp16.onnx'
 const INPUT_SIZE = 1024
 
 let session: any = null
@@ -78,10 +78,14 @@ function toAlphaMask(output: Float32Array): Float32Array {
   }
   const needSigmoid = min < -1 || max > 1
 
+  // 对比度增强：把 0.5 附近的半透明过渡压向 0/1，边缘更干净（消除背景色晕/残留）
+  // 1.0=原样，越大边缘越硬；1.6 是较平衡的默认
+  const CONTRAST = 1.6
   const mask = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     let v = output[i]
     if (needSigmoid) v = 1 / (1 + Math.exp(-v))
+    v = (v - 0.5) * CONTRAST + 0.5
     mask[i] = Math.max(0, Math.min(1, v))
   }
   return mask
