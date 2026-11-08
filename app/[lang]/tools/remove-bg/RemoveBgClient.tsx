@@ -1,12 +1,16 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Upload, Scissors, Download, Loader2, Lock, Trash2, ImagePlus } from 'lucide-react'
+import { Upload, Scissors, Download, Loader2, Lock, Trash2, ImagePlus, Palette, Image } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { removeBackground } from '@/lib/ai/remove-bg'
+import { compositeBackground, type BackgroundOption } from '@/lib/ai/composite'
 
 type Status = 'idle' | 'loading-model' | 'processing' | 'done' | 'error'
+type BgMode = 'transparent' | 'color' | 'image'
+
+const PRESET_COLORS = ['#ffffff', '#000000', '#ff0000', '#3b82f6', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6']
 
 export default function RemoveBgClient() {
   const { locale } = useT()
@@ -19,12 +23,19 @@ export default function RemoveBgClient() {
 
   const [original, setOriginal] = useState<string | null>(null) // 原图预览 URL
   const [originalName, setOriginalName] = useState('')
-  const [result, setResult] = useState<string | null>(null) // 结果预览 URL
+  const [result, setResult] = useState<string | null>(null) // 抠图结果（透明 PNG）预览 URL
+  const [resultBlob, setResultBlob] = useState<Blob | null>(null) // 抠图结果 blob（用于背景合成）
+  const [bgMode, setBgMode] = useState<BgMode>('transparent')
+  const [bgColor, setBgColor] = useState('#ffffff')
+  const [bgFile, setBgFile] = useState<File | null>(null)
+  const [finalBlob, setFinalBlob] = useState<Blob | null>(null) // 合成后输出 blob
+  const [finalUrl, setFinalUrl] = useState<string | null>(null) // 合成后预览 URL
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
   const [dragging, setDragging] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const bgFileRef = useRef<HTMLInputElement>(null)
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -33,6 +44,12 @@ export default function RemoveBgClient() {
     }
     setError('')
     setResult(null)
+    setResultBlob(null)
+    setBgMode('transparent')
+    setBgColor('#ffffff')
+    setBgFile(null)
+    setFinalBlob(null)
+    setFinalUrl(null)
     setStatus('idle')
     setOriginalName(file.name)
     setOriginal(URL.createObjectURL(file))
@@ -57,7 +74,13 @@ export default function RemoveBgClient() {
       const buf = await file.arrayBuffer()
       setStatus('processing')
       const { blob } = await removeBackground(buf)
+      setResultBlob(blob)
       setResult(URL.createObjectURL(blob))
+      setBgMode('transparent')
+      setBgColor('#ffffff')
+      setBgFile(null)
+      setFinalBlob(null)
+      setFinalUrl(null)
       setStatus('done')
     } catch (e) {
       setStatus('error')
@@ -69,18 +92,59 @@ export default function RemoveBgClient() {
     setOriginal(null)
     setOriginalName('')
     setResult(null)
+    setResultBlob(null)
+    setBgMode('transparent')
+    setBgColor('#ffffff')
+    setBgFile(null)
+    setFinalBlob(null)
+    setFinalUrl(null)
     setStatus('idle')
     setError('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
+  // 背景选项变化时重新合成（透明则直接用抠图原片）
+  useEffect(() => {
+    if (!resultBlob || bgMode === 'transparent' || (bgMode === 'image' && !bgFile)) {
+      setFinalBlob(null)
+      setFinalUrl(null)
+      return
+    }
+    let cancelled = false
+    const bg: BackgroundOption =
+      bgMode === 'color' ? { type: 'color', color: bgColor } : { type: 'image', imageFile: bgFile! }
+    ;(async () => {
+      try {
+        const blob = await compositeBackground(resultBlob, bg)
+        if (cancelled) return
+        setFinalBlob(blob)
+        setFinalUrl(URL.createObjectURL(blob))
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : (isZh ? '背景合成失败' : 'Failed to apply background'))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [resultBlob, bgMode, bgColor, bgFile, isZh])
+
+  const displayUrl = bgMode === 'transparent' ? result : (finalUrl || result)
+
   const download = useCallback(() => {
-    if (!result) return
+    let url = ''
+    let filename = ''
+    if (bgMode === 'transparent') {
+      url = result || ''
+      filename = originalName.replace(/\.[^.]+$/, '') + '-no-bg.png'
+    } else if (finalBlob) {
+      url = URL.createObjectURL(finalBlob)
+      filename = originalName.replace(/\.[^.]+$/, '') + '-with-bg.png'
+    }
+    if (!url) return
     const a = document.createElement('a')
-    a.href = result
-    a.download = originalName.replace(/\.[^.]+$/, '') + '-no-bg.png'
+    a.href = url
+    a.download = filename
     a.click()
-  }, [result, originalName])
+    if (bgMode !== 'transparent') setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }, [result, finalBlob, originalName, bgMode])
 
   const locked = !isPro
 
@@ -92,6 +156,16 @@ export default function RemoveBgClient() {
         accept="image/*"
         className="hidden"
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+      />
+      <input
+        ref={bgFileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          if (f) { setBgFile(f); setBgMode('image') }
+        }}
       />
 
       {/* 上传区 */}
@@ -178,14 +252,84 @@ export default function RemoveBgClient() {
         <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
           <div className="relative">
             <img
-              src={result}
+              src={displayUrl ?? ''}
               alt="result"
               className="w-full max-h-80 object-contain bg-[repeating-conic-gradient(#e5e7eb_0%_25%,#fff_0%_50%)_0_0/16px_16px]"
             />
           </div>
+
+          {/* 背景选择 */}
+          <div className="px-4 pt-4 border-t border-gray-100">
+            <p className="text-xs font-medium text-gray-500 mb-2">{isZh ? '背景' : 'Background'}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setBgMode('transparent')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                  bgMode === 'transparent' ? 'border-cyan-500 bg-cyan-50 text-cyan-700 font-medium' : 'border-gray-300 text-gray-600 hover:border-cyan-300'
+                }`}
+              >
+                {isZh ? '透明' : 'Transparent'}
+              </button>
+              <button
+                onClick={() => setBgMode('color')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                  bgMode === 'color' ? 'border-cyan-500 bg-cyan-50 text-cyan-700 font-medium' : 'border-gray-300 text-gray-600 hover:border-cyan-300'
+                }`}
+              >
+                <Palette className="w-4 h-4" /> {isZh ? '纯色' : 'Color'}
+              </button>
+              <button
+                onClick={() => bgFileRef.current?.click()}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                  bgMode === 'image' ? 'border-cyan-500 bg-cyan-50 text-cyan-700 font-medium' : 'border-gray-300 text-gray-600 hover:border-cyan-300'
+                }`}
+              >
+                <Image className="w-4 h-4" /> {isZh ? '图片背景' : 'Image'}
+              </button>
+            </div>
+
+            {/* 纯色 swatches */}
+            {bgMode === 'color' && (
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                {PRESET_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setBgColor(c)}
+                    aria-label={c}
+                    style={{ backgroundColor: c }}
+                    className={`w-7 h-7 rounded-full border ${c === '#ffffff' ? 'border-gray-300' : 'border-transparent'} transition-transform hover:scale-110 ${
+                      bgColor === c ? 'ring-2 ring-cyan-500 ring-offset-2' : ''
+                    }`}
+                  />
+                ))}
+                <label className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-300 text-xs text-gray-600 cursor-pointer hover:border-cyan-300">
+                  <input
+                    type="color"
+                    value={bgColor}
+                    onChange={(e) => setBgColor(e.target.value)}
+                    className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
+                  />
+                  {isZh ? '自定义' : 'Custom'}
+                </label>
+              </div>
+            )}
+
+            {/* 图片背景提示 */}
+            {bgMode === 'image' && (
+              <p className="mt-2 text-xs text-gray-500">
+                {bgFile
+                  ? (isZh ? `背景图：${bgFile.name}` : `Background: ${bgFile.name}`)
+                  : (isZh ? '点击「图片背景」选择一张背景图' : 'Click "Image" to pick a background image')}
+              </p>
+            )}
+          </div>
+
           <div className="p-4 flex justify-center">
             <button onClick={download} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:opacity-90">
-              <Download className="w-4 h-4" /> {isZh ? '下载透明 PNG' : 'Download transparent PNG'}
+              <Download className="w-4 h-4" />
+              {bgMode === 'transparent'
+                ? (isZh ? '下载透明 PNG' : 'Download transparent PNG')
+                : (isZh ? '下载合成图 PNG' : 'Download PNG')}
             </button>
           </div>
         </div>
