@@ -79,8 +79,8 @@ function toAlphaMask(output: Float32Array): Float32Array {
   const needSigmoid = min < -1 || max > 1
 
   // 对比度增强：把 0.5 附近的半透明过渡压向 0/1，边缘更干净（消除背景色晕/残留）
-  // 1.0=原样，越大边缘越硬；1.6 是较平衡的默认
-  const CONTRAST = 1.6
+  // 1.0=原样；越大越「干净」但越容易把低置信主体（手/发丝）压没；1.2 是较保守的平衡
+  const CONTRAST = 1.2
   const mask = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     let v = output[i]
