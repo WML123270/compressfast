@@ -1,3 +1,5 @@
+export {}
+
 // AI 抠图 Worker —— 在浏览器本地跑 isnet-general-use 模型（onnxruntime-web）
 //
 // 关键约束（见 docs/ai-background-removal-plan.md 和 memory）：

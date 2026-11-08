@@ -27,6 +27,7 @@ export const TOOL_ICONS: Record<string, string> = {
   'heic-to-webp': '🍎',
   'gif-to-webp': '🎞️',
   'remove-bg': '✂️',
+  'upscale': '🔍',
 }
 
 export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
@@ -54,4 +55,5 @@ export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
   'heic-to-webp': { en: 'HEIC to WebP', zh: 'HEIC 转 WebP' },
   'gif-to-webp': { en: 'GIF to WebP', zh: 'GIF 转 WebP' },
   'remove-bg': { en: 'AI Remove Background', zh: 'AI 抠图' },
+  'upscale': { en: 'AI Upscale', zh: 'AI 放大' },
 }
