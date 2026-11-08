@@ -78,14 +78,16 @@ function toAlphaMask(output: Float32Array): Float32Array {
   }
   const needSigmoid = min < -1 || max > 1
 
-  // 对比度增强：把 0.5 附近的半透明过渡压向 0/1，边缘更干净（消除背景色晕/残留）
-  // 1.0=原样；越大越「干净」但越容易把低置信主体（手/发丝）压没；1.2 是较保守的平衡
-  const CONTRAST = 1.2
+  // 软阈值（保主体优先）：低于 LOW 归 0（去背景），高于 HIGH 归 1（保主体），中间线性。
+  // 关键：中心定在 ~0.3 而非 0.5 —— 手/发丝等低置信主体的置信度常落 0.3~0.5，
+  // 以 0.5 为中心的对比度会把它们压没（之前手被扣没的根因）。
+  const LOW = 0.12
+  const HIGH = 0.45
   const mask = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     let v = output[i]
     if (needSigmoid) v = 1 / (1 + Math.exp(-v))
-    v = (v - 0.5) * CONTRAST + 0.5
+    v = (v - LOW) / (HIGH - LOW)
     mask[i] = Math.max(0, Math.min(1, v))
   }
   return mask
