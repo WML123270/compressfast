@@ -19,6 +19,7 @@ export default function UpscaleClient() {
 
   const [original, setOriginal] = useState<string | null>(null)
   const [originalName, setOriginalName] = useState('')
+  const [originalDims, setOriginalDims] = useState<{ w: number; h: number } | null>(null)
   const [result, setResult] = useState<string | null>(null)
   const [resultDims, setResultDims] = useState<{ w: number; h: number } | null>(null)
   const [status, setStatus] = useState<Status>('idle')
@@ -41,6 +42,12 @@ export default function UpscaleClient() {
     setStatus('idle')
     setOriginalName(file.name)
     setOriginal(URL.createObjectURL(file))
+    setOriginalDims(null)
+    try {
+      const bmp = await createImageBitmap(file)
+      setOriginalDims({ w: bmp.width, h: bmp.height })
+      bmp.close()
+    } catch { /* 读取尺寸失败不影响放大 */ }
   }, [isZh])
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -81,6 +88,7 @@ export default function UpscaleClient() {
   const reset = useCallback(() => {
     setOriginal(null)
     setOriginalName('')
+    setOriginalDims(null)
     setResult(null)
     setResultDims(null)
     setStatus('idle')
@@ -112,6 +120,15 @@ export default function UpscaleClient() {
   const locked = !isPro
   const busy = status === 'loading-model' || status === 'processing'
   const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
+  // 与 worker 的 MAX_LONG_EDGE 保持一致
+  const MAX_LONG_EDGE = 512
+  const needsDownscale = !!originalDims && Math.max(originalDims.w, originalDims.h) > MAX_LONG_EDGE
+  const downscaledDims = originalDims
+    ? (() => {
+        const k = MAX_LONG_EDGE / Math.max(originalDims.w, originalDims.h)
+        return { w: Math.max(1, Math.round(originalDims.w * k)), h: Math.max(1, Math.round(originalDims.h * k)) }
+      })()
+    : null
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -199,6 +216,13 @@ export default function UpscaleClient() {
               <Trash2 className="w-4 h-4" /> {isZh ? '清除' : 'Clear'}
             </button>
           </div>
+          {needsDownscale && originalDims && downscaledDims && (
+            <p className="px-4 pb-4 text-xs leading-relaxed text-amber-700">
+              {isZh
+                ? `原图 ${originalDims.w}×${originalDims.h} 超过本地处理上限，将先等比缩至 ${downscaledDims.w}×${downscaledDims.h} 再放大，输出最长边 ${MAX_LONG_EDGE * scale}px。`
+                : `The original ${originalDims.w}×${originalDims.h} exceeds the on-device limit. It will be resized to ${downscaledDims.w}×${downscaledDims.h} before upscaling (max output edge ${MAX_LONG_EDGE * scale}px).`}
+            </p>
+          )}
         </div>
       )}
 
@@ -271,7 +295,9 @@ export default function UpscaleClient() {
           <div className="p-4 flex flex-col items-center gap-2">
             {resultDims && (
               <p className="text-xs text-gray-500">
-                {isZh ? '已放大到' : 'Upscaled to'} <span className="font-semibold text-gray-700">{resultDims.w}×{resultDims.h}</span>
+                {isZh ? '已放大到' : 'Upscaled to'}{' '}
+                {originalDims && <span className="text-gray-400">{originalDims.w}×{originalDims.h} → </span>}
+                <span className="font-semibold text-gray-700">{resultDims.w}×{resultDims.h}</span>
               </p>
             )}
             <button onClick={download} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:opacity-90">

@@ -26,6 +26,9 @@ const SCALE = 4
 const TILE_SIZE = 256 // 输入 tile 尺寸
 const TILE_PAD = 16 // 重叠 padding（输入像素），消除拼缝
 const MAX_LONG_EDGE = 512 // 输入长边上限，4x 后输出 ≤2048px，防内存爆炸
+// 输入在 512×512 以内时整图一次推理：省掉 tile 重叠的重复计算（约 2.25x），且无拼缝。
+// 超阈值或整图推理失败时回退到分块路径。
+const DIRECT_MAX_PIXELS = MAX_LONG_EDGE * MAX_LONG_EDGE
 
 let session: any = null
 let loading: Promise<any> | null = null
@@ -95,7 +98,60 @@ function makeRamp(len: number, tileOutStart: number, outSize: number, cl: number
   return ramp
 }
 
-// ─── 主流程：分块推理 + 重叠加权缝合 ───
+// ─── 输出编码：2x 对 4x 结果做高质量 2:1 降采样（复用 4x 模型，无需第二个模型文件）───
+async function encodeResult(outCanvas: OffscreenCanvas, scale: 2 | 4): Promise<Blob> {
+  if (scale === 2) {
+    const w2 = Math.max(1, Math.round(outCanvas.width / 2))
+    const h2 = Math.max(1, Math.round(outCanvas.height / 2))
+    const half = new OffscreenCanvas(w2, h2)
+    const hctx = half.getContext('2d')!
+    hctx.imageSmoothingEnabled = true
+    hctx.imageSmoothingQuality = 'high'
+    hctx.drawImage(outCanvas, 0, 0, w2, h2)
+    return half.convertToBlob({ type: 'image/png' })
+  }
+  return outCanvas.convertToBlob({ type: 'image/png' })
+}
+
+// ─── 整图一次推理（输入 ≤512×512）───
+async function upscaleWhole(
+  o: any,
+  s: any,
+  src: Uint8ClampedArray,
+  w: number,
+  h: number,
+): Promise<OffscreenCanvas> {
+  const n = w * h
+  const input = new Float32Array(3 * n)
+  for (let i = 0; i < n; i++) {
+    const si = i * 4
+    input[i] = src[si] / 255
+    input[n + i] = src[si + 1] / 255
+    input[2 * n + i] = src[si + 2] / 255
+  }
+
+  const tensor = new o.Tensor('float32', input, [1, 3, h, w])
+  const results = await s.run({ [s.inputNames[0]]: tensor })
+  const data = results[s.outputNames[0]].data as Float32Array // [1,3,4h,4w] CHW
+
+  const outW = w * SCALE
+  const outH = h * SCALE
+  const total = outW * outH
+  const outCanvas = new OffscreenCanvas(outW, outH)
+  const outCtx = outCanvas.getContext('2d')!
+  const img = outCtx.createImageData(outW, outH)
+  for (let i = 0; i < total; i++) {
+    const oi = i * 4
+    img.data[oi] = clamp(Math.round(data[i] * 255), 0, 255)
+    img.data[oi + 1] = clamp(Math.round(data[total + i] * 255), 0, 255)
+    img.data[oi + 2] = clamp(Math.round(data[2 * total + i] * 255), 0, 255)
+    img.data[oi + 3] = 255
+  }
+  outCtx.putImageData(img, 0, 0)
+  return outCanvas
+}
+
+// ─── 主流程：整图优先，超限回退分块推理 + 重叠加权缝合 ───
 async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4, id: string): Promise<Blob> {
   const o = await getOrt()
   const s = await getSession()
@@ -112,7 +168,17 @@ async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4, id: string): Pro
   inCtx.drawImage(bitmap, 0, 0, w, h)
   const src = inCtx.getImageData(0, 0, w, h).data
 
-  // 2. 输出尺寸与累加缓冲
+  // 2. 整图优先（≤512²）：无重叠重复计算、无拼缝；失败自动回退分块
+  if (w * h <= DIRECT_MAX_PIXELS) {
+    try {
+      const whole = await upscaleWhole(o, s, src, w, h)
+      return await encodeResult(whole, scale)
+    } catch (err) {
+      console.warn('[upscale] 整图推理失败，回退分块:', err)
+    }
+  }
+
+  // 3. 输出尺寸与累加缓冲
   const outW = w * SCALE
   const outH = h * SCALE
   const acc = new Float32Array(3 * outW * outH)
@@ -196,18 +262,7 @@ async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4, id: string): Pro
   }
   outCtx.putImageData(img, 0, 0)
 
-  // 2x 模式：对 4x 结果做高质量 2:1 降采样（复用 4x 模型，无需第二个模型文件）
-  if (scale === 2) {
-    const w2 = Math.max(1, Math.round(outW / 2))
-    const h2 = Math.max(1, Math.round(outH / 2))
-    const half = new OffscreenCanvas(w2, h2)
-    const hctx = half.getContext('2d')!
-    hctx.imageSmoothingEnabled = true
-    hctx.imageSmoothingQuality = 'high'
-    hctx.drawImage(outCanvas, 0, 0, w2, h2)
-    return half.convertToBlob({ type: 'image/png' })
-  }
-  return outCanvas.convertToBlob({ type: 'image/png' })
+  return encodeResult(outCanvas, scale)
 }
 
 self.onmessage = async (e: MessageEvent<UpscaleMsg>) => {
