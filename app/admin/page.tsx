@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { classifyPurchase, displayAmount, type PurchaseKind } from '@/lib/purchase-classification'
 
 export default function AdminDashboardPage() {
   const [html, setHtml] = useState('')
@@ -68,15 +69,15 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
-  function purchaseRow(p: any, isTest: boolean) {
+  function purchaseRow(p: any, kind: PurchaseKind) {
     const devices = p.devices?.length || 0
-    const tag = isTest ? 'TEST' : 'REAL'
-    const tagClass = isTest ? 'tag-test' : 'tag-real'
+    const tag = kind === 'external' ? 'REAL' : kind === 'self' ? 'SELF' : 'TEST'
+    const tagClass = kind === 'external' ? 'tag-real' : kind === 'self' ? 'tag-self' : 'tag-test'
     return `<tr>
       <td class="mono">${p.code || ''}</td>
       <td>${p.email || ''}</td>
       <td>${new Date(p.created_at).toLocaleDateString('zh-CN')}</td>
-      <td>${p.orderAmount || '$24.99'}</td>
+      <td>${displayAmount(p.orderAmount)}</td>
       <td>${devices > 0 ? devices + ' dev' : ''}</td>
       <td class="${tagClass}">${tag}</td>
     </tr>`
@@ -84,9 +85,11 @@ function renderStats(data: any, ov: any, cn: any): string {
 
   let purchaseRows = ''
   const purchases = data.recentPurchases || []
-  const testEmails = ['test@test.com', 'test@example.com', 'test2@test.com', 'hacker@test.com', 'hacker2@test.com']
+  const counts = { external: 0, self: 0, test: 0 }
   for (const p of purchases) {
-    purchaseRows += purchaseRow(p, testEmails.includes(p.email))
+    const kind = classifyPurchase(p.email, p.orderId)
+    counts[kind]++
+    purchaseRows += purchaseRow(p, kind)
   }
 
   // ---- AI 工具 ----
@@ -138,7 +141,10 @@ function renderStats(data: any, ov: any, cn: any): string {
     .date { color: #64748b; }
     .mono { font-family: monospace; font-size: 11px; }
     .tag-real { font-size: 10px; font-weight: 600; color: #16a34a; }
+    .tag-self { font-size: 10px; font-weight: 600; color: #2563eb; }
     .tag-test { font-size: 10px; font-weight: 600; color: #94a3b8; }
+    .note { font-size: 12px; color: #64748b; margin: 6px 0 10px; }
+    .warn { font-size: 12px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin: 8px 0 12px; }
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #475569; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
     .btn:hover { background: #f8fafc; }
   </style>
@@ -149,9 +155,11 @@ function renderStats(data: any, ov: any, cn: any): string {
       <div class="kpi"><div class="val">${(data.totalPV || 0).toLocaleString()}</div><div class="lbl">总 PV</div></div>
       <div class="kpi"><div class="val">${(data.totalUV || 0).toLocaleString()}</div><div class="lbl">总 UV</div></div>
       <div class="kpi"><div class="val">${(data.totalCompressions || 0).toLocaleString()}</div><div class="lbl">总压缩</div></div>
-      <div class="kpi"><div class="val">${data.totalPurchases || 0}</div><div class="lbl">Pro 购买</div></div>
-      <div class="kpi"><div class="val">$${(data.totalRevenue || 0).toFixed(2)}</div><div class="lbl">总收入</div></div>
+      <div class="kpi"><div class="val">${data.totalPurchases || 0}</div><div class="lbl">订单数（含测试）</div></div>
+      <div class="kpi"><div class="val">$${(data.totalRevenue || 0).toFixed(2)}</div><div class="lbl">流水（含测试/混币种）</div></div>
+      <div class="kpi"><div class="val">${counts.external}</div><div class="lbl">真实外部订单*</div></div>
     </div>
+    <div class="warn">* 真实外部订单 = 有支付订单号 + 邮箱非测试/非自购，仅统计下方最近 ${purchases.length} 条记录。TEST 包含支付联调自测单（可能真扣款，但不是外部用户）；没有订单号的历史激活码不计入付费。</div>
     <div class="split">
       <div class="box">
         <h3>🌍 海外版</h3>
@@ -178,6 +186,7 @@ function renderStats(data: any, ov: any, cn: any): string {
       ${rows}
     </table>
     <h2>💳 购买记录</h2>
+    <p class="note">最近 ${purchases.length} 条：真实外部 ${counts.external} · 自购 ${counts.self} · 测试 ${counts.test}。</p>
     <table>
       <tr><th>激活码</th><th>邮箱</th><th>时间</th><th>金额</th><th>设备</th><th>类型</th></tr>
       ${purchaseRows}
