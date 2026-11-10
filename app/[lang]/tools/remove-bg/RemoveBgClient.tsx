@@ -6,6 +6,7 @@ import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { removeBackground } from '@/lib/ai/remove-bg'
 import { compositeBackground, type BackgroundOption } from '@/lib/ai/composite'
+import { trackAiEvent } from '@/lib/ai/analytics'
 
 type Status = 'idle' | 'loading-model' | 'processing' | 'done' | 'error'
 type BgMode = 'transparent' | 'color' | 'image'
@@ -15,11 +16,25 @@ const PRESET_COLORS = ['#ffffff', '#000000', '#ff0000', '#3b82f6', '#22c55e', '#
 export default function RemoveBgClient() {
   const { locale } = useT()
   const isZh = locale === 'zh'
-  const { isPro, checkProStatus } = useCompressionStore()
+  const { isPro, proLoading, checkProStatus } = useCompressionStore()
 
   useEffect(() => {
     checkProStatus()
   }, [checkProStatus])
+
+  // AI 埋点：曝光 / Pro 门控曝光（只记一次）
+  const viewTracked = useRef(false)
+  const gateTracked = useRef(false)
+  useEffect(() => {
+    if (viewTracked.current) return
+    viewTracked.current = true
+    trackAiEvent('view', 'remove-bg')
+  }, [])
+  useEffect(() => {
+    if (proLoading || isPro || gateTracked.current) return
+    gateTracked.current = true
+    trackAiEvent('gate', 'remove-bg')
+  }, [proLoading, isPro])
 
   const [original, setOriginal] = useState<string | null>(null) // 原图预览 URL
   const [originalName, setOriginalName] = useState('')
@@ -68,6 +83,9 @@ export default function RemoveBgClient() {
     const file = fileInputRef.current?.files?.[0]
     if (!file) return
 
+    const startedAt = performance.now()
+    trackAiEvent('start', 'remove-bg')
+
     try {
       setError('')
       setStatus('loading-model')
@@ -82,9 +100,11 @@ export default function RemoveBgClient() {
       setFinalBlob(null)
       setFinalUrl(null)
       setStatus('done')
+      trackAiEvent('success', 'remove-bg', { durationMs: Math.round(performance.now() - startedAt) })
     } catch (e) {
       setStatus('error')
       setError(e instanceof Error ? e.message : (isZh ? '抠图失败' : 'Failed to remove background'))
+      trackAiEvent('error', 'remove-bg')
     }
   }, [originalName, isZh])
 
@@ -144,6 +164,7 @@ export default function RemoveBgClient() {
     a.download = filename
     a.click()
     if (bgMode !== 'transparent') setTimeout(() => URL.revokeObjectURL(url), 1000)
+    trackAiEvent('download', 'remove-bg')
   }, [result, finalBlob, originalName, bgMode])
 
   const locked = !isPro

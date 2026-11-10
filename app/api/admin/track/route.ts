@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
 
 function getIP(request: NextRequest): string {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: 'bot' })
     }
 
-    const { event, count, visitorId, host, sizes } = await request.json()
+    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs } = await request.json()
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
     const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
@@ -55,6 +55,26 @@ export async function POST(request: NextRequest) {
         // Track file size distribution
         if (sizes && Array.isArray(sizes)) {
           await recordFileSizes(sizes, site)
+        }
+        break
+      }
+      case 'ai': {
+        const aiTool = String(tool || '')
+        const aiEv = String(aiEvent || '')
+        if (!AI_TOOLS.includes(aiTool as AiTool) || !AI_EVENTS.includes(aiEv as AiEventName)) {
+          return NextResponse.json({ error: '未知 AI 事件' }, { status: 400 })
+        }
+        // 运行/结果类事件要求先有 pageview 会话（防脚本直连刷量）；曝光类放行
+        if (
+          ['start', 'success', 'error', 'download'].includes(aiEv) &&
+          !(await isVisitorActive(visitorId || ''))
+        ) {
+          return NextResponse.json({ success: true, skipped: 'no_session' })
+        }
+        await incrementAiEvent(aiTool as AiTool, aiEv as AiEventName)
+        if (aiEv === 'success') {
+          const ms = Number(durationMs)
+          if (Number.isFinite(ms) && ms > 0) await recordAiDuration(aiTool as AiTool, ms)
         }
         break
       }

@@ -89,6 +89,36 @@ function renderStats(data: any, ov: any, cn: any): string {
     purchaseRows += purchaseRow(p, testEmails.includes(p.email))
   }
 
+  // ---- AI 工具 ----
+  const ai = data.ai || {}
+  function aiBox(title: string, s: any): string {
+    const view = s.view || 0
+    const gate = s.gate || 0
+    const start = s.start || 0
+    const success = s.success || 0
+    const error = s.error || 0
+    const download = s.download || 0
+    const startRate = view > 0 ? Math.round((start / view) * 100) : 0
+    const successRate = start > 0 ? Math.round((success / start) * 100) : 0
+    const avg = s.averageDurationMs > 0 ? (s.averageDurationMs / 1000).toFixed(1) + 's' : '—'
+    return `<div class="box">
+      <h3>${title}</h3>
+      <div class="s">曝光 ${view} · 门控 ${gate} · 开始 ${start} · 成功 ${success} · 失败 ${error} · 下载 ${download}</div>
+      <div class="s">开始/曝光 ${startRate}% · 成功/开始 ${successRate}% · 平均耗时 ${avg}</div>
+    </div>`
+  }
+  const aiDaily = ai.upscale?.daily || ai.removeBg?.daily || []
+  let aiRows = ''
+  for (let i = 0; i < aiDaily.length; i++) {
+    const rm = ai.removeBg?.daily?.[i] || {}
+    const up = ai.upscale?.daily?.[i] || {}
+    aiRows += `<tr>
+      <td class="date">${(aiDaily[i]?.date || '').slice(5)}</td>
+      <td class="num">${rm.view || 0} / ${rm.success || 0}</td>
+      <td class="num">${up.view || 0} / ${up.success || 0}</td>
+    </tr>`
+  }
+
   return `<style>
     .db { font-family: -apple-system, sans-serif; }
     .db h1 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
@@ -132,6 +162,16 @@ function renderStats(data: any, ov: any, cn: any): string {
         <div class="s">PV ${(cn.totalPV || 0).toLocaleString()} · UV ${(cn.totalUV || 0).toLocaleString()} · 压缩 ${(cn.totalCompressions || 0).toLocaleString()}</div>
       </div>
     </div>
+    <h2>🤖 AI 工具（累计）</h2>
+    <div class="split">
+      ${aiBox('✂️ AI 抠图', ai.removeBg || {})}
+      ${aiBox('🖼️ AI 放大', ai.upscale || {})}
+    </div>
+    <h2>📅 AI 近 7 天（曝光 / 成功）</h2>
+    <table>
+      <tr><th>日期</th><th class="num">AI 抠图</th><th class="num">AI 放大</th></tr>
+      ${aiRows}
+    </table>
     <h2>📅 近7天明细</h2>
     <table>
       <tr><th>日期</th><th class="num">PV</th><th class="num">UV</th><th class="num">压缩</th></tr>

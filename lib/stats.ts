@@ -185,6 +185,35 @@ export async function incrementProPurchase(amount = 24.99): Promise<void> {
   ])
 }
 
+// ---- AI 工具埋点（抠图 / 放大）----
+
+export type AiTool = 'upscale' | 'remove-bg'
+export const AI_TOOLS: AiTool[] = ['upscale', 'remove-bg']
+export const AI_EVENTS = ['view', 'gate', 'start', 'success', 'error', 'download'] as const
+export type AiEventName = (typeof AI_EVENTS)[number]
+
+function formatDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** 记录一次 AI 行为（view/gate/start/success/error/download） */
+export async function incrementAiEvent(tool: AiTool, event: AiEventName): Promise<void> {
+  const date = formatDate(new Date())
+  await Promise.all([
+    incr(`stats:ai:${event}:total:${tool}`),
+    incr(`stats:ai:${event}:daily:${tool}:${date}`),
+  ])
+}
+
+/** 记录成功推理耗时（毫秒），用于计算平均耗时 */
+export async function recordAiDuration(tool: AiTool, ms: number): Promise<void> {
+  const safe = Math.max(0, Math.min(Math.round(ms), 10 * 60 * 1000))
+  await Promise.all([
+    incr(`stats:ai:duration_ms:total:${tool}`, safe),
+    incr(`stats:ai:duration_count:total:${tool}`, 1),
+  ])
+}
+
 export interface DailyDataPoint {
   date: string
   value: number
@@ -199,6 +228,30 @@ export interface SiteStats {
   dailyCompressions: DailyDataPoint[]
 }
 
+export interface AiDailyPoint {
+  date: string
+  view: number
+  start: number
+  success: number
+  error: number
+}
+
+export interface AiToolStats {
+  view: number
+  gate: number
+  start: number
+  success: number
+  error: number
+  download: number
+  averageDurationMs: number
+  daily: AiDailyPoint[]
+}
+
+export interface AiStats {
+  upscale: AiToolStats
+  removeBg: AiToolStats
+}
+
 export interface DashboardStats {
   totalPV: number
   totalUV: number
@@ -211,6 +264,7 @@ export interface DashboardStats {
   recentPurchases: LicenseRecord[]
   overseas: SiteStats
   china: SiteStats
+  ai: AiStats
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -276,9 +330,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china] = await Promise.all([
+  const [overseas, china, ai] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
+    getAiStats(),
   ])
 
   return {
@@ -293,6 +348,70 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     recentPurchases,
     overseas,
     china,
+    ai,
+  }
+}
+
+/** 聚合 AI 工具的累计 + 近 7 天数据（一次 pipeline，避免几十次 HTTP） */
+async function getAiStats(): Promise<AiStats> {
+  const days: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    days.push(formatDate(d))
+  }
+
+  const r = getRedis()
+  const build = (map: Map<string, number>, tool: AiTool): AiToolStats => {
+    const n = (key: string) => map.get(key) || 0
+    const durationMs = n(`stats:ai:duration_ms:total:${tool}`)
+    const durationCount = n(`stats:ai:duration_count:total:${tool}`)
+    return {
+      view: n(`stats:ai:view:total:${tool}`),
+      gate: n(`stats:ai:gate:total:${tool}`),
+      start: n(`stats:ai:start:total:${tool}`),
+      success: n(`stats:ai:success:total:${tool}`),
+      error: n(`stats:ai:error:total:${tool}`),
+      download: n(`stats:ai:download:total:${tool}`),
+      averageDurationMs: durationCount > 0 ? Math.round(durationMs / durationCount) : 0,
+      daily: days.map((date) => ({
+        date,
+        view: n(`stats:ai:view:daily:${tool}:${date}`),
+        start: n(`stats:ai:start:daily:${tool}:${date}`),
+        success: n(`stats:ai:success:daily:${tool}:${date}`),
+        error: n(`stats:ai:error:daily:${tool}:${date}`),
+      })),
+    }
+  }
+
+  if (!r) {
+    const empty = new Map<string, number>()
+    return { upscale: build(empty, 'upscale'), removeBg: build(empty, 'remove-bg') }
+  }
+
+  try {
+    const keys: string[] = []
+    for (const tool of AI_TOOLS) {
+      for (const ev of AI_EVENTS) keys.push(`stats:ai:${ev}:total:${tool}`)
+      for (const date of days) {
+        for (const ev of ['view', 'start', 'success', 'error'] as const) {
+          keys.push(`stats:ai:${ev}:daily:${tool}:${date}`)
+        }
+      }
+      keys.push(`stats:ai:duration_ms:total:${tool}`, `stats:ai:duration_count:total:${tool}`)
+    }
+
+    const pipe = r.pipeline()
+    for (const key of keys) pipe.get(key)
+    const vals = (await pipe.exec()) as unknown[]
+
+    const map = new Map<string, number>()
+    keys.forEach((key, i) => map.set(key, Number(vals[i]) || 0))
+
+    return { upscale: build(map, 'upscale'), removeBg: build(map, 'remove-bg') }
+  } catch {
+    const empty = new Map<string, number>()
+    return { upscale: build(empty, 'upscale'), removeBg: build(empty, 'remove-bg') }
   }
 }
 

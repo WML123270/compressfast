@@ -5,17 +5,32 @@ import { Upload, Sparkles, Download, Loader2, Lock, Trash2, ImagePlus } from 'lu
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { upscaleImage } from '@/lib/ai/upscale'
+import { trackAiEvent } from '@/lib/ai/analytics'
 
 type Status = 'idle' | 'loading-model' | 'processing' | 'done' | 'error'
 
 export default function UpscaleClient() {
   const { locale } = useT()
   const isZh = locale === 'zh'
-  const { isPro, checkProStatus } = useCompressionStore()
+  const { isPro, proLoading, checkProStatus } = useCompressionStore()
 
   useEffect(() => {
     checkProStatus()
   }, [checkProStatus])
+
+  // AI 埋点：曝光 / Pro 门控曝光（只记一次）
+  const viewTracked = useRef(false)
+  const gateTracked = useRef(false)
+  useEffect(() => {
+    if (viewTracked.current) return
+    viewTracked.current = true
+    trackAiEvent('view', 'upscale')
+  }, [])
+  useEffect(() => {
+    if (proLoading || isPro || gateTracked.current) return
+    gateTracked.current = true
+    trackAiEvent('gate', 'upscale')
+  }, [proLoading, isPro])
 
   const [original, setOriginal] = useState<string | null>(null)
   const [originalName, setOriginalName] = useState('')
@@ -62,6 +77,9 @@ export default function UpscaleClient() {
     const file = fileInputRef.current?.files?.[0]
     if (!file) return
 
+    const startedAt = performance.now()
+    trackAiEvent('start', 'upscale', { scale })
+
     try {
       setError('')
       setProgress(null)
@@ -79,9 +97,11 @@ export default function UpscaleClient() {
         bmp.close()
       } catch { setResultDims(null) }
       setStatus('done')
+      trackAiEvent('success', 'upscale', { scale, durationMs: Math.round(performance.now() - startedAt) })
     } catch (e) {
       setStatus('error')
       setError(e instanceof Error ? e.message : (isZh ? '放大失败' : 'Failed to upscale'))
+      trackAiEvent('error', 'upscale', { scale })
     }
   }, [originalName, isZh, scale])
 
@@ -104,6 +124,7 @@ export default function UpscaleClient() {
     a.href = result
     a.download = originalName.replace(/\.[^.]+$/, '') + `-${scale}x.png`
     a.click()
+    trackAiEvent('download', 'upscale', { scale })
   }, [result, originalName, scale])
 
   // 切换倍数后清空旧结果，避免 2x/4x 结果混淆
