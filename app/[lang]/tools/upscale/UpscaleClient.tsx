@@ -24,6 +24,7 @@ export default function UpscaleClient() {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
   const [dragging, setDragging] = useState(false)
+  const [scale, setScale] = useState<2 | 4>(4)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -57,7 +58,7 @@ export default function UpscaleClient() {
       setStatus('loading-model')
       const buf = await file.arrayBuffer()
       setStatus('processing')
-      const { blob } = await upscaleImage(buf)
+      const { blob } = await upscaleImage(buf, scale)
       setResult(URL.createObjectURL(blob))
       // 读取放大后尺寸用于展示
       try {
@@ -70,7 +71,7 @@ export default function UpscaleClient() {
       setStatus('error')
       setError(e instanceof Error ? e.message : (isZh ? '放大失败' : 'Failed to upscale'))
     }
-  }, [originalName, isZh])
+  }, [originalName, isZh, scale])
 
   const reset = useCallback(() => {
     setOriginal(null)
@@ -86,11 +87,22 @@ export default function UpscaleClient() {
     if (!result) return
     const a = document.createElement('a')
     a.href = result
-    a.download = originalName.replace(/\.[^.]+$/, '') + '-4x.png'
+    a.download = originalName.replace(/\.[^.]+$/, '') + `-${scale}x.png`
     a.click()
-  }, [result, originalName])
+  }, [result, originalName, scale])
+
+  // 切换倍数后清空旧结果，避免 2x/4x 结果混淆
+  const changeScale = useCallback((next: 2 | 4) => {
+    if (next === scale) return
+    setScale(next)
+    setResult(null)
+    setResultDims(null)
+    setStatus('idle')
+    setError('')
+  }, [scale])
 
   const locked = !isPro
+  const busy = status === 'loading-model' || status === 'processing'
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -118,7 +130,7 @@ export default function UpscaleClient() {
             {isZh ? '拖入图片，或点击上传' : 'Drop an image or click to upload'}
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            {isZh ? 'AI 无损放大 4x · 100% 本地处理，图片不上传' : 'AI 4x upscale · 100% local, image never leaves your device'}
+            {isZh ? 'AI 无损放大 2x / 4x · 100% 本地处理，图片不上传' : 'AI 2x / 4x upscale · 100% local, image never leaves your device'}
           </p>
         </div>
       )}
@@ -130,9 +142,28 @@ export default function UpscaleClient() {
             <img src={original} alt="original" className="w-full max-h-72 object-contain bg-[repeating-conic-gradient(#e5e7eb_0%_25%,#fff_0%_50%)_0_0/16px_16px]" />
           </div>
           <div className="p-4 flex flex-wrap items-center gap-3">
+            {/* 放大倍数选择 */}
+            <div
+              className="inline-flex items-center rounded-lg border border-gray-300 p-0.5"
+              role="group"
+              aria-label={isZh ? '放大倍数' : 'Upscale factor'}
+            >
+              {([2, 4] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => changeScale(s)}
+                  disabled={busy}
+                  className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-colors disabled:opacity-50 ${
+                    scale === s ? 'bg-cyan-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {s}×
+                </button>
+              ))}
+            </div>
             <button
               onClick={run}
-              disabled={locked || status === 'loading-model' || status === 'processing'}
+              disabled={locked || busy}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:opacity-90 disabled:opacity-50"
             >
               {status === 'loading-model' || status === 'processing' ? (
@@ -148,7 +179,7 @@ export default function UpscaleClient() {
                   ? (isZh ? '放大中…' : 'Upscaling…')
                   : locked
                     ? (isZh ? 'Pro 专属功能' : 'Pro Only')
-                    : (isZh ? 'AI 放大 4x' : 'AI Upscale 4x')}
+                    : (isZh ? `AI 放大 ${scale}x` : `AI Upscale ${scale}x`)}
             </button>
             <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:border-cyan-300">
               <ImagePlus className="w-4 h-4" /> {isZh ? '换图' : 'Change'}

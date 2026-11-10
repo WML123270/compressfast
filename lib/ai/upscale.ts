@@ -15,10 +15,11 @@ export interface UpscaleResult {
 }
 
 /**
- * 对图片做本地 AI 放大（4x 超分辨率），返回放大后的 PNG。
+ * 对图片做本地 AI 放大（2x / 4x 超分辨率），返回放大后的 PNG。
+ * 2x 复用 4x 模型输出后做高质量降采样，不额外加载模型。
  * 全程在浏览器本地推理，图片不上传服务器。
  */
-export function upscaleImage(imageBuffer: ArrayBuffer): Promise<UpscaleResult> {
+export function upscaleImage(imageBuffer: ArrayBuffer, scale: 2 | 4 = 4): Promise<UpscaleResult> {
   return new Promise((resolve, reject) => {
     const w = getWorker()
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36)
@@ -34,6 +35,6 @@ export function upscaleImage(imageBuffer: ArrayBuffer): Promise<UpscaleResult> {
     }
 
     w.addEventListener('message', onMessage)
-    w.postMessage({ id, imageBuffer }, [imageBuffer])
+    w.postMessage({ id, imageBuffer, scale }, [imageBuffer])
   })
 }

@@ -47,6 +47,7 @@ async function getSession(): Promise<any> {
 interface UpscaleMsg {
   id: string
   imageBuffer: ArrayBuffer
+  scale: 2 | 4
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -95,7 +96,7 @@ function makeRamp(len: number, tileOutStart: number, outSize: number, cl: number
 }
 
 // ─── 主流程：分块推理 + 重叠加权缝合 ───
-async function upscaleBitmap(bitmap: ImageBitmap): Promise<Blob> {
+async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4 = 4): Promise<Blob> {
   const o = await getOrt()
   const s = await getSession()
   const inputName = s.inputNames[0]
@@ -183,14 +184,26 @@ async function upscaleBitmap(bitmap: ImageBitmap): Promise<Blob> {
     img.data[o + 3] = 255
   }
   outCtx.putImageData(img, 0, 0)
+
+  // 2x 模式：对 4x 结果做高质量 2:1 降采样（复用 4x 模型，无需第二个模型文件）
+  if (scale === 2) {
+    const w2 = Math.max(1, Math.round(outW / 2))
+    const h2 = Math.max(1, Math.round(outH / 2))
+    const half = new OffscreenCanvas(w2, h2)
+    const hctx = half.getContext('2d')!
+    hctx.imageSmoothingEnabled = true
+    hctx.imageSmoothingQuality = 'high'
+    hctx.drawImage(outCanvas, 0, 0, w2, h2)
+    return half.convertToBlob({ type: 'image/png' })
+  }
   return outCanvas.convertToBlob({ type: 'image/png' })
 }
 
 self.onmessage = async (e: MessageEvent<UpscaleMsg>) => {
-  const { id, imageBuffer } = e.data
+  const { id, imageBuffer, scale } = e.data
   try {
     const bitmap = await createImageBitmap(new Blob([imageBuffer]))
-    const blob = await upscaleBitmap(bitmap)
+    const blob = await upscaleBitmap(bitmap, scale ?? 4)
     bitmap.close()
     ;(self as unknown as Worker).postMessage({ id, type: 'done', resultBlob: blob })
   } catch (err: unknown) {

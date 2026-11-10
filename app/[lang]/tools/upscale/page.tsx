@@ -11,10 +11,10 @@ export function generateMetadata({ params }: Props): Metadata {
   const isZh = params.lang === 'zh'
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.site'
   return {
-    title: isZh ? 'AI 图片无损放大 - 免费本地超分辨率 4x' : 'AI Image Upscaler - Free Local 4x Super Resolution',
+    title: isZh ? 'AI 图片无损放大 - 免费本地超分辨率 2x/4x' : 'AI Image Upscaler - Free Local 2x/4x Super Resolution',
     description: isZh
-      ? 'AI 图片放大在线工具，100% 浏览器本地处理，图片不上传服务器。一键将图片无损放大 4 倍，模糊小图变高清，隐私安全。'
-      : 'AI image upscaler running 100% in your browser. Images never leave your device. One-click 4x super-resolution, privacy-first.',
+      ? 'AI 图片放大在线工具，100% 浏览器本地处理，图片不上传服务器。一键将图片无损放大 2 倍或 4 倍，模糊小图变高清，隐私安全。'
+      : 'AI image upscaler running 100% in your browser. Images never leave your device. One-click 2x or 4x super-resolution, privacy-first.',
     alternates: {
       canonical: `${siteUrl}/${params.lang}/tools/upscale`,
     },
@@ -25,12 +25,12 @@ export default function UpscalePage({ params }: Props) {
   const isZh = params.lang === 'zh'
   const benefits = [
     { icon: '🔒', t: isZh ? '隐私安全' : 'Privacy', d: isZh ? '本地 AI 推理，图片不上传服务器' : 'Local AI inference, no upload' },
-    { icon: '✨', t: isZh ? '4 倍放大' : '4x Upscale', d: isZh ? 'AI 脑补细节，比传统插值更清晰' : 'AI detail synthesis, sharper than interpolation' },
+    { icon: '✨', t: isZh ? '2x / 4x 放大' : '2x / 4x Upscale', d: isZh ? 'AI 脑补细节，比传统插值更清晰' : 'AI detail synthesis, sharper than interpolation' },
     { icon: '⚡', t: isZh ? '一键完成' : 'One-Click', d: isZh ? '拖入图片即自动放大' : 'Drop an image and it auto-upscales' },
   ]
   const howTo = [
     { s: '1', t: isZh ? '上传图片' : 'Upload', d: isZh ? '拖入或点击上传需要放大的图片' : 'Drop or click to upload an image' },
-    { s: '2', t: isZh ? 'AI 自动放大' : 'AI Upscale', d: isZh ? '本地 AI 模型智能放大 4 倍并补充细节' : 'Local AI model upscales 4x and fills in detail' },
+    { s: '2', t: isZh ? '选择倍数并放大' : 'Pick Scale & Upscale', d: isZh ? '选择 2x 或 4x，本地 AI 模型补充细节' : 'Choose 2x or 4x — the local AI model fills in detail' },
     { s: '3', t: isZh ? '下载高清图' : 'Download', d: isZh ? '下载放大后的高清 PNG 图片' : 'Download the high-res PNG' },
   ]
   const faqs = [
@@ -44,7 +44,7 @@ export default function UpscalePage({ params }: Props) {
     },
     {
       q: isZh ? '最大能放大多少？' : 'How much can I upscale?',
-      a: isZh ? '本工具输出 4 倍放大（例如 512×512 变成 2048×2048）。为保障浏览器流畅运行，输入图片长边超过 512 像素时会自动等比缩小后再放大。' : 'This tool outputs 4x (e.g. 512×512 becomes 2048×2048). To keep it smooth in the browser, inputs with a long edge over 512px are auto-resized down first.',
+      a: isZh ? '支持 2 倍和 4 倍放大（例如 512×512 可变成 1024×1024 或 2048×2048）。为保障浏览器流畅运行，输入图片长边超过 512 像素时会自动等比缩小后再放大。' : 'Choose 2x or 4x (e.g. 512×512 becomes 1024×1024 or 2048×2048). To keep it smooth in the browser, inputs with a long edge over 512px are auto-resized down first.',
     },
     {
       q: isZh ? '为什么需要 Pro？' : 'Why do I need Pro?',
@@ -60,8 +60,8 @@ export default function UpscalePage({ params }: Props) {
         </h1>
         <p className="text-sm sm:text-lg text-gray-700 max-w-xl mx-auto">
           {isZh
-            ? '100% 浏览器本地 AI 放大，图片不上传服务器，一键放大 4 倍变高清。'
-            : 'AI upscaling running 100% in your browser — no upload, one-click 4x high-res.'}
+            ? '100% 浏览器本地 AI 放大，图片不上传服务器，2 倍 / 4 倍一键变高清。'
+            : 'AI upscaling running 100% in your browser — no upload, one-click 2x / 4x high-res.'}
         </p>
       </section>
 
@@ -70,7 +70,7 @@ export default function UpscalePage({ params }: Props) {
       <section className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-3">
         <p>
           {isZh
-            ? '极速压图的 AI 放大功能，使用 Real-ESRGAN 超分辨率模型（realesr-general-x4v3），在您的浏览器本地完成 4 倍无损放大。与需要上传图片到云端的工具不同，本工具全程本地处理，既保护隐私，也避免了大文件上传的等待。'
+            ? '极速压图的 AI 放大功能，使用 Real-ESRGAN 超分辨率模型（realesr-general-x4v3），在您的浏览器本地完成 2 倍 / 4 倍无损放大。与需要上传图片到云端的工具不同，本工具全程本地处理，既保护隐私，也避免了大文件上传的等待。'
             : 'CompressFast\'s AI upscaler uses the Real-ESRGAN super-resolution model (realesr-general-x4v3) running entirely in your browser. Unlike tools that upload your image to the cloud, everything happens locally — protecting your privacy and avoiding large uploads.'}
         </p>
       </section>
