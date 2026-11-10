@@ -1,6 +1,6 @@
-// CompressFast Service Worker v8
+// CompressFast Service Worker v9
 // Caches static assets for faster repeat visits and basic offline support.
-const CACHE = 'png-compressor-v8'
+const CACHE = 'png-compressor-v9'
 
 // Pre-cache app shell assets
 const PRE_CACHE = [

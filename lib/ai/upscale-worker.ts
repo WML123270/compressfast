@@ -38,8 +38,11 @@ async function getSession(): Promise<any> {
   if (!loading) {
     loading = (async () => {
       const o = await getOrt()
+      // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
+      // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
+      // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。
       session = await o.InferenceSession.create(MODEL_URL, {
-        executionProviders: ['webgpu', 'wasm'],
+        executionProviders: ['wasm'],
       })
       return session
     })()
