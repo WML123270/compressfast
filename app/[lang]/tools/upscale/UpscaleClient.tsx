@@ -25,6 +25,8 @@ export default function UpscaleClient() {
   const [error, setError] = useState('')
   const [dragging, setDragging] = useState(false)
   const [scale, setScale] = useState<2 | 4>(4)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const [comparePos, setComparePos] = useState(50)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -55,10 +57,13 @@ export default function UpscaleClient() {
 
     try {
       setError('')
+      setProgress(null)
       setStatus('loading-model')
       const buf = await file.arrayBuffer()
       setStatus('processing')
-      const { blob } = await upscaleImage(buf, scale)
+      const { blob } = await upscaleImage(buf, scale, setProgress)
+      setProgress(null)
+      setComparePos(50)
       setResult(URL.createObjectURL(blob))
       // 读取放大后尺寸用于展示
       try {
@@ -80,6 +85,8 @@ export default function UpscaleClient() {
     setResultDims(null)
     setStatus('idle')
     setError('')
+    setProgress(null)
+    setComparePos(50)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
@@ -99,10 +106,12 @@ export default function UpscaleClient() {
     setResultDims(null)
     setStatus('idle')
     setError('')
+    setProgress(null)
   }, [scale])
 
   const locked = !isPro
   const busy = status === 'loading-model' || status === 'processing'
+  const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -176,7 +185,9 @@ export default function UpscaleClient() {
               {status === 'loading-model'
                 ? (isZh ? '加载模型中…' : 'Loading model…')
                 : status === 'processing'
-                  ? (isZh ? '放大中…' : 'Upscaling…')
+                  ? pct > 0
+                    ? (isZh ? `放大中 ${pct}%` : `Upscaling ${pct}%`)
+                    : (isZh ? '放大中…' : 'Upscaling…')
                   : locked
                     ? (isZh ? 'Pro 专属功能' : 'Pro Only')
                     : (isZh ? `AI 放大 ${scale}x` : `AI Upscale ${scale}x`)}
@@ -215,12 +226,47 @@ export default function UpscaleClient() {
       {/* 结果 */}
       {result && (
         <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-          <div className="relative">
+          {/* 原图 / AI 结果对比 */}
+          <div className="relative select-none">
             <img
               src={result}
               alt="result"
               className="w-full max-h-96 object-contain bg-[repeating-conic-gradient(#e5e7eb_0%_25%,#fff_0%_50%)_0_0/16px_16px]"
             />
+            {original && (
+              <img
+                src={original}
+                alt="original"
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-contain"
+                style={{ clipPath: `inset(0 ${100 - comparePos}% 0 0)` }}
+              />
+            )}
+            {/* 分割线 */}
+            <div
+              className="absolute inset-y-0 pointer-events-none -translate-x-1/2 w-0.5 bg-white/90 shadow-[0_0_4px_rgba(0,0,0,0.5)]"
+              style={{ left: `${comparePos}%` }}
+            />
+            <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/55 text-white text-[10px] font-semibold">
+              {isZh ? '原图' : 'Original'}
+            </span>
+            <span className="absolute top-2 right-2 px-2 py-0.5 rounded bg-cyan-600/85 text-white text-[10px] font-semibold">
+              AI {scale}x
+            </span>
+          </div>
+          <div className="px-4 pt-3">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={comparePos}
+              onChange={(e) => setComparePos(Number(e.target.value))}
+              aria-label={isZh ? '对比原图与放大结果' : 'Compare original and upscaled result'}
+              className="w-full accent-cyan-500 cursor-ew-resize"
+            />
+            <p className="text-center text-[11px] text-gray-400 mt-1">
+              {isZh ? '拖动滑块对比原图与 AI 放大效果' : 'Drag to compare original and AI result'}
+            </p>
           </div>
           <div className="p-4 flex flex-col items-center gap-2">
             {resultDims && (

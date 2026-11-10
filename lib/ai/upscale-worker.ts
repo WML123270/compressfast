@@ -96,7 +96,7 @@ function makeRamp(len: number, tileOutStart: number, outSize: number, cl: number
 }
 
 // ─── 主流程：分块推理 + 重叠加权缝合 ───
-async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4 = 4): Promise<Blob> {
+async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4, id: string): Promise<Blob> {
   const o = await getOrt()
   const s = await getSession()
   const inputName = s.inputNames[0]
@@ -124,6 +124,8 @@ async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4 = 4): Promise<Blo
   const tileOut = TILE_SIZE * SCALE // 1024
 
   // 3. 逐块推理 + 融合
+  const totalTiles = nx * ny
+  let doneTiles = 0
   for (let ty = 0; ty < ny; ty++) {
     for (let tx = 0; tx < nx; tx++) {
       const cx = tx * step
@@ -167,6 +169,15 @@ async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4 = 4): Promise<Blo
           wsum[outIdx] += wgt
         }
       }
+
+      // 进度反馈：每完成一个 tile 上报一次（最多 9 块左右，无节流必要）
+      doneTiles++
+      ;(self as unknown as Worker).postMessage({
+        id,
+        type: 'progress',
+        done: doneTiles,
+        total: totalTiles,
+      })
     }
   }
 
@@ -203,7 +214,7 @@ self.onmessage = async (e: MessageEvent<UpscaleMsg>) => {
   const { id, imageBuffer, scale } = e.data
   try {
     const bitmap = await createImageBitmap(new Blob([imageBuffer]))
-    const blob = await upscaleBitmap(bitmap, scale ?? 4)
+    const blob = await upscaleBitmap(bitmap, scale ?? 4, id)
     bitmap.close()
     ;(self as unknown as Worker).postMessage({ id, type: 'done', resultBlob: blob })
   } catch (err: unknown) {

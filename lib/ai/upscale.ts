@@ -14,18 +14,31 @@ export interface UpscaleResult {
   blob: Blob
 }
 
+export interface UpscaleProgress {
+  done: number
+  total: number
+}
+
 /**
  * 对图片做本地 AI 放大（2x / 4x 超分辨率），返回放大后的 PNG。
  * 2x 复用 4x 模型输出后做高质量降采样，不额外加载模型。
  * 全程在浏览器本地推理，图片不上传服务器。
  */
-export function upscaleImage(imageBuffer: ArrayBuffer, scale: 2 | 4 = 4): Promise<UpscaleResult> {
+export function upscaleImage(
+  imageBuffer: ArrayBuffer,
+  scale: 2 | 4 = 4,
+  onProgress?: (p: UpscaleProgress) => void,
+): Promise<UpscaleResult> {
   return new Promise((resolve, reject) => {
     const w = getWorker()
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36)
 
     const onMessage = (e: MessageEvent) => {
       if (e.data?.id !== id) return
+      if (e.data.type === 'progress') {
+        onProgress?.({ done: e.data.done, total: e.data.total })
+        return
+      }
       w.removeEventListener('message', onMessage)
       if (e.data.type === 'done') {
         resolve({ blob: e.data.resultBlob as Blob })
