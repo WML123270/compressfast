@@ -7,7 +7,7 @@ import { TOOLS } from '@/lib/tool-pages'
 import { ArrowRight } from 'lucide-react'
 import { TOOL_ICONS } from '@/lib/tool-icons'
 
-const FEATURED = ['compress-png', 'compress-jpeg', 'convert-to-webp', 'webp-to-jpg', 'heic-to-jpg', 'compress-images']
+const FEATURED = ['compress-png', 'compress-jpeg', 'convert-to-webp', 'webp-to-jpg', 'heic-to-jpg', 'compress-images', 'image-to-pdf']
 
 export function PopularTools() {
   const isCn = useIsCn()
@@ -24,7 +24,7 @@ export function PopularTools() {
             {isZh ? '🔥 热门图片工具' : '🔥 Popular Image Tools'}
           </h2>
           <p className="text-sm text-neutral-600 mt-1.5">
-            18款免费在线工具，全部浏览器本地处理，不上传服务器
+            {allTools.length + 2} 款免费在线工具，全部浏览器本地处理，不上传服务器
           </p>
         </div>
 

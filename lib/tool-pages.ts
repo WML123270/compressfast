@@ -1504,6 +1504,58 @@ When to use WebP vs MP4: WebP is the true GIF replacement — perfect for memes,
 何时用WebP而非MP4：WebP是真正的GIF替代品——非常适合表情包、反应片段和短循环动画，你想要一个轻量、兼容性广的图片格式文件。对于更长的视频内容（录屏、教程），MP4提供更好的压缩。极速压图以完整保留动画的方式处理GIF转WebP路径。`,
     relatedTools: ['compress-gif', 'convert-to-webp', 'avif-to-webp', 'compress-images'],
   },
+
+  'image-to-pdf': {
+    slug: 'image-to-pdf',
+    titleEn: 'Convert Images to PDF Online Free — No Upload | CompressFast',
+    titleZh: '图片转 PDF 在线免费 — 多图合成 PDF | 极速压图',
+    descriptionEn: 'Convert JPG, PNG and WebP images into one PDF right in your browser. Reorder pages, choose A4 or Letter, set margins and quality. Files never leave your device.',
+    descriptionZh: '免费在线图片转 PDF：多张 JPG/PNG/WebP 图片一键合成一个 PDF。可调整页序、选择 A4/Letter、设置页边距与画质，全程浏览器本地处理，文件不上传。',
+    keywords: ['image to pdf', 'images to pdf', 'jpg to pdf', 'png to pdf', 'convert images to pdf', 'combine images into pdf', 'photos to pdf', '图片转pdf', 'jpg转pdf', '多图合成pdf', 'png转pdf', '照片转pdf'],
+    heroTitleEn: 'Convert Images to PDF',
+    heroTitleZh: '图片转 PDF，多图合成一个文件',
+    heroSubEn: 'Merge JPG, PNG and WebP into a single PDF — reorder pages, pick A4/Letter, 100% local, no upload.',
+    heroSubZh: '多张图片一键合成 PDF：自由排序、选页面尺寸、调画质。全程本地处理，图片不上传。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '🔒', titleEn: '100% Private', titleZh: '100% 隐私安全', descEn: 'Your images and the generated PDF never leave your device. Conversion runs entirely in your browser.', descZh: '图片与生成的 PDF 都不会离开你的设备，转换完全在浏览器本地完成。' },
+      { icon: '📑', titleEn: 'Reorder Pages Freely', titleZh: '自由排序页面', descEn: 'Drag or use the arrow buttons to arrange pages exactly the way you want before merging.', descZh: '拖拽或上下按钮调整顺序，按你想要的方式合并每一页。' },
+      { icon: '🎛️', titleEn: 'Size & Quality Control', titleZh: '体积画质可控', descEn: 'Choose A4, Letter or fit-to-image, set margins, resolution and JPEG quality to keep the PDF small.', descZh: '支持 A4、Letter 或跟随图片比例，可调页边距、分辨率与画质，PDF 体积更小。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add Your Images', titleZh: '添加图片', descEn: 'Drag in or select multiple JPG, PNG, WebP or HEIC files. Every image becomes one PDF page.', descZh: '拖入或选择多张 JPG、PNG、WebP、HEIC 图片，每张图片对应 PDF 的一页。' },
+      { step: 2, titleEn: 'Arrange & Configure', titleZh: '排序与设置', descEn: 'Move pages up or down, then pick page size, orientation, margins, resolution and quality.', descZh: '上下移动调整页序，再选择页面尺寸、方向、页边距、分辨率与画质。' },
+      { step: 3, titleEn: 'Generate & Download', titleZh: '生成并下载', descEn: 'Click Generate PDF — the file is assembled locally and downloaded instantly.', descZh: '点击“生成 PDF”，文件在本地合成，随后即可下载。' },
+    ],
+    faqs: [
+      { qEn: 'Are my images uploaded to a server?', qZh: '图片会被上传到服务器吗？', aEn: 'No. The PDF is assembled entirely inside your browser using JavaScript. Your images never leave your device, and you can even disconnect from the internet after the page loads.', aZh: '不会。PDF 完全在浏览器中用 JavaScript 合成，图片不会离开你的设备。页面加载后即使断网也能正常转换。' },
+      { qEn: 'Which image formats are supported?', qZh: '支持哪些图片格式？', aEn: 'JPG/JPEG, PNG, WebP, BMP and GIF (first frame) are supported. HEIC/HEIF photos from iPhone are converted automatically in the browser. PDF and video files are not supported.', aZh: '支持 JPG/JPEG、PNG、WebP、BMP 和 GIF（取第一帧）。iPhone 的 HEIC/HEIF 照片会在浏览器中自动转码。不支持 PDF 或视频文件。' },
+      { qEn: 'Can I change the page order?', qZh: '可以调整页码顺序吗？', aEn: 'Yes. Drag a row to a new position, or use the up/down buttons (handy on phones). A "sort by file name" button is also available.', aZh: '可以。拖动行到新位置，或使用上下按钮（手机上更方便），还支持按文件名一键排序。' },
+      { qEn: 'How do I keep the PDF file small?', qZh: '怎样让 PDF 体积更小？', aEn: 'Lower the JPEG quality slider and pick a smaller max resolution (1600px). For scans and screenshots this often cuts the PDF size by several times with little visible difference. The generated size is shown before download.', aZh: '降低画质滑杆并选择较小分辨率（1600px）即可。对扫描件和截图通常可以把体积减小数倍，肉眼几乎看不出差异。生成后会显示实际文件大小。' },
+      { qEn: 'What are the page size options?', qZh: '页面尺寸有哪些选项？', aEn: 'A4 and US Letter, with automatic, portrait or landscape orientation. "Fit to image" makes each page match the image aspect ratio, so there are no white bars around photos.', aZh: '支持 A4 和 US Letter，方向可选自动、纵向或横向。“跟随图片”会让每页尺寸匹配图片比例，照片周围不会出现白边。' },
+      { qEn: 'Is there a limit on the number of images?', qZh: '一次可以转换多少张图片？', aEn: 'You can merge up to 50 images per PDF, each up to 50MB. Very large photos are downscaled to the resolution you select to keep memory and file size under control.', aZh: '单个 PDF 最多合并 50 张图片，单张不超过 50MB。超大照片会按你选择的分辨率缩放，以控制内存占用和文件体积。' },
+      { qEn: 'Does converting images to PDF lose quality?', qZh: '图片转 PDF 会损失画质吗？', aEn: 'Images are re-encoded as JPEG at the quality you choose (90% by default) and capped at the selected resolution. At default settings the page looks identical on screen and in print. Raise quality to 95% or resolution to 3200px if you need archival fidelity.', aZh: '图片会按你选择的画质（默认 90%）重新编码为 JPEG，并按所选分辨率限制长边。默认设置下屏幕和打印效果基本无差别。如需更高保真，可把画质调到 95%、分辨率调到 3200px。' },
+    ],
+    detailedGuideEn: `Turning a set of photos into one PDF is one of the most common office and school tasks: merging ID photos, scanned contracts, screenshots, class notes or travel pictures into a single file that is easy to print, upload or email. CompressFast's image-to-PDF converter runs entirely in your browser — your images are never uploaded to a server, and the tool still works after you disconnect from the internet.
+
+The workflow is simple. Drag JPG, PNG, WebP or HEIC images into the upload area, arrange the pages with the up/down buttons or by dragging rows, then choose the page size (A4, US Letter, or fit-to-image), margins, resolution and JPEG quality. Click Generate PDF and the file is assembled locally. Each image becomes exactly one page and is scaled proportionally to fit the page, so nothing is cropped or stretched.
+
+Why does local processing matter? Contracts, ID cards, invoices and medical records often contain sensitive information. Uploading them to a third-party server means the data leaves your device. Local conversion minimizes that risk and also skips the upload/download wait, even for large photos.
+
+File size is under your control. PDF pages are re-encoded as JPEG at the quality you select (90% by default) and capped at the maximum resolution you choose (up to 3200px on the long edge). For printing, pick a higher resolution; for WeChat or email, lower the quality to shrink the file further. The actual PDF size and page count are displayed before you download.
+
+A practical tip: HEIC photos from an iPhone can be added directly — they are transcoded in the browser. For scanned documents, run them through our image compressor or resize tool first, then merge the optimized images to get a much smaller PDF. The tool is free, requires no sign-up, and puts no watermark on your document.`,
+    detailedGuideZh: `把一组照片合成 PDF，是办公、学习和日常分享中最常见的需求之一：证件照、合同扫描件、聊天截图、课程笔记或旅行照片，合并成一个文件后更方便打印、上传或发送。极速压图的图片转 PDF 工具完全在浏览器本地运行，图片不会上传到任何服务器——页面加载后即使断网，也能完成转换。
+
+操作非常简单：把 JPG、PNG、WebP 或 HEIC 图片拖进上传区，用上下按钮或直接拖动调整页序，然后选择页面尺寸（A4、US Letter 或跟随图片比例）、页边距、分辨率和 JPEG 画质，点击“生成 PDF”即可。每张图片对应 PDF 的一页，图片按比例完整放入页面，不会裁切或拉伸。
+
+为什么本地处理很重要？合同、身份证、发票、病历等文件往往包含敏感信息，上传到第三方服务器意味着数据离开了你的设备。本地转换把风险降到最低，同时省去了上传和下载的等待时间，大图也能快速处理。
+
+文件体积由你掌控：PDF 中的图片会按所选画质（默认 90%）重新编码为 JPEG，并把长边限制在所选分辨率（最高 3200px）。需要打印时选高分辨率；只是发微信或邮件时，降低画质即可进一步减小体积。生成后会显示 PDF 的实际大小和页数，方便你判断。
+
+实用建议：iPhone 拍摄的 HEIC 照片可以直接添加，工具会在浏览器里自动转码；扫描件建议先用本站的“图片压缩”或“调整尺寸”工具优化，再合成 PDF，体积能小很多。本工具完全免费、无需注册，也不会在文档上加任何水印。`,
+    relatedTools: ['compress-jpeg', 'resize-image', 'remove-metadata', 'png-to-jpg'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

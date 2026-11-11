@@ -28,6 +28,7 @@ export const TOOL_ICONS: Record<string, string> = {
   'gif-to-webp': '🎞️',
   'remove-bg': '✂️',
   'upscale': '🔍',
+  'image-to-pdf': '📄',
 }
 
 export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
@@ -56,4 +57,5 @@ export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
   'gif-to-webp': { en: 'GIF to WebP', zh: 'GIF 转 WebP' },
   'remove-bg': { en: 'AI Remove Background', zh: 'AI 抠图' },
   'upscale': { en: 'AI Upscale', zh: 'AI 放大' },
+  'image-to-pdf': { en: 'Images to PDF', zh: '图片转 PDF' },
 }

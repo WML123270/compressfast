@@ -32,8 +32,8 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   },
   {
     key: 'adjust',
-    label: { en: 'Adjust', zh: '调整' },
-    slugs: ['resize-image', 'remove-metadata', 'tinypng-alternative'],
+    label: { en: 'Adjust & Export', zh: '调整与导出' },
+    slugs: ['resize-image', 'remove-metadata', 'tinypng-alternative', 'image-to-pdf'],
   },
 ]
 

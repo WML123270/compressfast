@@ -25,6 +25,7 @@
     "next": "^14.2.29",
     "nodemailer": "^9.0.3",
     "onnxruntime-web": "^1.31.1",
+    "pdf-lib": "^1.17.1",
     "pngjs": "^7.0.0",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",

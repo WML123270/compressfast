@@ -8,6 +8,7 @@ import { ToolJsonLd } from '@/components/seo/ToolJsonLd'
 
 // Client component for the interactive tool area
 const ToolClient = dynamic(() => import('./ToolClient'), { ssr: false })
+const ImageToPdfClient = dynamic(() => import('./ImageToPdfClient'), { ssr: false })
 
 interface Props { params: { tool: string; lang: string } }
 
@@ -34,7 +35,7 @@ export function generateMetadata({ params }: Props): Metadata {
     keywords: tool.keywords,
     alternates: {
       languages: {
-        'en': `/${params.lang || 'en'}/tools/${params.tool}`,
+        'en': `/en/tools/${params.tool}`,
         'zh': `/zh/tools/${params.tool}`,
         'x-default': `/en/tools/${params.tool}`,
       },
@@ -59,6 +60,7 @@ export default function ToolPage({ params }: Props) {
 
   const isZh = params.lang === 'zh'
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.site'
+  const isPdfTool = params.tool === 'image-to-pdf'
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -76,7 +78,9 @@ export default function ToolPage({ params }: Props) {
       </section>
 
       {/* Interactive Tool Area */}
-      <ToolClient defaultSettings={tool.defaultSettings} />
+      {isPdfTool
+        ? <ImageToPdfClient />
+        : <ToolClient defaultSettings={tool.defaultSettings} />}
 
       {/* Content Intro — explains what this tool does with SEO-rich text */}
       <section className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-3">
@@ -84,9 +88,13 @@ export default function ToolPage({ params }: Props) {
           {isZh ? tool.descriptionZh : tool.descriptionEn}
         </p>
         <p>
-          {isZh
-            ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
-            : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.'}
+          {isPdfTool
+            ? (isZh
+                ? '极速压图的所有工具都在你的浏览器里运行——图片转 PDF 同样如此，图片和生成的 PDF 都不会上传到任何服务器，敏感文档更安全，也省去上传下载的等待。'
+                : 'Every CompressFast tool runs in your browser — image-to-PDF conversion included. Neither your images nor the generated PDF is uploaded to any server, so sensitive documents stay safe and there is no upload/download wait.')
+            : (isZh
+                ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
+                : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.')}
         </p>
       </section>
 
@@ -123,7 +131,7 @@ export default function ToolPage({ params }: Props) {
       {/* How To */}
       <section className="pt-4">
         <h2 className="font-bold text-gray-900 text-lg mb-4">
-          {isZh ? '三步完成' : 'How to ' + (isZh ? '' : tool.heroTitleEn.split(' ').slice(1).join(' '))}
+          {isZh ? '三步完成' : 'How It Works'}
         </h2>
         <div className="space-y-3">
           {tool.howTo.map((step, i) => (
