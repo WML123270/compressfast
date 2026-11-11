@@ -214,6 +214,30 @@ export async function recordAiDuration(tool: AiTool, ms: number): Promise<void> 
   ])
 }
 
+// ---- 图片转 PDF 埋点 ----
+
+export const PDF_EVENTS = ['generate', 'error', 'download'] as const
+export type PdfEventName = (typeof PDF_EVENTS)[number]
+
+/** 记录一次 PDF 工具行为（generate/error/download） */
+export async function incrementPdfEvent(event: PdfEventName): Promise<void> {
+  const date = formatDate(new Date())
+  await Promise.all([
+    incr(`stats:pdf:${event}:total`),
+    incr(`stats:pdf:${event}:daily:${date}`),
+  ])
+}
+
+/** 记录成功生成的页数与 PDF 体积（用于计算平均页数/体积） */
+export async function recordPdfOutput(pages: number, bytes: number): Promise<void> {
+  const safePages = Math.max(1, Math.min(Math.round(pages), 500))
+  const safeBytes = Math.max(0, Math.min(Math.round(bytes), 2 * 1024 * 1024 * 1024))
+  await Promise.all([
+    incr('stats:pdf:pages:total', safePages),
+    incr('stats:pdf:bytes:total', safeBytes),
+  ])
+}
+
 export interface DailyDataPoint {
   date: string
   value: number
@@ -252,6 +276,22 @@ export interface AiStats {
   removeBg: AiToolStats
 }
 
+export interface PdfDailyPoint {
+  date: string
+  generate: number
+  error: number
+  download: number
+}
+
+export interface PdfStats {
+  generate: number
+  error: number
+  download: number
+  totalPages: number
+  totalBytes: number
+  daily: PdfDailyPoint[]
+}
+
 export interface DashboardStats {
   totalPV: number
   totalUV: number
@@ -265,6 +305,7 @@ export interface DashboardStats {
   overseas: SiteStats
   china: SiteStats
   ai: AiStats
+  pdf: PdfStats
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -330,10 +371,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china, ai] = await Promise.all([
+  const [overseas, china, ai, pdf] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
     getAiStats(),
+    getPdfStats(),
   ])
 
   return {
@@ -349,6 +391,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     overseas,
     china,
     ai,
+    pdf,
   }
 }
 
@@ -412,6 +455,65 @@ async function getAiStats(): Promise<AiStats> {
   } catch {
     const empty = new Map<string, number>()
     return { upscale: build(empty, 'upscale'), removeBg: build(empty, 'remove-bg') }
+  }
+}
+
+/** 聚合图片转 PDF 的累计 + 近 7 天数据（一次 pipeline） */
+async function getPdfStats(): Promise<PdfStats> {
+  const days: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    days.push(formatDate(d))
+  }
+
+  const empty = (): PdfStats => ({
+    generate: 0,
+    error: 0,
+    download: 0,
+    totalPages: 0,
+    totalBytes: 0,
+    daily: days.map(date => ({ date, generate: 0, error: 0, download: 0 })),
+  })
+
+  const r = getRedis()
+  if (!r) return empty()
+
+  try {
+    const keys = [
+      'stats:pdf:generate:total',
+      'stats:pdf:error:total',
+      'stats:pdf:download:total',
+      'stats:pdf:pages:total',
+      'stats:pdf:bytes:total',
+    ]
+    for (const date of days) {
+      for (const ev of PDF_EVENTS) keys.push(`stats:pdf:${ev}:daily:${date}`)
+    }
+
+    const pipe = r.pipeline()
+    for (const key of keys) pipe.get(key)
+    const vals = (await pipe.exec()) as unknown[]
+
+    const map = new Map<string, number>()
+    keys.forEach((key, i) => map.set(key, Number(vals[i]) || 0))
+    const n = (key: string) => map.get(key) || 0
+
+    return {
+      generate: n('stats:pdf:generate:total'),
+      error: n('stats:pdf:error:total'),
+      download: n('stats:pdf:download:total'),
+      totalPages: n('stats:pdf:pages:total'),
+      totalBytes: n('stats:pdf:bytes:total'),
+      daily: days.map(date => ({
+        date,
+        generate: n(`stats:pdf:generate:daily:${date}`),
+        error: n(`stats:pdf:error:daily:${date}`),
+        download: n(`stats:pdf:download:daily:${date}`),
+      })),
+    }
+  } catch {
+    return empty()
   }
 }
 

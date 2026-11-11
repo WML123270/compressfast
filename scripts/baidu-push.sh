@@ -42,7 +42,7 @@ https://jisuyatu.com/en
 https://jisuyatu.com/zh/tool
 https://jisuyatu.com/en/tool
 
-# === 18 个 SEO 工具页 (中英双版) ===
+# === SEO 工具页 (中英双版) ===
 https://jisuyatu.com/zh/tools/compress-png
 https://jisuyatu.com/en/tools/compress-png
 https://jisuyatu.com/zh/tools/compress-jpeg
@@ -79,6 +79,8 @@ https://jisuyatu.com/zh/tools/svg-to-png
 https://jisuyatu.com/en/tools/svg-to-png
 https://jisuyatu.com/zh/tools/webp-to-jpg
 https://jisuyatu.com/en/tools/webp-to-jpg
+https://jisuyatu.com/zh/tools/image-to-pdf
+https://jisuyatu.com/en/tools/image-to-pdf
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

@@ -122,6 +122,36 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
+  // ---- 图片转 PDF ----
+  function fmtBytes(n: number): string {
+    if (!Number.isFinite(n) || n <= 0) return '0 B'
+    const units = ['B', 'KB', 'MB', 'GB']
+    let v = n
+    let i = 0
+    while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
+    return `${v >= 10 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}`
+  }
+  const pdf = data.pdf || {}
+  const pdfGen = pdf.generate || 0
+  const pdfErr = pdf.error || 0
+  const pdfDl = pdf.download || 0
+  const pdfPages = pdf.totalPages || 0
+  const pdfBytes = pdf.totalBytes || 0
+  const pdfAvgPages = pdfGen > 0 ? (pdfPages / pdfGen).toFixed(1) : '—'
+  const pdfAvgSize = pdfGen > 0 ? fmtBytes(pdfBytes / pdfGen) : '—'
+  const pdfDlRate = pdfGen > 0 ? Math.round((pdfDl / pdfGen) * 100) : 0
+  const pdfDaily = pdf.daily || []
+  let pdfRows = ''
+  for (let i = 0; i < pdfDaily.length; i++) {
+    const d = pdfDaily[i] || {}
+    pdfRows += `<tr>
+      <td class="date">${(d.date || '').slice(5)}</td>
+      <td class="num">${d.generate || 0}</td>
+      <td class="num">${d.error || 0}</td>
+      <td class="num">${d.download || 0}</td>
+    </tr>`
+  }
+
   return `<style>
     .db { font-family: -apple-system, sans-serif; }
     .db h1 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
@@ -179,6 +209,19 @@ function renderStats(data: any, ov: any, cn: any): string {
     <table>
       <tr><th>日期</th><th class="num">AI 抠图</th><th class="num">AI 放大</th></tr>
       ${aiRows}
+    </table>
+    <h2>📄 图片转 PDF（累计）</h2>
+    <div class="split">
+      <div class="box">
+        <h3>📄 生成 / 下载</h3>
+        <div class="s">生成 ${pdfGen} · 失败 ${pdfErr} · 下载 ${pdfDl} · 下载/生成 ${pdfDlRate}%</div>
+        <div class="s">平均 ${pdfAvgPages} 页/份 · 平均体积 ${pdfAvgSize}</div>
+      </div>
+    </div>
+    <h2>📅 图片转 PDF 近 7 天（生成 / 失败 / 下载）</h2>
+    <table>
+      <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
+      ${pdfRows}
     </table>
     <h2>📅 近7天明细</h2>
     <table>

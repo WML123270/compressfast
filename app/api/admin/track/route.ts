@@ -1,11 +1,11 @@
 /**
  * POST /api/admin/track
  * 记录网站事件（公开 API，前端调用）
- * Body: { event: 'pageview' | 'compression', count?: number }
+ * Body: { event: 'pageview' | 'compression' | 'ai' | 'pdf', ... }
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
 
 function getIP(request: NextRequest): string {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: 'bot' })
     }
 
-    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs } = await request.json()
+    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, pdfEvent, pages, bytes } = await request.json()
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
     const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
@@ -75,6 +75,25 @@ export async function POST(request: NextRequest) {
         if (aiEv === 'success') {
           const ms = Number(durationMs)
           if (Number.isFinite(ms) && ms > 0) await recordAiDuration(aiTool as AiTool, ms)
+        }
+        break
+      }
+      case 'pdf': {
+        const pdfEv = String(pdfEvent || '')
+        if (!PDF_EVENTS.includes(pdfEv as PdfEventName)) {
+          return NextResponse.json({ error: '未知 PDF 事件' }, { status: 400 })
+        }
+        // 生成/失败/下载都要求先有 pageview 会话，防脚本直连刷量
+        if (!(await isVisitorActive(visitorId || ''))) {
+          return NextResponse.json({ success: true, skipped: 'no_session' })
+        }
+        await incrementPdfEvent(pdfEv as PdfEventName)
+        if (pdfEv === 'generate') {
+          const p = Number(pages)
+          const b = Number(bytes)
+          if (Number.isFinite(p) && p > 0 && Number.isFinite(b) && b >= 0) {
+            await recordPdfOutput(p, b)
+          }
         }
         break
       }
