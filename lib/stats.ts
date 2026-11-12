@@ -6,6 +6,7 @@
 
 import { Redis } from '@upstash/redis'
 import type { LicenseRecord } from './license'
+import type { PdfTool } from './pdf/constants'
 
 // Lazy init Redis
 let redis: Redis | null = null
@@ -219,22 +220,32 @@ export async function recordAiDuration(tool: AiTool, ms: number): Promise<void> 
 export const PDF_EVENTS = ['generate', 'error', 'download'] as const
 export type PdfEventName = (typeof PDF_EVENTS)[number]
 
-/** 记录一次 PDF 工具行为（generate/error/download） */
-export async function incrementPdfEvent(event: PdfEventName): Promise<void> {
+/** 记录一次 PDF 工具行为（generate/error/download）；按工具另记一份总计数 */
+export async function incrementPdfEvent(
+  event: PdfEventName,
+  tool: PdfTool = 'image-to-pdf',
+): Promise<void> {
   const date = formatDate(new Date())
   await Promise.all([
     incr(`stats:pdf:${event}:total`),
     incr(`stats:pdf:${event}:daily:${date}`),
+    incr(`stats:pdf:${event}:tool:${tool}:total`),
   ])
 }
 
 /** 记录成功生成的页数与 PDF 体积（用于计算平均页数/体积） */
-export async function recordPdfOutput(pages: number, bytes: number): Promise<void> {
-  const safePages = Math.max(1, Math.min(Math.round(pages), 500))
+export async function recordPdfOutput(
+  pages: number,
+  bytes: number,
+  tool: PdfTool = 'image-to-pdf',
+): Promise<void> {
+  const safePages = Math.max(1, Math.min(Math.round(pages), 2000))
   const safeBytes = Math.max(0, Math.min(Math.round(bytes), 2 * 1024 * 1024 * 1024))
   await Promise.all([
     incr('stats:pdf:pages:total', safePages),
     incr('stats:pdf:bytes:total', safeBytes),
+    incr(`stats:pdf:pages:tool:${tool}:total`, safePages),
+    incr(`stats:pdf:bytes:tool:${tool}:total`, safeBytes),
   ])
 }
 

@@ -29,6 +29,9 @@ export const TOOL_ICONS: Record<string, string> = {
   'remove-bg': '✂️',
   'upscale': '🔍',
   'image-to-pdf': '📄',
+  'merge-pdf': '📎',
+  'split-pdf': '🔖',
+  'compress-pdf': '📉',
 }
 
 export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
@@ -58,4 +61,7 @@ export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
   'remove-bg': { en: 'AI Remove Background', zh: 'AI 抠图' },
   'upscale': { en: 'AI Upscale', zh: 'AI 放大' },
   'image-to-pdf': { en: 'Images to PDF', zh: '图片转 PDF' },
+  'merge-pdf': { en: 'Merge PDF', zh: 'PDF 合并' },
+  'split-pdf': { en: 'Split PDF', zh: 'PDF 拆分' },
+  'compress-pdf': { en: 'Compress PDF', zh: 'PDF 压缩' },
 }

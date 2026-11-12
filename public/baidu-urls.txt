@@ -52,3 +52,11 @@ https://jisuyatu.com/en/terms
 https://jisuyatu.com/zh/vs-tinypng
 https://jisuyatu.com/en/vs-tinypng
 https://jisuyatu.com/sitemap.xml
+
+# === PDF 工具（2026-11-12）===
+https://jisuyatu.com/zh/tools/merge-pdf
+https://jisuyatu.com/en/tools/merge-pdf
+https://jisuyatu.com/zh/tools/split-pdf
+https://jisuyatu.com/en/tools/split-pdf
+https://jisuyatu.com/zh/tools/compress-pdf
+https://jisuyatu.com/en/tools/compress-pdf

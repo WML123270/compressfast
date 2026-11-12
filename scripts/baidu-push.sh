@@ -81,6 +81,12 @@ https://jisuyatu.com/zh/tools/webp-to-jpg
 https://jisuyatu.com/en/tools/webp-to-jpg
 https://jisuyatu.com/zh/tools/image-to-pdf
 https://jisuyatu.com/en/tools/image-to-pdf
+https://jisuyatu.com/zh/tools/merge-pdf
+https://jisuyatu.com/en/tools/merge-pdf
+https://jisuyatu.com/zh/tools/split-pdf
+https://jisuyatu.com/en/tools/split-pdf
+https://jisuyatu.com/zh/tools/compress-pdf
+https://jisuyatu.com/en/tools/compress-pdf
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

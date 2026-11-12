@@ -20,6 +20,7 @@ const SKIP_PATHS = [
   '/_next/',
   '/models/',
   '/ort/',
+  '/pdfjs/',
   '/favicon.ico',
   '/robots.txt',
   '/sitemap.xml',

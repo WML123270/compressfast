@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync:pdfjs": "node scripts/copy-pdfjs.mjs",
+    "check:pdfjs": "node scripts/copy-pdfjs.mjs --check"
   },
   "dependencies": {
     "@jsquash/avif": "^2.1.1",
@@ -49,6 +51,7 @@
     "eslint-config-next": "^14.2.29",
     "gif-encoder-2": "^1.0.5",
     "gifenc": "^1.0.3",
+    "pdfjs-dist": "^4.10.38",
     "playwright": "^1.61.1",
     "postcss": "^8.5.3",
     "sharp": "^0.35.3",

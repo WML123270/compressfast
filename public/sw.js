@@ -1,6 +1,6 @@
-// CompressFast Service Worker v9
+// CompressFast Service Worker v10
 // Caches static assets for faster repeat visits and basic offline support.
-const CACHE = 'png-compressor-v9'
+const CACHE = 'png-compressor-v10'
 
 // Pre-cache app shell assets
 const PRE_CACHE = [
@@ -36,11 +36,12 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
   if (!request.url.startsWith('http')) return
 
-  // Never cache: API calls, admin, AI 模型/运行时（大文件，走 nginx 直连 + 带版本号缓存）
+  // Never cache: API calls, admin, AI 模型/运行时/PDF 引擎（大文件，走 nginx 直连 + 带版本号缓存）
   if (request.url.includes('/api/')) return
   if (request.url.includes('/admin')) return
   if (request.url.includes('/ort/')) return
   if (request.url.includes('/models/')) return
+  if (request.url.includes('/pdfjs/')) return
 
   // For HTML navigation: network-first with offline fallback
   if (request.mode === 'navigate' || request.destination === 'document') {

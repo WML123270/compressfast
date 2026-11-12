@@ -13,6 +13,11 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
     slugs: ['remove-bg', 'upscale'],
   },
   {
+    key: 'pdf',
+    label: { en: 'PDF', zh: 'PDF 工具' },
+    slugs: ['merge-pdf', 'split-pdf', 'compress-pdf', 'image-to-pdf'],
+  },
+  {
     key: 'compress',
     label: { en: 'Compress', zh: '压缩' },
     slugs: ['compress-png', 'compress-jpeg', 'compress-gif', 'compress-svg', 'compress-images'],
@@ -33,7 +38,7 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   {
     key: 'adjust',
     label: { en: 'Adjust & Export', zh: '调整与导出' },
-    slugs: ['resize-image', 'remove-metadata', 'tinypng-alternative', 'image-to-pdf'],
+    slugs: ['resize-image', 'remove-metadata', 'tinypng-alternative'],
   },
 ]
 
@@ -87,7 +92,7 @@ export function ToolsMenu() {
                           left-1/2 -translate-x-1/2 w-[calc(100vw-1.5rem)] max-w-[760px]
                           sm:left-0 sm:translate-x-0 sm:w-[760px]
                           max-h-[72vh] overflow-y-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {GROUPS.map(group => (
                 <div key={group.key}>
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400 mb-2 px-1">

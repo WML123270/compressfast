@@ -7,6 +7,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
+import {
+  PDF_TOOL_SLUGS,
+  PDF_COMPRESS_MODES,
+  type PdfTool,
+  type PdfCompressMode,
+} from '@/lib/pdf/constants'
 
 function getIP(request: NextRequest): string {
   // Vercel 走 Cloudflare：cf-connecting-ip 才是真实客户端 IP
@@ -26,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: 'bot' })
     }
 
-    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, pdfEvent, pages, bytes } = await request.json()
+    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, pdfEvent, mode, pages, bytes } = await request.json()
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
     const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
@@ -83,16 +89,24 @@ export async function POST(request: NextRequest) {
         if (!PDF_EVENTS.includes(pdfEv as PdfEventName)) {
           return NextResponse.json({ error: '未知 PDF 事件' }, { status: 400 })
         }
+        // tool 白名单；旧客户端没传时默认图片转 PDF
+        const pdfTool = String(tool || 'image-to-pdf')
+        if (!PDF_TOOL_SLUGS.includes(pdfTool as PdfTool)) {
+          return NextResponse.json({ error: '未知 PDF 工具' }, { status: 400 })
+        }
+        const pdfMode = PDF_COMPRESS_MODES.includes(String(mode) as PdfCompressMode)
+          ? (String(mode) as PdfCompressMode)
+          : undefined
         // 生成/失败/下载都要求先有 pageview 会话，防脚本直连刷量
         if (!(await isVisitorActive(visitorId || ''))) {
           return NextResponse.json({ success: true, skipped: 'no_session' })
         }
-        await incrementPdfEvent(pdfEv as PdfEventName)
+        await incrementPdfEvent(pdfEv as PdfEventName, pdfTool as PdfTool)
         if (pdfEv === 'generate') {
           const p = Number(pages)
           const b = Number(bytes)
           if (Number.isFinite(p) && p > 0 && Number.isFinite(b) && b >= 0) {
-            await recordPdfOutput(p, b)
+            await recordPdfOutput(p, b, pdfTool as PdfTool)
           }
         }
         break

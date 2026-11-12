@@ -1554,7 +1554,163 @@ A practical tip: HEIC photos from an iPhone can be added directly — they are t
 文件体积由你掌控：PDF 中的图片会按所选画质（默认 90%）重新编码为 JPEG，并把长边限制在所选分辨率（最高 3200px）。需要打印时选高分辨率；只是发微信或邮件时，降低画质即可进一步减小体积。生成后会显示 PDF 的实际大小和页数，方便你判断。
 
 实用建议：iPhone 拍摄的 HEIC 照片可以直接添加，工具会在浏览器里自动转码；扫描件建议先用本站的“图片压缩”或“调整尺寸”工具优化，再合成 PDF，体积能小很多。本工具完全免费、无需注册，也不会在文档上加任何水印。`,
-    relatedTools: ['compress-jpeg', 'resize-image', 'remove-metadata', 'png-to-jpg'],
+    relatedTools: ['merge-pdf', 'split-pdf', 'compress-pdf', 'compress-jpeg'],
+  },
+
+  'merge-pdf': {
+    slug: 'merge-pdf',
+    titleEn: 'Merge PDF Files Online Free — No Upload | CompressFast',
+    titleZh: 'PDF 合并在线免费 — 多个 PDF 合成一个文件 | 极速压图',
+    descriptionEn: 'Merge multiple PDF files into one document right in your browser. Reorder files, remove items and download instantly — no upload, no sign-up, no watermark.',
+    descriptionZh: '免费在线合并 PDF：把多个 PDF 拖入排序后一键合成一个文件。可上下移动、删除文件，全程浏览器本地处理，不上传、无需注册、无水印。',
+    keywords: ['merge pdf', 'combine pdf', 'join pdf files', 'pdf merger', 'merge pdf online free', 'combine pdf files', 'merge multiple pdfs', 'pdf合并', '合并pdf', '多个pdf合并', 'pdf合成一个文件'],
+    heroTitleEn: 'Merge PDF Files',
+    heroTitleZh: 'PDF 合并，多个文件合成一个',
+    heroSubEn: 'Combine up to 20 PDFs into one document — reorder, remove, download. Pages are copied, not re-encoded. 100% local.',
+    heroSubZh: '最多 20 个 PDF 一键合并：自由排序、删除、下载。页面原样复制，不重新编码，全程本地处理。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '🔒', titleEn: 'Files Never Leave Your Device', titleZh: '文件不离开你的设备', descEn: 'Merging runs entirely in your browser. Contracts, invoices and ID documents are never uploaded to a server.', descZh: '合并在浏览器本地完成，合同、发票、证件等敏感文件不会上传到任何服务器。' },
+      { icon: '🧩', titleEn: 'Pages Stay Pixel-Perfect', titleZh: '页面原样保留', descEn: 'Pages are copied into the new document instead of being re-encoded, so text, vectors and image quality stay exactly the same.', descZh: '页面直接复制进新文档，不重新编码，文字、矢量图形和图片画质完全不变。' },
+      { icon: '↕️', titleEn: 'Full Control of Order', titleZh: '自由控制顺序', descEn: 'Drag rows or use the arrow buttons to arrange files. Sort by file name in one click — handy for invoices and reports.', descZh: '拖动行或使用上下按钮调整顺序，还能按文件名一键排序，发票和报告合并更省心。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add 2–20 PDFs', titleZh: '添加 2–20 个 PDF', descEn: 'Drag PDFs into the upload area or click to browse. Each file is checked for page count and password protection.', descZh: '把 PDF 拖进上传区或点击选择。工具会自动读取页数并检查是否加密。' },
+      { step: 2, titleEn: 'Arrange the Order', titleZh: '调整文件顺序', descEn: 'Drag rows, use the up/down buttons, or sort by name. Every file is one section of the final document.', descZh: '拖动行、使用上下按钮，或按文件名排序。每个文件就是最终文档中的一段。' },
+      { step: 3, titleEn: 'Merge & Download', titleZh: '合并并下载', descEn: 'Click Merge — the PDF is assembled locally and downloaded instantly. No watermark is added.', descZh: '点击“合并”，PDF 在本地生成并立即下载，不会添加任何水印。' },
+    ],
+    faqs: [
+      { qEn: 'Are my PDF files uploaded to a server?', qZh: '合并时 PDF 会被上传吗？', aEn: 'No. The merge runs completely inside your browser using JavaScript. Your files never leave your device, and the tool still works after you disconnect from the internet.', aZh: '不会。合并完全在浏览器中用 JavaScript 完成，文件不会离开你的设备。页面加载后即使断网也能正常合并。' },
+      { qEn: 'How many PDFs can I merge at once?', qZh: '一次可以合并多少个 PDF？', aEn: 'Up to 20 PDFs per merge, 50MB per file and 150MB in total. The combined document can contain up to 2,000 pages.', aZh: '单次最多合并 20 个 PDF，单文件不超过 50MB，总大小不超过 150MB，合并后最多 2,000 页。' },
+      { qEn: 'Does merging reduce quality?', qZh: '合并会降低画质吗？', aEn: 'No. Pages are copied from the source documents without re-rendering or re-compressing them, so text stays selectable and images keep their original quality.', aZh: '不会。页面直接从原文件复制，不会重新渲染或重新压缩，文字仍可选中，图片保持原始画质。' },
+      { qEn: 'Can I change the order of the PDFs?', qZh: '可以调整 PDF 的顺序吗？', aEn: 'Yes. Drag a row to a new position, use the up/down arrow buttons (easier on phones), or press “Sort by name” to order files alphabetically.', aZh: '可以。拖动行到新位置、使用上下箭头按钮（手机上更方便），或点击“按文件名排序”。' },
+      { qEn: 'Can I merge password-protected PDFs?', qZh: '加密的 PDF 能合并吗？', aEn: 'Not directly. The tool detects encrypted PDFs and asks you to remove the password first. This is intentional — CompressFast never attempts to bypass document protection.', aZh: '不能直接合并。工具会识别加密 PDF 并提示你先解除密码。我们不会尝试绕过文档保护。' },
+      { qEn: 'Is there a watermark or sign-up?', qZh: '会加水印或需要注册吗？', aEn: 'No sign-up, no watermark and no file limit beyond the technical limits above. The tool is completely free.', aZh: '无需注册、不加水印，除上述技术限制外没有额外限制，完全免费。' },
+      { qEn: 'Can I merge images into the PDF too?', qZh: '可以把图片一起合并进 PDF 吗？', aEn: 'Use our Images to PDF tool to turn JPG, PNG or WebP images into a PDF first, then merge that PDF with your other documents.', aZh: '可以先用本站的“图片转 PDF”工具把 JPG、PNG 或 WebP 合成 PDF，再与其它文档一起合并。' },
+    ],
+    detailedGuideEn: `Merging PDFs is a daily task in most offices: combining a signed contract with its appendix, joining monthly invoices into one statement, or assembling a report from several exported chapters. CompressFast's PDF merger does this entirely in your browser, so sensitive documents are never uploaded to a third-party server.
+
+The workflow has three steps. Add up to 20 PDFs by dragging them into the page or selecting them from your device. The tool reads each file's page count and flags damaged or password-protected files before you start. Arrange the order with drag-and-drop, the up/down buttons, or the one-click name sort, then press Merge. The final PDF is generated locally and downloaded immediately.
+
+Unlike tools that convert every page into an image, CompressFast copies page objects directly into the new document. Text remains selectable and searchable, vector graphics stay sharp, and images keep their original compression. That also makes merging fast: a 200-page document is usually assembled in a couple of seconds.
+
+Privacy is the main reason to merge locally. Contracts, medical records, ID scans and financial statements often contain data that should not leave your device. Because everything runs in JavaScript inside your browser, no file ever touches our servers — and you can test this by going offline after the page loads.
+
+A practical tip: if the merged file is too large to email, run it through our Compress PDF tool afterwards. For scanned documents, the rasterization preset can cut the size dramatically. If you only need a few pages from a large document, split it first and merge only the parts you need.`,
+    detailedGuideZh: `合并 PDF 是办公中最常见的操作之一：把签署好的合同和附件合成一份、把每月发票合并成对账单、把分章节导出的报告组装成完整文档。极速压图的 PDF 合并工具完全在浏览器本地运行，敏感文件不会上传到任何第三方服务器。
+
+操作只有三步：拖入或选择最多 20 个 PDF，工具会自动读取每个文件的页数，并提前标出损坏或加密的文件；用拖动、上下按钮或一键按文件名排序调整顺序；点击“合并”，最终 PDF 在本地生成并立即下载。
+
+与一些把每页转成图片的工具不同，极速压图会把原页面直接复制进新文档。文字仍然可以选中和搜索，矢量图形保持清晰，图片保留原始压缩质量。合并速度也更快，200 页的文档通常几秒钟就能完成。
+
+本地处理最大的价值是隐私。合同、病历、证件扫描件和财务报表往往包含不宜外传的信息。所有处理都在浏览器的 JavaScript 中完成，文件不会接触我们的服务器——页面加载后断网也能正常合并，你可以亲自验证。
+
+实用建议：如果合并后的文件太大不方便发邮件，可以接着用本站的“PDF 压缩”工具处理；扫描件用图片化压缩档位通常能大幅减小体积。如果只需要大文档中的几页，先用“PDF 拆分”提取，再合并需要的部分。`,
+    relatedTools: ['split-pdf', 'compress-pdf', 'image-to-pdf', 'compress-images'],
+  },
+
+  'split-pdf': {
+    slug: 'split-pdf',
+    titleEn: 'Split PDF Online Free — Extract Pages & Ranges | CompressFast',
+    titleZh: 'PDF 拆分在线免费 — 按页提取 / 按范围拆分 | 极速压图',
+    descriptionEn: 'Split a PDF into separate files, extract specific pages, or create one PDF per range — all in your browser. No upload, no sign-up, original quality preserved.',
+    descriptionZh: '免费在线拆分 PDF：按页拆分、提取指定页面、按页码范围生成多个 PDF。全程浏览器本地处理，不上传、无需注册，页面画质不变。',
+    keywords: ['split pdf', 'separate pdf pages', 'extract pdf pages', 'pdf splitter', 'split pdf online free', 'pdf page extractor', 'PDF拆分', 'PDF分割', '提取PDF页面', '按页拆分PDF'],
+    heroTitleEn: 'Split PDF & Extract Pages',
+    heroTitleZh: 'PDF 拆分，按页或按范围提取',
+    heroSubEn: 'Split into single pages, extract chosen pages, or create one PDF per range. 100% local — your document never leaves your device.',
+    heroSubZh: '支持每页一个 PDF、按范围拆分、提取指定页合成一个 PDF。全程本地处理，文档不上传。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '✂️', titleEn: 'Three Ways to Split', titleZh: '三种拆分方式', descEn: 'One PDF per page, custom ranges like 1-3,5,8-10, or extract only the pages you need into a single PDF.', descZh: '每页一个 PDF、自定义范围（如 1-3,5,8-10），或只提取需要的页面合成一个 PDF。' },
+      { icon: '🔒', titleEn: 'Private by Design', titleZh: '隐私安全', descEn: 'Your PDF is processed in the browser and never uploaded. Works offline after the page loads.', descZh: 'PDF 在浏览器中处理，不会上传。页面加载后断网也能使用。' },
+      { icon: '🔍', titleEn: 'Quality Preserved', titleZh: '画质不变', descEn: 'Pages are copied, not re-rendered. Text stays selectable and images keep their original quality.', descZh: '页面直接复制，不重新渲染。文字仍可选中，图片保持原始画质。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add One PDF', titleZh: '添加一个 PDF', descEn: 'Drop a PDF into the upload area. The page count is detected automatically (up to 500 pages).', descZh: '把 PDF 拖入上传区，工具会自动读取页数（最多 500 页）。' },
+      { step: 2, titleEn: 'Choose a Mode & Ranges', titleZh: '选择方式与范围', descEn: 'Pick one PDF per page, custom ranges, or extract pages. Enter ranges like 1-3,5,8-10 — full-width digits and Chinese commas work too.', descZh: '选择每页一个、按范围或提取页面。输入如 1-3,5,8-10 的范围，支持全角数字和中文逗号。' },
+      { step: 3, titleEn: 'Download', titleZh: '下载结果', descEn: 'A single output downloads as a PDF; multiple outputs are packed into one ZIP file.', descZh: '只有一个输出时直接下载 PDF；多个输出会自动打包成一个 ZIP。' },
+    ],
+    faqs: [
+      { qEn: 'What are the three split modes?', qZh: '三种拆分方式有什么区别？', aEn: '“One PDF per page” creates a separate file for every page. “Custom ranges” creates one PDF per range such as 1-3 and 5. “Extract pages” collects all chosen pages into a single PDF.', aZh: '“每页一个 PDF”会为每一页生成单独文件；“按范围拆分”为每一段范围（如 1-3、5）各生成一个 PDF；“提取指定页”把所有选中的页面合并成一个 PDF。' },
+      { qEn: 'How do I write page ranges?', qZh: '页码范围怎么写？', aEn: 'Use commas to separate ranges and a hyphen for a range: 1-3,5,8-10. Page numbers start at 1. Chinese commas, full-width digits and en/em dashes are normalized automatically.', aZh: '用逗号分隔每段，用短横线表示范围，例如 1-3,5,8-10。页码从 1 开始。中文逗号、全角数字和各种破折号会自动识别。' },
+      { qEn: 'What happens if a range is invalid?', qZh: '范围写错会怎样？', aEn: 'The input turns red with a specific message — for example a reversed range like 3-1, page 0, or a page beyond the document length. Nothing is generated until the input is valid.', aZh: '输入框会变红并给出具体提示，例如 3-1 这种起止颠倒、页码 0、或超出文档页数。输入合法前不会生成任何文件。' },
+      { qEn: 'Is my PDF uploaded anywhere?', qZh: 'PDF 会被上传吗？', aEn: 'No. Splitting happens entirely in your browser. Your document is never sent to a server, and the tool works offline after loading.', aZh: '不会。拆分完全在浏览器本地完成，文档不会发送到服务器，页面加载后断网也能使用。' },
+      { qEn: 'What are the file limits?', qZh: '有什么限制？', aEn: 'One PDF up to 50MB and 500 pages, with at most 200 output files per run. For very large documents, split them in several passes.', aZh: '单个 PDF 不超过 50MB、500 页，每次最多生成 200 个文件。特别大的文档可以分几次拆分。' },
+      { qEn: 'Are links and forms preserved?', qZh: '链接和表单会保留吗？', aEn: 'Page content, images and text are preserved exactly. Links, form fields and bookmarks that belong to the whole document may not survive when pages are moved into a new file.', aZh: '页面内容、图片和文字会完整保留。属于整个文档的链接、表单字段和书签，在页面移入新文件后可能无法保留。' },
+      { qEn: 'Can I split a password-protected PDF?', qZh: '加密 PDF 能拆分吗？', aEn: 'Remove the password first. The tool detects encrypted PDFs and shows a clear message instead of attempting to bypass protection.', aZh: '请先解除密码。工具会识别加密 PDF 并给出明确提示，不会尝试绕过保护。' },
+    ],
+    detailedGuideEn: `PDF splitting is useful whenever a large document contains only a few pages you actually need. Common cases include extracting one invoice from a monthly statement, pulling a single chapter out of an e-book, separating scanned forms, or preparing individual files for different recipients.
+
+CompressFast offers three ways to do it. “One PDF per page” is the fastest way to break a scan into individual pages; multiple outputs are automatically packed into a ZIP file. “Custom ranges” gives you precise control: entering 1-3,5,8-10 produces three PDFs — pages 1 to 3, page 5, and pages 8 to 10. “Extract pages” is for the opposite case: you list the pages you want (for example 1,3,5) and get a single PDF containing exactly those pages, with duplicates removed.
+
+The range parser is forgiving about formatting. Full-width numbers, Chinese commas and long dashes are normalized, so pasting a range from a chat message or a spreadsheet usually just works. Invalid input is caught immediately with a specific explanation — reversed ranges, page zero and out-of-range pages are all rejected before any file is created.
+
+Quality is preserved because pages are copied into the new documents rather than rendered and recompressed. Text remains searchable and images keep their original resolution. Note that document-level features such as bookmarks, form fields and cross-page links may not survive when pages are moved into new files; this is a limitation of how PDF documents store those structures.
+
+Everything runs locally in your browser. That matters for invoices, medical records and contracts, which should not be uploaded to an unknown server. If the extracted PDF is still too large, use our Compress PDF tool; if you need to combine the result with other files, use Merge PDF.`,
+    detailedGuideZh: `拆分 PDF 最适合“大文档里只有几页真正需要”的场景：从月度对账单里取出一张发票、从电子书里抽出某一章、把扫描的多页表格拆成单页、或为不同收件人准备不同的文件。
+
+极速压图提供三种拆分方式。“每页一个 PDF”适合把扫描件拆成单页，多个输出会自动打包成 ZIP。“按范围拆分”控制更精确：输入 1-3,5,8-10 会得到三个 PDF——第 1 到 3 页、第 5 页、第 8 到 10 页。“提取指定页”则相反：列出想要的页码（如 1,3,5），得到一个恰好包含这些页面的 PDF，重复页会自动去重。
+
+范围解析对输入格式很宽容：全角数字、中文逗号和长破折号都会自动归一化，从聊天记录或表格里复制的范围通常可以直接用。非法输入会立刻给出具体提示——起止颠倒、页码为 0、超出文档页数都会在生成文件之前被拦下。
+
+画质不会损失，因为页面是直接复制进新文档，而不是重新渲染和压缩。文字仍可搜索，图片保持原始分辨率。需要注意：书签、表单字段和跨页链接等属于“整个文档”的结构，在页面移入新文件后可能无法保留，这是 PDF 格式本身的限制。
+
+所有处理都在浏览器本地完成。发票、病历和合同不应该上传到不明服务器，本地拆分正好避免了这一风险。如果拆分后的 PDF 仍然太大，可以接着用“PDF 压缩”；如果需要和其他文件合并，可以用“PDF 合并”。`,
+    relatedTools: ['merge-pdf', 'compress-pdf', 'image-to-pdf', 'resize-image'],
+  },
+
+  'compress-pdf': {
+    slug: 'compress-pdf',
+    titleEn: 'Compress PDF Online Free — Reduce PDF Size Locally | CompressFast',
+    titleZh: 'PDF 压缩在线免费 — 大幅减小 PDF 体积 | 极速压图',
+    descriptionEn: 'Reduce PDF file size in your browser. Rasterize scans and image-heavy documents at 110–200 DPI, or optimize structure losslessly. No upload, no sign-up.',
+    descriptionZh: '免费在线压缩 PDF：扫描件/图片型文档可按 110–200 DPI 图片化压缩，也可无损优化结构。全程浏览器本地处理，不上传、无需注册。',
+    keywords: ['compress pdf', 'reduce pdf size', 'pdf compressor', 'shrink pdf', 'compress pdf online free', 'make pdf smaller', 'PDF压缩', '减小PDF体积', 'PDF瘦身', '在线压缩PDF'],
+    heroTitleEn: 'Compress PDF Files',
+    heroTitleZh: 'PDF 压缩，体积大幅减小',
+    heroSubEn: 'Shrink scanned and image-heavy PDFs with 3 quality presets, or optimize losslessly. See the before/after size before you download.',
+    heroSubZh: '扫描件和图片型 PDF 可用 3 档画质大幅压缩，也可无损优化结构。下载前即可看到压缩前后体积对比。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '📉', titleEn: 'Real Size Reduction', titleZh: '真正减小体积', descEn: 'Rasterize pages at 110, 150 or 200 DPI with adjustable JPEG quality — scanned documents often shrink several times over.', descZh: '按 110/150/200 DPI 图片化并调节 JPEG 画质，扫描件体积通常能缩小数倍。' },
+      { icon: '🛡️', titleEn: 'Lossless Option Included', titleZh: '同时提供无损模式', descEn: 'Need selectable text and working links? Use lossless optimization to rewrite the PDF structure without touching page content.', descZh: '需要保留可选中文字和链接？使用无损优化，只重写 PDF 结构，不改动页面内容。' },
+      { icon: '🔒', titleEn: 'Nothing Is Uploaded', titleZh: '文件不上传', descEn: 'Both compression modes run in your browser. Sensitive documents stay on your device, and the tool works offline.', descZh: '两种压缩都在浏览器本地完成，敏感文档留在你的设备上，断网也能使用。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add a PDF', titleZh: '添加 PDF', descEn: 'Drop a PDF (up to 50MB and 100 pages). The page count is detected instantly.', descZh: '拖入一个 PDF（最大 50MB、100 页），工具会立即读取页数。' },
+      { step: 2, titleEn: 'Pick a Mode & Preset', titleZh: '选择模式与档位', descEn: 'Use rasterization for scans and photos, or lossless to keep text. Choose Maximum, Balanced or High quality.', descZh: '扫描件/照片选图片化压缩，需要保留文字选无损优化；图片化还可选极限、均衡或高清档位。' },
+      { step: 3, titleEn: 'Compare & Download', titleZh: '对比并下载', descEn: 'See the original and new size side by side. If the output is larger, the tool warns you and offers lossless instead.', descZh: '下载前会显示原始体积和压缩后体积。若压缩后反而变大，工具会提示并建议改用无损模式。' },
+    ],
+    faqs: [
+      { qEn: 'How much smaller will my PDF get?', qZh: 'PDF 能压缩多少？', aEn: 'It depends on content. Scanned and image-heavy PDFs can shrink by 50–90% with the Maximum or Balanced preset. Text-based PDFs that already use efficient compression may barely change — and can even grow with rasterization.', aZh: '取决于内容。扫描件和图片型 PDF 用极限或均衡档通常能缩小 50–90%；本身已高效压缩的文字型 PDF 变化不大，图片化甚至可能变大。' },
+      { qEn: 'Why can a text PDF get larger?', qZh: '为什么文字型 PDF 反而变大？', aEn: 'Rasterization renders each page as a JPEG. A page that was a few kilobytes of text and vectors can become a large image. The tool detects this and warns you before download.', aZh: '图片化会把每页渲染成 JPEG。原本只有几 KB 的文字和矢量页面，可能变成一张较大的图片。工具会检测到这种情况并在下载前提醒你。' },
+      { qEn: 'What is lost in rasterized compression?', qZh: '图片化压缩会丢失什么？', aEn: 'Text is no longer selectable or searchable, and links, form fields, bookmarks and attachments are removed. The visible page content is preserved as an image at the chosen DPI.', aZh: '文字不再可选中或搜索，链接、表单字段、书签和附件会丢失。页面可见内容会按所选 DPI 保留为图片。' },
+      { qEn: 'When should I use lossless mode?', qZh: '什么时候用无损模式？', aEn: 'Use it for contracts, reports and forms where text must remain selectable or links must work. Savings are usually 0–10%, mainly from rewriting object streams and removing redundant updates.', aZh: '合同、报告、表单等需要保留可选中文字或可用链接的文档，应使用无损模式。体积收益通常为 0–10%，主要来自重写对象流和去掉冗余更新。' },
+      { qEn: 'Is my PDF uploaded to a server?', qZh: 'PDF 会上传吗？', aEn: 'No. Both modes run entirely in your browser. Your document never leaves your device, and the tool keeps working if you go offline after loading.', aZh: '不会。两种模式都在浏览器本地运行，文档不会离开你的设备；页面加载后断网也能继续使用。' },
+      { qEn: 'What are the size and page limits?', qZh: '有大小和页数限制吗？', aEn: 'One PDF up to 50MB and 100 pages per run. For larger files, split them first with our Split PDF tool.', aZh: '单个 PDF 最大 50MB、100 页。更大的文件请先用“PDF 拆分”分段后再压缩。' },
+      { qEn: 'Can I compress a password-protected PDF?', qZh: '加密 PDF 能压缩吗？', aEn: 'Remove the password first. The tool detects encrypted documents and stops with a clear message rather than trying to bypass protection.', aZh: '请先解除密码。工具会识别加密文档并给出明确提示，不会尝试绕过保护。' },
+    ],
+    detailedGuideEn: `PDF files become large for one main reason: they contain images. A scanned contract is essentially a photo of every page, and a photo-heavy brochure embeds dozens of high-resolution JPEGs. Text and vector graphics, by contrast, take very little space. That is why the most effective way to shrink a PDF is to re-encode its images — and why text-based PDFs behave differently.
+
+CompressFast offers two strategies. Rasterization renders each page to a canvas at 110, 150 or 200 DPI, encodes it as a JPEG, and rebuilds the PDF at the original page dimensions. This is the right choice for scans, photographed documents and image-heavy brochures: the Maximum preset can cut a 20MB scan down to a few megabytes. The trade-off is that the text layer disappears — you get a clean image of each page, but you cannot select or search the text, and links, forms and bookmarks are removed.
+
+Lossless optimization takes the opposite approach. It rewrites the PDF's internal structure, merges object streams and drops redundant incremental updates without touching page content. Text stays selectable, links and forms keep working, and metadata is preserved. The catch is that savings are modest, typically 0–10%, because the images inside the document are left untouched.
+
+The tool shows the original and output size side by side. If the output is larger — which happens when a text-heavy PDF is rasterized — you get a clear warning plus a one-click switch to lossless mode and an option to download the original. That prevents the frustrating case where a “compressor” silently makes your file bigger.
+
+Everything runs locally in your browser, so confidential documents never leave your device. For the best results on a large scanned PDF, split it first, compress the scan-heavy parts, and merge the results back together.`,
+    detailedGuideZh: `PDF 体积大，主要原因只有一个：里面装了图片。扫描合同本质上就是每一页的照片，图片型宣传册往往嵌入了几十张高分辨率 JPEG；相比之下，文字和矢量图形占用的空间非常小。所以最有效的“PDF 压缩”方式就是重新编码图片，而文字型 PDF 的表现会完全不同。
+
+极速压图提供两种策略。图片化压缩会把每一页按 110/150/200 DPI 渲染到画布，编码成 JPEG，再按原始页面尺寸重建 PDF。它最适合扫描件、拍照文档和图片型宣传册：极限档可以把 20MB 的扫描件压到几 MB。代价是文字层消失——你得到的是清晰的页面图像，但文字无法选中或搜索，链接、表单和书签也会被移除。
+
+无损优化则相反：它重写 PDF 内部结构、合并对象流、去掉冗余的增量更新，但不改动页面内容。文字仍可选中，链接和表单照常工作，元数据也会保留。缺点是收益有限，通常在 0–10%，因为文档里的图片没有被重新编码。
+
+工具会并排显示原始体积和压缩后体积。如果输出反而更大——文字型 PDF 被图片化时常发生——会给出明确警告，并提供一键切换到无损模式、或下载原文件的选项，避免“压缩器反而把文件变大”的尴尬。
+
+所有处理都在浏览器本地完成，机密文档不会离开你的设备。对于体积很大的扫描 PDF，最佳做法是：先用“PDF 拆分”分段，压缩扫描内容较多的部分，再用“PDF 合并”拼回去。`,
+    relatedTools: ['merge-pdf', 'split-pdf', 'image-to-pdf', 'compress-images'],
   },
 }
 

@@ -17,6 +17,13 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // pdf.js 资源目录带版本号，可长期强缓存
+        source: '/pdfjs/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
         source: '/(.*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },

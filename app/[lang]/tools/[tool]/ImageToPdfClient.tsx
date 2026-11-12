@@ -417,11 +417,11 @@ export default function ImageToPdfClient() {
       const url = URL.createObjectURL(blob)
       resultUrlRef.current = url
       setResult({ url, size: blob.size, pages: items.length, name: `${base || 'images'}.pdf` })
-      trackPdfEvent('generate', { pages: items.length, bytes: blob.size })
+      trackPdfEvent('generate', { tool: 'image-to-pdf', pages: items.length, bytes: blob.size })
     } catch (e) {
       console.error('[image-to-pdf]', e)
       setError(isZh ? '生成 PDF 失败，请重试或减少图片数量' : 'Failed to generate the PDF. Please retry or use fewer images.')
-      trackPdfEvent('error', { pages: items.length })
+      trackPdfEvent('error', { tool: 'image-to-pdf', pages: items.length })
     } finally {
       setGenerating(false)
       setProgress(null)
@@ -434,7 +434,7 @@ export default function ImageToPdfClient() {
     a.href = result.url
     a.download = result.name
     a.click()
-    trackPdfEvent('download', { pages: result.pages, bytes: result.size })
+    trackPdfEvent('download', { tool: 'image-to-pdf', pages: result.pages, bytes: result.size })
   }, [result])
 
   const pct = progress && progress.total > 0
