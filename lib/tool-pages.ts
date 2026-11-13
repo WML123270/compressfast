@@ -1712,6 +1712,66 @@ Everything runs locally in your browser, so confidential documents never leave y
 所有处理都在浏览器本地完成，机密文档不会离开你的设备。对于体积很大的扫描 PDF，最佳做法是：先用“PDF 拆分”分段，压缩扫描内容较多的部分，再用“PDF 合并”拼回去。`,
     relatedTools: ['merge-pdf', 'split-pdf', 'image-to-pdf', 'compress-images'],
   },
+  'pdf-to-jpg': {
+    slug: 'pdf-to-jpg',
+    titleEn: 'PDF to JPG Converter Online Free — PNG & ZIP, No Upload | CompressFast',
+    titleZh: 'PDF 转 JPG 在线免费 — 高清图片 / PNG，可打包 ZIP | 极速压图',
+    descriptionEn: 'Convert PDF pages to JPG or PNG in your browser. Choose 150–300 DPI, pick page ranges, then download single images or a ZIP. 100% local — your PDF is never uploaded.',
+    descriptionZh: '免费在线把 PDF 转成 JPG / PNG 图片：150–300 DPI 可选、按页码转换、单张或 ZIP 打包下载。全程浏览器本地处理，PDF 不上传。',
+    keywords: ['pdf to jpg', 'pdf to png', 'pdf to image', 'convert pdf to jpg', 'pdf to jpg online free', 'extract images from pdf', 'PDF转图片', 'PDF转JPG', 'PDF转PNG', '把PDF转换成图片'],
+    heroTitleEn: 'Convert PDF to JPG / PNG',
+    heroTitleZh: 'PDF 转 JPG / PNG 图片',
+    heroSubEn: 'Render any page at up to 300 DPI, choose page ranges, and download one image or a ZIP — all in your browser.',
+    heroSubZh: '最高 300 DPI 渲染任意页面，支持页码范围，单张或 ZIP 打包下载——全程在你的浏览器中完成。',
+    targetFormat: 'jpeg',
+    benefits: [
+      { icon: '🎯', titleEn: '150–300 DPI', titleZh: '150–300 DPI 可选', descEn: 'Pick 150 DPI for screen sharing, 200 for everyday documents, or 300 DPI for printing — you control the sharpness.', descZh: '150 DPI 适合屏幕分享，200 DPI 适合日常文档，300 DPI 适合打印——清晰度由你决定。' },
+      { icon: '📦', titleEn: 'Pages & ZIP', titleZh: '按页码转换，自动打包', descEn: 'Convert the whole document or only the pages you need. Multiple pages are packed into one ZIP with page-numbered filenames.', descZh: '可转换整份文档，也可只转指定页；多页会自动打包成一个 ZIP，文件名按页码排序。' },
+      { icon: '🔒', titleEn: '100% Local', titleZh: '100% 本地处理', descEn: 'The PDF is rendered by pdf.js inside your browser. Nothing is uploaded, so contracts, invoices and IDs stay private.', descZh: 'PDF 在你的浏览器里由 pdf.js 渲染，文件不会上传，合同、发票和证件都能放心处理。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add a PDF', titleZh: '添加 PDF', descEn: 'Drop a PDF (up to 50MB and 100 pages). The page count is detected instantly — no upload involved.', descZh: '拖入一个 PDF（最大 50MB、100 页），工具会立即读取页数，全程不上传。' },
+      { step: 2, titleEn: 'Choose Format & Pages', titleZh: '选择格式与页码', descEn: 'Pick JPG or PNG, set the DPI, and convert all pages or type a range such as 1-3,5,8-10.', descZh: '选择 JPG 或 PNG、设置 DPI，然后转换全部页面，或输入 1-3,5,8-10 这样的页码范围。' },
+      { step: 3, titleEn: 'Download Images', titleZh: '下载图片', descEn: 'One page downloads as a single image. Multiple pages are packed into a ZIP, named in page order.', descZh: '单页直接下载一张图片；多页会打包成 ZIP，文件名按页码顺序排列。' },
+    ],
+    faqs: [
+      { qEn: 'Is my PDF uploaded to a server?', qZh: 'PDF 会被上传到服务器吗？', aEn: 'Never. Pages are rendered by pdf.js running entirely inside your browser, and the resulting JPEG/PNG files are created on your device. After the page loads you can go offline and the converter still works.', aZh: '不会。页面由运行在浏览器内的 pdf.js 渲染，JPG/PNG 也在你的设备上生成。页面加载完成后断网也能继续转换。' },
+      { qEn: 'Should I choose JPG or PNG?', qZh: '应该选 JPG 还是 PNG？', aEn: 'Use JPG for photos, scans and general sharing — files are much smaller. Use PNG for screenshots, charts and pages with crisp text, because PNG is lossless and avoids JPEG artifacts around edges. PNG files are typically several times larger.', aZh: '照片、扫描件和日常分享选 JPG，体积小得多；截图、图表和文字清晰的页面选 PNG，因为 PNG 无损，不会在边缘产生 JPEG 压缩痕迹，但体积通常大几倍。' },
+      { qEn: 'What DPI should I pick?', qZh: 'DPI 选多少合适？', aEn: '150 DPI is fine for previews and chat sharing. 200 DPI is a good default for reading on screen. 300 DPI is intended for printing and produces the largest files. Very large pages may be automatically downscaled to fit browser canvas limits, and the tool tells you when that happens.', aZh: '150 DPI 适合预览和聊天分享；200 DPI 是屏幕阅读的均衡默认值；300 DPI 面向打印，文件也最大。页面特别大时会自动降低到浏览器画布上限，工具会明确提示。' },
+      { qEn: 'Can I convert only certain pages?', qZh: '可以只转换部分页面吗？', aEn: 'Yes. Switch to Custom pages and enter a range such as 1-3,5,8-10. Commas, Chinese commas, full-width digits and long dashes are all accepted, and duplicate pages are removed automatically.', aZh: '可以。切换到“自定义页码”，输入 1-3,5,8-10 这样的范围即可。中英文逗号、全角数字和各种长横线都能识别，重复页码会自动去重。' },
+      { qEn: 'How many pages can I convert at once?', qZh: '一次能转换多少页？', aEn: 'Up to 100 pages and 50MB per PDF. Multiple output images are packed into one ZIP. If your document is larger, split it first with the Split PDF tool, then convert each part.', aZh: '单个 PDF 最多 100 页、50MB；多张图片会打包成一个 ZIP。文件更大时，先用“PDF 拆分”分段，再分别转换。' },
+      { qEn: 'Will the text in the images be selectable?', qZh: '转换后的文字还能选中吗？', aEn: 'No. The output is a picture of each page, so text is no longer selectable or searchable. This converter does not include OCR. If you need to keep selectable text, compress the PDF losslessly instead of rasterizing it.', aZh: '不能。输出是每页的图片，文字无法选中或搜索，本工具也不包含 OCR。如果需要保留可选中文字，请改用 PDF 无损压缩，而不是图片化。' },
+      { qEn: 'Does it work on iPhone and Android?', qZh: '手机能用吗？', aEn: 'Yes. It runs in mobile Safari, Chrome and most in-app browsers. On phones, prefer 150–200 DPI and a handful of pages at a time to avoid running out of memory on very large documents.', aZh: '可以。支持手机 Safari、Chrome 以及大多数内置浏览器。手机上建议用 150–200 DPI，并分批转换，避免超大文档占满内存。' },
+      { qEn: 'Can I convert a password-protected PDF?', qZh: '加密 PDF 能转换吗？', aEn: 'Remove the password first. The tool detects encrypted documents and stops with a clear message instead of trying to bypass protection.', aZh: '请先解除密码。工具会识别加密文档并给出明确提示，不会尝试绕过保护。' },
+    ],
+    detailedGuideEn: `PDF is a container format: a page can hold text, vector graphics, images and fonts at once. Sometimes you do not need that container at all — you just need a picture of the page to paste into a chat, drop into a slide, upload to a form, or print at a print shop. That is exactly what a PDF-to-image converter does.
+
+CompressFast renders each page with pdf.js, the same open-source engine Firefox uses to display PDFs. Rendering happens on a canvas inside your browser at the DPI you choose, and the canvas is then encoded as JPEG or PNG. Because the whole pipeline is local, contracts, invoices, ID scans and internal reports never travel to a server.
+
+Choosing the right settings matters more than it seems:
+
+- JPG vs PNG — JPG is lossy but compact, ideal for photos and scans. PNG is lossless and keeps text and line art crisp, at the cost of a much larger file. A text-heavy page exported as PNG can be five to ten times bigger than the same page as JPG.
+- DPI — 150 DPI looks fine on screen and in chat apps. 200 DPI is a comfortable default for reading and annotating. 300 DPI is the usual requirement for printing.
+- Page ranges — a 60-page report often only needs page 12. Custom ranges such as 1-3,5,8-10 let you extract exactly what you need, and duplicate page numbers are removed automatically.
+
+Multiple pages are delivered as a single ZIP with page-numbered filenames, which keeps long documents in order. If a page is too large for the browser canvas, the tool automatically lowers the resolution for that page and warns you instead of failing silently.
+
+A note on text: rasterizing turns text into pixels, so the result cannot be selected, searched or copied, and OCR is not included. If selectable text matters, keep the PDF as a PDF and use lossless compression instead — or run OCR on the images afterward. For a typical workflow, convert only the pages you need, then compress or resize the images with the rest of the CompressFast toolset.`,
+    detailedGuideZh: `PDF 是一种“容器”格式：同一页里可能同时装着文字、矢量图形、图片和字体。但很多时候你根本不需要这个容器——你只需要一张页面图片，用来发到聊天里、插进 PPT、上传到某个只收图片的表单，或者拿到打印店去打印。PDF 转图片工具解决的就是这个问题。
+
+极速压图使用 pdf.js（Firefox 显示 PDF 所用的同款开源引擎）逐页渲染。渲染在你浏览器里的 canvas 上完成，按你选择的 DPI 生成像素，再编码成 JPG 或 PNG。整条链路都在本地，合同、发票、证件扫描件和内部报告都不会经过服务器。
+
+设置选项比看起来更重要：
+
+- JPG 还是 PNG —— JPG 有损但体积小，适合照片和扫描件；PNG 无损，文字和线条更锐利，代价是体积大得多。同一页文字型内容，PNG 可能是 JPG 的五到十倍。
+- DPI —— 150 DPI 在屏幕和聊天软件里已经够用；200 DPI 是阅读和标注的舒适默认值；300 DPI 通常是打印的最低要求。
+- 页码范围 —— 一份 60 页的报告，你可能只要第 12 页。用 1-3,5,8-10 这样的范围可以精确提取，重复页码会自动去重。
+
+多页输出会打成一个 ZIP，文件名按页码排序，长文档也不会乱序。如果某一页超出浏览器画布上限，工具会自动降低该页分辨率并明确提示，而不是悄悄失败。
+
+关于文字：图片化会把文字变成像素，结果无法选中、搜索或复制，本工具也不包含 OCR。如果必须保留可选中文字，请保持 PDF 格式并改用无损压缩，或者之后再对图片做 OCR。典型流程是：只转换需要的页面，再用极速压图的其他工具压缩或缩放这些图片。`,
+    relatedTools: ['compress-pdf', 'split-pdf', 'merge-pdf', 'image-to-pdf'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

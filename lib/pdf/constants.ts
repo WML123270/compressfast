@@ -25,8 +25,13 @@ export const COMPRESS_PRESETS = {
 
 export type CompressPreset = keyof typeof COMPRESS_PRESETS
 
+// 转图片
+export const MAX_PDF_IMAGE_PAGES = 100
+export const PDF_IMAGE_EXT = { jpeg: 'jpg', png: 'png' } as const
+export type PdfImageFormat = keyof typeof PDF_IMAGE_EXT
+
 // 埋点：PDF 工具白名单（服务端校验，防止任意 key 注入）
-export const PDF_TOOL_SLUGS = ['image-to-pdf', 'merge-pdf', 'split-pdf', 'compress-pdf'] as const
+export const PDF_TOOL_SLUGS = ['image-to-pdf', 'merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-jpg'] as const
 export type PdfTool = (typeof PDF_TOOL_SLUGS)[number]
 
 export const PDF_COMPRESS_MODES = ['lossy', 'lossless'] as const

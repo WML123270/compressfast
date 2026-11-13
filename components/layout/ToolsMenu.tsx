@@ -15,7 +15,7 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   {
     key: 'pdf',
     label: { en: 'PDF', zh: 'PDF 工具' },
-    slugs: ['merge-pdf', 'split-pdf', 'compress-pdf', 'image-to-pdf'],
+    slugs: ['merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-jpg', 'image-to-pdf'],
   },
   {
     key: 'compress',

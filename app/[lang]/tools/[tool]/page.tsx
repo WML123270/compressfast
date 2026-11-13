@@ -13,12 +13,14 @@ const ImageToPdfClient = dynamic(() => import('./ImageToPdfClient'), { ssr: fals
 const MergePdfClient = dynamic(() => import('./MergePdfClient'), { ssr: false })
 const SplitPdfClient = dynamic(() => import('./SplitPdfClient'), { ssr: false })
 const CompressPdfClient = dynamic(() => import('./CompressPdfClient'), { ssr: false })
+const PdfToImageClient = dynamic(() => import('./PdfToImageClient'), { ssr: false })
 
 const PDF_CLIENTS: Record<string, ComponentType> = {
   'image-to-pdf': ImageToPdfClient,
   'merge-pdf': MergePdfClient,
   'split-pdf': SplitPdfClient,
   'compress-pdf': CompressPdfClient,
+  'pdf-to-jpg': PdfToImageClient,
 }
 
 interface Props { params: { tool: string; lang: string } }
@@ -102,8 +104,8 @@ export default function ToolPage({ params }: Props) {
         <p>
           {isPdfTool
             ? (isZh
-                ? '极速压图的 PDF 工具（合并、拆分、压缩、图片转 PDF）全部在浏览器本地运行——文件不会上传到任何服务器，敏感文档更安全，也省去上传下载的等待。'
-                : 'Every CompressFast PDF tool — merge, split, compress and image-to-PDF — runs in your browser. Files are never uploaded to a server, so sensitive documents stay safe and there is no upload/download wait.')
+                ? '极速压图的 PDF 工具（合并、拆分、压缩、PDF 转图片、图片转 PDF）全部在浏览器本地运行——文件不会上传到任何服务器，敏感文档更安全，也省去上传下载的等待。'
+                : 'Every CompressFast PDF tool — merge, split, compress, PDF-to-image and image-to-PDF — runs in your browser. Files are never uploaded to a server, so sensitive documents stay safe and there is no upload/download wait.')
             : (isZh
                 ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
                 : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.')}

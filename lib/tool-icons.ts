@@ -32,6 +32,7 @@ export const TOOL_ICONS: Record<string, string> = {
   'merge-pdf': '📎',
   'split-pdf': '🔖',
   'compress-pdf': '📉',
+  'pdf-to-jpg': '🖨️',
 }
 
 export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
@@ -64,4 +65,5 @@ export const TOOL_SHORT: Record<string, { en: string; zh: string }> = {
   'merge-pdf': { en: 'Merge PDF', zh: 'PDF 合并' },
   'split-pdf': { en: 'Split PDF', zh: 'PDF 拆分' },
   'compress-pdf': { en: 'Compress PDF', zh: 'PDF 压缩' },
+  'pdf-to-jpg': { en: 'PDF to JPG', zh: 'PDF 转图片' },
 }

@@ -7,7 +7,7 @@ import { TOOLS } from '@/lib/tool-pages'
 import { ArrowRight } from 'lucide-react'
 import { TOOL_ICONS } from '@/lib/tool-icons'
 
-const FEATURED = ['compress-png', 'compress-jpeg', 'convert-to-webp', 'webp-to-jpg', 'heic-to-jpg', 'compress-images', 'image-to-pdf', 'merge-pdf', 'compress-pdf']
+const FEATURED = ['compress-png', 'compress-jpeg', 'convert-to-webp', 'webp-to-jpg', 'heic-to-jpg', 'compress-images', 'image-to-pdf', 'merge-pdf', 'compress-pdf', 'pdf-to-jpg']
 
 export function PopularTools() {
   const isCn = useIsCn()

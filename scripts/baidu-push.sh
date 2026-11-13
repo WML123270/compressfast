@@ -87,6 +87,8 @@ https://jisuyatu.com/zh/tools/split-pdf
 https://jisuyatu.com/en/tools/split-pdf
 https://jisuyatu.com/zh/tools/compress-pdf
 https://jisuyatu.com/en/tools/compress-pdf
+https://jisuyatu.com/zh/tools/pdf-to-jpg
+https://jisuyatu.com/en/tools/pdf-to-jpg
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

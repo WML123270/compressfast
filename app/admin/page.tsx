@@ -152,6 +152,35 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
+  // 按工具拆分（历史数据只有 image-to-pdf 的 pages/bytes，其余为 0 属正常）
+  const pdfToolNames: Record<string, string> = {
+    'image-to-pdf': '🖼️ 图片转 PDF',
+    'merge-pdf': '📎 合并 PDF',
+    'split-pdf': '✂️ 拆分 PDF',
+    'compress-pdf': '🗜️ 压缩 PDF',
+  }
+  const pdfByTool = pdf.byTool || []
+  let pdfToolRows = ''
+  for (const t of pdfByTool) {
+    const gen = t.generate || 0
+    const err = t.error || 0
+    const dl = t.download || 0
+    const pages = t.pages || 0
+    const bytes = t.bytes || 0
+    const dlRate = gen > 0 ? Math.round((dl / gen) * 100) + '%' : '—'
+    const avgPages = gen > 0 && pages > 0 ? (pages / gen).toFixed(1) : '—'
+    const avgSize = gen > 0 && bytes > 0 ? fmtBytes(bytes / gen) : '—'
+    pdfToolRows += `<tr>
+      <td>${pdfToolNames[t.tool] || t.tool}</td>
+      <td class="num">${gen}</td>
+      <td class="num">${err}</td>
+      <td class="num">${dl}</td>
+      <td class="num">${dlRate}</td>
+      <td class="num">${avgPages}</td>
+      <td class="num">${avgSize}</td>
+    </tr>`
+  }
+
   return `<style>
     .db { font-family: -apple-system, sans-serif; }
     .db h1 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
@@ -222,6 +251,12 @@ function renderStats(data: any, ov: any, cn: any): string {
     <table>
       <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
       ${pdfRows}
+    </table>
+    <h2>🧩 PDF 工具拆分（累计）</h2>
+    <p class="note">按工具统计生成 / 失败 / 下载次数、下载率和平均页数/体积。旧数据只记了图片转 PDF 的页数与体积，合并/拆分/压缩的页数体积可能显示 “—”。</p>
+    <table>
+      <tr><th>工具</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th><th class="num">下载率</th><th class="num">平均页数</th><th class="num">平均体积</th></tr>
+      ${pdfToolRows}
     </table>
     <h2>📅 近7天明细</h2>
     <table>

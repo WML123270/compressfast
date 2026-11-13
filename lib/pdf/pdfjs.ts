@@ -91,14 +91,34 @@ export interface RenderedPage {
   clamped: boolean
 }
 
+export type PageImageMime = 'image/jpeg' | 'image/png'
+
+export interface RenderPageImageOptions {
+  dpi: number
+  type: PageImageMime
+  /** 仅 JPEG 生效；PNG 忽略 */
+  quality?: number
+  signal?: AbortSignal
+}
+
+export interface RenderedPageImage {
+  blob: Blob
+  pageWidth: number
+  pageHeight: number
+  canvasWidth: number
+  canvasHeight: number
+  effectiveDpi: number
+  clamped: boolean
+}
+
 /**
- * 把一页渲染成白底 JPEG。
- * 页面尺寸用 scale=1 的 viewport（已包含旋转与 CropBox），输出 PDF 页方向与可见方向一致。
+ * 把一页渲染成白底图片（JPEG / PNG）。
+ * 页面尺寸用 scale=1 的 viewport（已包含旋转与 CropBox），输出方向与 PDF 可见方向一致。
  */
-export async function renderPageToJpeg(
+export async function renderPageToImage(
   page: PDFPageProxy,
-  options: RenderPageOptions,
-): Promise<RenderedPage> {
+  options: RenderPageImageOptions,
+): Promise<RenderedPageImage> {
   const base = page.getViewport({ scale: 1 })
   let scale = options.dpi / 72
   const maxScale = Math.min(
@@ -138,13 +158,13 @@ export async function renderPageToJpeg(
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
         b => (b ? resolve(b) : reject(new PdfToolError('render'))),
-        'image/jpeg',
-        options.quality,
+        options.type,
+        options.type === 'image/jpeg' ? options.quality : undefined,
       )
     })
 
     return {
-      jpeg: new Uint8Array(await blob.arrayBuffer()),
+      blob,
       pageWidth: base.width,
       pageHeight: base.height,
       canvasWidth,
@@ -159,5 +179,27 @@ export async function renderPageToJpeg(
     options.signal?.removeEventListener('abort', onAbort)
     canvas.width = 0
     canvas.height = 0
+  }
+}
+
+/** 把一页渲染成白底 JPEG（PDF 压缩复用），返回原始字节。 */
+export async function renderPageToJpeg(
+  page: PDFPageProxy,
+  options: RenderPageOptions,
+): Promise<RenderedPage> {
+  const rendered = await renderPageToImage(page, {
+    dpi: options.dpi,
+    type: 'image/jpeg',
+    quality: options.quality,
+    signal: options.signal,
+  })
+  return {
+    jpeg: new Uint8Array(await rendered.blob.arrayBuffer()),
+    pageWidth: rendered.pageWidth,
+    pageHeight: rendered.pageHeight,
+    canvasWidth: rendered.canvasWidth,
+    canvasHeight: rendered.canvasHeight,
+    effectiveDpi: rendered.effectiveDpi,
+    clamped: rendered.clamped,
   }
 }

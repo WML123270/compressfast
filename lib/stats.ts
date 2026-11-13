@@ -6,7 +6,7 @@
 
 import { Redis } from '@upstash/redis'
 import type { LicenseRecord } from './license'
-import type { PdfTool } from './pdf/constants'
+import { PDF_TOOL_SLUGS, type PdfTool } from './pdf/constants'
 
 // Lazy init Redis
 let redis: Redis | null = null
@@ -294,6 +294,16 @@ export interface PdfDailyPoint {
   download: number
 }
 
+export interface PdfToolStats {
+  /** 工具 slug（image-to-pdf / merge-pdf / split-pdf / compress-pdf） */
+  tool: PdfTool
+  generate: number
+  error: number
+  download: number
+  pages: number
+  bytes: number
+}
+
 export interface PdfStats {
   generate: number
   error: number
@@ -301,6 +311,8 @@ export interface PdfStats {
   totalPages: number
   totalBytes: number
   daily: PdfDailyPoint[]
+  /** 按工具拆分（来自 stats:pdf:*:tool:<slug>:*） */
+  byTool: PdfToolStats[]
 }
 
 export interface DashboardStats {
@@ -485,6 +497,14 @@ async function getPdfStats(): Promise<PdfStats> {
     totalPages: 0,
     totalBytes: 0,
     daily: days.map(date => ({ date, generate: 0, error: 0, download: 0 })),
+    byTool: PDF_TOOL_SLUGS.map(tool => ({
+      tool,
+      generate: 0,
+      error: 0,
+      download: 0,
+      pages: 0,
+      bytes: 0,
+    })),
   })
 
   const r = getRedis()
@@ -500,6 +520,11 @@ async function getPdfStats(): Promise<PdfStats> {
     ]
     for (const date of days) {
       for (const ev of PDF_EVENTS) keys.push(`stats:pdf:${ev}:daily:${date}`)
+    }
+    for (const tool of PDF_TOOL_SLUGS) {
+      for (const ev of PDF_EVENTS) keys.push(`stats:pdf:${ev}:tool:${tool}:total`)
+      keys.push(`stats:pdf:pages:tool:${tool}:total`)
+      keys.push(`stats:pdf:bytes:tool:${tool}:total`)
     }
 
     const pipe = r.pipeline()
@@ -521,6 +546,14 @@ async function getPdfStats(): Promise<PdfStats> {
         generate: n(`stats:pdf:generate:daily:${date}`),
         error: n(`stats:pdf:error:daily:${date}`),
         download: n(`stats:pdf:download:daily:${date}`),
+      })),
+      byTool: PDF_TOOL_SLUGS.map(tool => ({
+        tool,
+        generate: n(`stats:pdf:generate:tool:${tool}:total`),
+        error: n(`stats:pdf:error:tool:${tool}:total`),
+        download: n(`stats:pdf:download:tool:${tool}:total`),
+        pages: n(`stats:pdf:pages:tool:${tool}:total`),
+        bytes: n(`stats:pdf:bytes:tool:${tool}:total`),
       })),
     }
   } catch {
