@@ -57,3 +57,6 @@ verify-*.jpg
 # AI 抠图大文件（模型/WASM 二进制，可从 hf-mirror + npm 重新下载，见 docs/ai-background-removal-plan.md）
 public/models/*.onnx
 public/ort/*.wasm
+
+# 百度推送 token（敏感，勿提交）
+.baidu-token
