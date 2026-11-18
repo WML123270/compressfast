@@ -1772,6 +1772,79 @@ A note on text: rasterizing turns text into pixels, so the result cannot be sele
 关于文字：图片化会把文字变成像素，结果无法选中、搜索或复制，本工具也不包含 OCR。如果必须保留可选中文字，请保持 PDF 格式并改用无损压缩，或者之后再对图片做 OCR。典型流程是：只转换需要的页面，再用极速压图的其他工具压缩或缩放这些图片。`,
     relatedTools: ['compress-pdf', 'split-pdf', 'merge-pdf', 'image-to-pdf'],
   },
+  'crop-image': {
+    slug: 'crop-image',
+    titleEn: 'Crop Image Online Free — No Upload or Signup | CompressFast',
+    titleZh: '在线裁剪图片 — 免费无水印，浏览器本地裁剪 | 极速压图',
+    descriptionEn: 'Crop images online for free. Drag the crop box, choose 1:1, 4:3, 3:4, 16:9 or a free ratio, rotate, then export as PNG, JPG or WebP. 100% browser-based — your photos are never uploaded.',
+    descriptionZh: '免费在线裁剪图片：拖拽选框，支持 1:1、4:3、3:4、16:9 等常用比例，可旋转，导出 PNG / JPG / WebP。全程浏览器本地处理，照片不上传。',
+    keywords: ['crop image', 'crop image online', 'image cropper', 'crop photo online', 'free image cropper', 'crop png', 'crop jpg', 'crop picture online', '图片裁剪', '在线裁剪图片', '裁剪照片', '照片裁剪', '图片裁剪工具', '裁剪图片'],
+    heroTitleEn: 'Crop Images Online',
+    heroTitleZh: '在线裁剪图片',
+    heroSubEn: 'Drag the crop box, pick a ratio, rotate, and export. Free, private, no watermark.',
+    heroSubZh: '拖拽选框、选择比例、旋转、直接导出。免费、隐私、无水印。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '🎯', titleEn: 'Presets + Free Crop', titleZh: '预设比例 + 自由裁剪', descEn: 'One-click 1:1, 4:3, 3:4, 16:9 and 9:16 ratios for avatars, posts and video covers — or drag any custom crop box you like.', descZh: '一键 1:1、4:3、3:4、16:9、9:16，适合头像、社交贴文和视频封面；也可以自由拖拽任意选框。' },
+      { icon: '🔒', titleEn: '100% Private', titleZh: '100% 隐私安全', descEn: 'Your browser decodes and crops the image locally. Nothing is uploaded, so personal photos, IDs and client work stay on your device.', descZh: '图片在你的浏览器里解码和裁剪，不会上传。私人照片、证件和客户作品都留在你自己的设备上。' },
+      { icon: '🔄', titleEn: 'Rotate & Export', titleZh: '旋转与多格式导出', descEn: 'Rotate in 90° steps, then export PNG, JPG or WebP — with a quality slider for smaller files. EXIF metadata is dropped on export.', descZh: '按 90° 旋转，导出 PNG、JPG 或 WebP；可调质量让文件更小，导出时自动去除 EXIF 元数据。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add an Image', titleZh: '添加图片', descEn: 'Drop a photo, paste it from the clipboard, or click to choose a file. PNG, JPG, WebP, GIF, BMP, SVG and AVIF are supported — no upload.', descZh: '拖入照片、从剪贴板粘贴，或点击选择文件。支持 PNG、JPG、WebP、GIF、BMP、SVG、AVIF——不上传。' },
+      { step: 2, titleEn: 'Drag the Crop Box', titleZh: '拖拽裁剪框', descEn: 'Move or resize the box, or drag on an empty area to draw a new one. Pick a preset ratio such as 1:1 or 16:9 if you need an exact shape.', descZh: '移动或拉伸选框，也可以在空白处拖拽画出新选区。需要精确形状时，选择 1:1、16:9 等预设比例。' },
+      { step: 3, titleEn: 'Export & Download', titleZh: '导出下载', descEn: 'Choose PNG, JPG or WebP, set the quality, and download. The crop keeps the original pixel resolution — no upscaling or blurring.', descZh: '选择 PNG、JPG 或 WebP，调整质量后下载。裁剪结果保持原始像素分辨率——不会放大或变模糊。' },
+    ],
+    faqs: [
+      { qEn: 'Is this crop tool really free?', qZh: '这个裁剪工具真的免费吗？', aEn: 'Yes. Cropping is free and unlimited, with no account, no watermark and no file upload. You can use it offline once the page has loaded.', aZh: '真的。裁剪完全免费、次数不限，不需要账号，没有水印，也不上传文件。页面加载完成后断网也能用。' },
+      { qEn: 'Which image formats can I crop?', qZh: '支持裁剪哪些图片格式？', aEn: 'PNG, JPG/JPEG, WebP, GIF (first frame), BMP, SVG and AVIF can be opened in most modern browsers. Export formats are PNG, JPG and WebP. HEIC from iPhones cannot be decoded by Chrome, Edge or Firefox — convert it to JPG with the HEIC to JPG tool first, then crop.', aZh: '大多数现代浏览器支持 PNG、JPG/JPEG、WebP、GIF（首帧）、BMP、SVG 和 AVIF。导出格式为 PNG、JPG 和 WebP。iPhone 的 HEIC 在 Chrome、Edge、Firefox 中无法解码——请先用 HEIC 转 JPG 工具转换，再裁剪。' },
+      { qEn: 'Does cropping reduce image quality?', qZh: '裁剪会降低画质吗？', aEn: 'The crop itself copies pixels one-to-one at the original resolution, so no detail is lost. Re-encoding is the only source of loss: PNG is lossless; JPG and WebP are lossy but use quality 92 by default. Pick PNG for the absolute best quality, or lower the quality slider when you want a smaller file.', aZh: '裁剪本身按原始分辨率一比一复制像素，不会损失细节。唯一的损耗来自重新编码：PNG 无损；JPG 和 WebP 有损，但默认质量是 92。追求极致画质选 PNG，想减小体积就调低质量滑块。' },
+      { qEn: 'What aspect ratios are available?', qZh: '有哪些裁剪比例？', aEn: 'Free crop, 1:1 (avatars and Instagram posts), 4:3 and 3:4 (classic photos), 16:9 (YouTube thumbnails and desktop wallpapers) and 9:16 (Stories, Reels and TikTok). You can also switch back to Free and drag any custom shape.', aZh: '自由裁剪、1:1（头像和 Instagram 贴文）、4:3 与 3:4（经典照片）、16:9（YouTube 封面和桌面壁纸）、9:16（Stories、Reels、抖音）。也可以切回自由模式，拖出任意形状。' },
+      { qEn: 'Can I crop images on my phone?', qZh: '手机上能裁剪图片吗？', aEn: 'Yes. The crop box supports touch dragging and resizing, the canvas fits the screen, and the export button downloads directly to your photo library or Files app. It works in mobile Safari, Chrome and most in-app browsers.', aZh: '可以。选框支持触摸拖动和拉伸，画布会自动适配屏幕，导出按钮会直接下载到相册或文件 App。手机 Safari、Chrome 和大多数内置浏览器都能用。' },
+      { qEn: 'Is there a file size or resolution limit?', qZh: '有文件大小或分辨率限制吗？', aEn: 'Files up to 30MB are accepted. Extremely high-resolution images (beyond roughly 100 megapixels) may hit the browser memory limit. If that happens, shrink the image first with the Resize Image tool, then crop.', aZh: '支持最大 30MB 的文件。分辨率特别高（大约超过 1 亿像素）时可能触到浏览器内存上限。遇到这种情况，先用「调整图片尺寸」工具缩小，再裁剪。' },
+      { qEn: 'Is my photo uploaded anywhere?', qZh: '照片会被上传吗？', aEn: 'No. The file is read with the browser File API and drawn to a local canvas. There is no upload request, and the export happens on your device. The page also works offline after it loads.', aZh: '不会。文件通过浏览器 File API 读取并绘制到本地 canvas，没有任何上传请求，导出也在你的设备上完成。页面加载后断网也能继续使用。' },
+      { qEn: 'Does cropping remove EXIF data?', qZh: '裁剪会清除 EXIF 信息吗？', aEn: 'Yes. Exporting through a canvas discards EXIF, including GPS location and camera details, which is useful for privacy before sharing a photo. The original file on your device is not modified.', aZh: '会。通过 canvas 导出会丢弃 EXIF，包括 GPS 定位和相机参数，分享照片前更安全。你设备上的原始文件不会被修改。' },
+      { qEn: 'Can I crop multiple images at once?', qZh: '可以批量裁剪多张图片吗？', aEn: 'The crop tool handles one image at a time so you can frame each shot precisely. For batch work, crop the first image, then use the Add Another button — switching between images takes just a second. For batch resizing to the same dimensions, use the Resize Image tool instead.', aZh: '裁剪工具一次处理一张，方便每张都精确构图。需要批量时，裁完一张点「再裁一张」即可，切换只需一秒。如果只是想统一改成相同尺寸，请改用「调整图片尺寸」工具。' },
+    ],
+    detailedGuideEn: `Cropping is the simplest image edit and often the most useful. A group photo needs one person removed from the frame, a screenshot needs the browser chrome trimmed away, a phone photo needs a square version for an avatar, or a design needs exact 16:9 dimensions for a video cover. All of these are crop jobs, and none of them should require uploading a private photo to an unknown server.
+
+CompressFast's crop tool runs entirely in your browser. The image is read locally, drawn onto a canvas, and exported on your device. Nothing is sent over the network, so it is safe for personal photos, ID documents, client mockups and unreleased product shots. Once the page has loaded, you can even go offline and keep cropping.
+
+How the tool works:
+
+1. Add an image — drag it in, paste from the clipboard, or click to browse. PNG, JPG, WebP, GIF, BMP, SVG and AVIF open in modern browsers. Large files up to 30MB are supported.
+
+2. Frame the crop — drag inside the box to move it, drag a corner or edge handle to resize it, or drag on an empty area to draw a brand-new selection. The dark overlay shows exactly what will be kept, and the live label shows the output pixel size.
+
+3. Pick a ratio when exactness matters — 1:1 for avatars and Instagram posts, 4:3 or 3:4 for classic photos, 16:9 for YouTube thumbnails and desktop wallpapers, 9:16 for Stories, Reels and TikTok. Switch to Free when you want any shape.
+
+4. Rotate if needed — a sideways phone photo can be turned in 90-degree steps before cropping, without re-encoding the image first.
+
+5. Export — choose PNG for lossless quality, JPG for the smallest photo files, or WebP for a modern balance of both. The quality slider applies to JPG and WebP. The crop keeps the original pixel resolution, so a 4000×3000 photo cropped to a 1080×1080 square is exported at exactly 1080×1080 with no upscaling.
+
+A practical workflow: crop first, then compress. Cropping removes pixels you do not need, which makes the file smaller before compression even starts. After cropping, run the result through the main compressor or convert it to WebP — the combination of crop + compress + format conversion is how you get web-ready images that load fast without looking soft.
+
+Privacy note: exporting through a canvas strips EXIF metadata, including GPS coordinates, camera model and capture time. That is usually what you want before posting a photo publicly. Your original file is untouched — the tool only creates a new, cropped copy.`,
+    detailedGuideZh: `裁剪是最简单的图片编辑，却往往最有用。合影里需要去掉边上的人，截图需要裁掉浏览器边框，手机照片需要方形版本做头像，设计稿需要精确的 16:9 做视频封面。这些都属于裁剪，而且都不应该把私人照片上传到陌生服务器。
+
+极速压图的裁剪工具完全在浏览器里运行：图片在本地读取、绘制到 canvas、在你的设备上导出。全程没有任何网络上传，私人照片、证件、客户设计稿和未发布的产品图都能放心处理。页面加载完成后，断网也能继续裁剪。
+
+工具怎么用：
+
+1. 添加图片——拖入、从剪贴板粘贴，或点击选择文件。现代浏览器支持 PNG、JPG、WebP、GIF、BMP、SVG 和 AVIF，最大 30MB。
+
+2. 调整选框——在框内拖动可移动，拖四角或四边可缩放，在空白处拖动可以画出全新选区。深色遮罩精确显示保留区域，实时标签显示输出像素尺寸。
+
+3. 需要精确形状时选比例——1:1 适合头像和 Instagram 贴文；4:3 或 3:4 适合经典照片；16:9 适合 YouTube 封面和桌面壁纸；9:16 适合 Stories、Reels 和抖音。需要任意形状时切回“自由”。
+
+4. 需要时旋转——横躺的手机照片可以先按 90° 转正再裁剪，第一步不重新编码图片。
+
+5. 导出——PNG 无损画质，JPG 照片体积最小，WebP 兼顾两者。质量滑块对 JPG 和 WebP 生效。裁剪保持原始像素分辨率：4000×3000 的照片裁成 1080×1080 方形，导出的就是精确的 1080×1080，不会放大。
+
+推荐流程：先裁剪，再压缩。裁剪去掉不需要的像素，文件在压缩前就已经变小。裁完后可以接着用主压缩器或转成 WebP——裁剪 + 压缩 + 格式转换组合起来，才能得到加载快又清晰的网页图片。
+
+隐私提示：通过 canvas 导出会去除 EXIF 元数据，包括 GPS 坐标、相机型号和拍摄时间，公开发布照片前更安全。原始文件不会被修改——工具只生成一份新的裁剪副本。`,
+    relatedTools: ['resize-image', 'compress-images', 'png-to-jpg'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

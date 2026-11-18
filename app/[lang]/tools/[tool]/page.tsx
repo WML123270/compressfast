@@ -14,6 +14,7 @@ const MergePdfClient = dynamic(() => import('./MergePdfClient'), { ssr: false })
 const SplitPdfClient = dynamic(() => import('./SplitPdfClient'), { ssr: false })
 const CompressPdfClient = dynamic(() => import('./CompressPdfClient'), { ssr: false })
 const PdfToImageClient = dynamic(() => import('./PdfToImageClient'), { ssr: false })
+const CropImageClient = dynamic(() => import('./CropImageClient'), { ssr: false })
 
 const PDF_CLIENTS: Record<string, ComponentType> = {
   'image-to-pdf': ImageToPdfClient,
@@ -21,6 +22,12 @@ const PDF_CLIENTS: Record<string, ComponentType> = {
   'split-pdf': SplitPdfClient,
   'compress-pdf': CompressPdfClient,
   'pdf-to-jpg': PdfToImageClient,
+}
+
+// Tools with a bespoke UI that is not the shared compression client
+const SPECIAL_CLIENTS: Record<string, ComponentType> = {
+  ...PDF_CLIENTS,
+  'crop-image': CropImageClient,
 }
 
 interface Props { params: { tool: string; lang: string } }
@@ -73,8 +80,8 @@ export default function ToolPage({ params }: Props) {
 
   const isZh = params.lang === 'zh'
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.site'
-  const PdfClient = PDF_CLIENTS[params.tool]
-  const isPdfTool = Boolean(PdfClient)
+  const SpecialClient = SPECIAL_CLIENTS[params.tool]
+  const isPdfTool = Boolean(PDF_CLIENTS[params.tool])
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -92,8 +99,8 @@ export default function ToolPage({ params }: Props) {
       </section>
 
       {/* Interactive Tool Area */}
-      {PdfClient
-        ? <PdfClient />
+      {SpecialClient
+        ? <SpecialClient />
         : <ToolClient defaultSettings={tool.defaultSettings} />}
 
       {/* Content Intro — explains what this tool does with SEO-rich text */}
