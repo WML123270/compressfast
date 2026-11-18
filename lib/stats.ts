@@ -180,9 +180,13 @@ export async function checkCompressionRateLimit(ip: string, count: number): Prom
 }
 
 export async function incrementProPurchase(amount = 24.99): Promise<void> {
+  const date = formatDate(new Date())
   await Promise.all([
     incr('stats:pro_purchases:total'),
     incr('stats:pro_revenue:total', Math.round(amount * 100)), // 存分（避免浮点精度问题）
+    // 漏斗：支付成功（含联调测试单），与 view/click/checkout 同口径展示
+    incr('stats:pro_funnel:purchase:total'),
+    incr(`stats:pro_funnel:purchase:daily:${date}`),
   ])
 }
 
@@ -246,6 +250,44 @@ export async function recordPdfOutput(
     incr('stats:pdf:bytes:total', safeBytes),
     incr(`stats:pdf:pages:tool:${tool}:total`, safePages),
     incr(`stats:pdf:bytes:tool:${tool}:total`, safeBytes),
+  ])
+}
+
+// ---- Pro 转化漏斗埋点 ----
+// view=看到 Pro 页 / click=点击升级入口 / checkout=成功创建支付订单 / fail=创建订单失败
+// source 记录入口或支付渠道，用于判断哪个入口真正带单
+
+export const PRO_STAGES = ['view', 'click', 'checkout', 'fail'] as const
+export type ProStage = (typeof PRO_STAGES)[number]
+
+export const PRO_SOURCES = [
+  'header',
+  'quota_banner',
+  'image_list',
+  'format_selector',
+  'preset_manager',
+  'watermark',
+  'scene_presets',
+  'home_cta',
+  'hero_cta',
+  'ai_gate',
+  'pro_buy',
+  'pro_cn_buy',
+  'mobile_sticky',
+  'creem',
+  'hupijiao',
+] as const
+export type ProSource = (typeof PRO_SOURCES)[number]
+
+/** 记录一次 Pro 漏斗行为；source 不在白名单时忽略（防脏数据） */
+export async function incrementProEvent(stage: ProStage, source?: string): Promise<void> {
+  const date = formatDate(new Date())
+  const safeSource =
+    source && (PRO_SOURCES as readonly string[]).includes(source) ? source : undefined
+  await Promise.all([
+    incr(`stats:pro_funnel:${stage}:total`),
+    incr(`stats:pro_funnel:${stage}:daily:${date}`),
+    ...(safeSource ? [incr(`stats:pro_funnel:${stage}:source:${safeSource}:total`)] : []),
   ])
 }
 
@@ -315,6 +357,30 @@ export interface PdfStats {
   byTool: PdfToolStats[]
 }
 
+export interface ProSourceStats {
+  source: string
+  click: number
+  checkout: number
+}
+
+export interface ProFunnelDailyPoint {
+  date: string
+  view: number
+  click: number
+  checkout: number
+  purchase: number
+}
+
+export interface ProFunnelStats {
+  view: number
+  click: number
+  checkout: number
+  purchase: number
+  fail: number
+  bySource: ProSourceStats[]
+  daily: ProFunnelDailyPoint[]
+}
+
 export interface DashboardStats {
   totalPV: number
   totalUV: number
@@ -329,6 +395,7 @@ export interface DashboardStats {
   china: SiteStats
   ai: AiStats
   pdf: PdfStats
+  proFunnel: ProFunnelStats
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -394,11 +461,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china, ai, pdf] = await Promise.all([
+  const [overseas, china, ai, pdf, proFunnel] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
     getAiStats(),
     getPdfStats(),
+    getProFunnelStats(),
   ])
 
   return {
@@ -415,6 +483,74 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     china,
     ai,
     pdf,
+    proFunnel,
+  }
+}
+
+/** 聚合 Pro 转化漏斗（累计 + 每个入口 + 近 7 天），一次 pipeline */
+async function getProFunnelStats(): Promise<ProFunnelStats> {
+  const days: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    days.push(formatDate(d))
+  }
+
+  const empty = (): ProFunnelStats => ({
+    view: 0,
+    click: 0,
+    checkout: 0,
+    purchase: 0,
+    fail: 0,
+    bySource: PRO_SOURCES.map((source) => ({ source, click: 0, checkout: 0 })),
+    daily: days.map((date) => ({ date, view: 0, click: 0, checkout: 0, purchase: 0 })),
+  })
+
+  const r = getRedis()
+  if (!r) return empty()
+
+  try {
+    const keys: string[] = []
+    for (const stage of PRO_STAGES) keys.push(`stats:pro_funnel:${stage}:total`)
+    for (const source of PRO_SOURCES) {
+      keys.push(`stats:pro_funnel:click:source:${source}:total`)
+      keys.push(`stats:pro_funnel:checkout:source:${source}:total`)
+    }
+    for (const date of days) {
+      for (const stage of ['view', 'click', 'checkout', 'purchase'] as const) {
+        keys.push(`stats:pro_funnel:${stage}:daily:${date}`)
+      }
+    }
+
+    const pipe = r.pipeline()
+    for (const key of keys) pipe.get(key)
+    const vals = (await pipe.exec()) as unknown[]
+
+    const map = new Map<string, number>()
+    keys.forEach((key, i) => map.set(key, Number(vals[i]) || 0))
+    const n = (key: string) => map.get(key) || 0
+
+    return {
+      view: n('stats:pro_funnel:view:total'),
+      click: n('stats:pro_funnel:click:total'),
+      checkout: n('stats:pro_funnel:checkout:total'),
+      purchase: n('stats:pro_funnel:purchase:total'),
+      fail: n('stats:pro_funnel:fail:total'),
+      bySource: PRO_SOURCES.map((source) => ({
+        source,
+        click: n(`stats:pro_funnel:click:source:${source}:total`),
+        checkout: n(`stats:pro_funnel:checkout:source:${source}:total`),
+      })),
+      daily: days.map((date) => ({
+        date,
+        view: n(`stats:pro_funnel:view:daily:${date}`),
+        click: n(`stats:pro_funnel:click:daily:${date}`),
+        checkout: n(`stats:pro_funnel:checkout:daily:${date}`),
+        purchase: n(`stats:pro_funnel:purchase:daily:${date}`),
+      })),
+    }
+  } catch {
+    return empty()
   }
 }
 

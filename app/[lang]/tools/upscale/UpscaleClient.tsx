@@ -6,6 +6,7 @@ import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { upscaleImage } from '@/lib/ai/upscale'
 import { trackAiEvent } from '@/lib/ai/analytics'
+import { trackPro } from '@/lib/pro-funnel'
 
 type Status = 'idle' | 'loading-model' | 'processing' | 'done' | 'error'
 
@@ -262,7 +263,7 @@ export default function UpscaleClient() {
           <p className="mt-1 text-sm text-amber-700">
             {isZh ? '升级 Pro 解锁本地 AI 放大，永久买断。' : 'Upgrade to Pro to unlock local AI upscaling.'}
           </p>
-          <a href={`/${locale}/pro`} className="inline-block mt-3 px-5 py-2 rounded-lg bg-amber-500 text-white font-semibold hover:opacity-90">
+          <a href={`/${locale}/pro`} onClick={() => trackPro('click', 'ai_gate')} className="inline-block mt-3 px-5 py-2 rounded-lg bg-amber-500 text-white font-semibold hover:opacity-90">
             {isZh ? '升级 Pro →' : 'Upgrade to Pro →'}
           </a>
         </div>

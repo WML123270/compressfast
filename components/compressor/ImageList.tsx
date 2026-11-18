@@ -10,6 +10,7 @@ import { generateFilename } from '@/lib/compression/utils'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { useT } from '@/lib/i18n/context'
+import { trackPro } from '@/lib/pro-funnel'
 
 export function ImageList() {
   const { t, locale } = useT()
@@ -25,6 +26,10 @@ export function ImageList() {
   const doneFiles = files.filter(f => f.status === 'done' && f.compressedBlob)
   const selectedCount = doneFiles.filter(f => selectedIds.has(f.id)).length
   const allSelected = doneFiles.length > 0 && selectedCount === doneFiles.length
+
+  // 完成后的 Pro 升级卡片：用本次真实节省量做说服
+  const savedBytes = Math.max(0, totalOriginalSize() - totalCompressedSize())
+  const avifExtraBytes = Math.round(totalCompressedSize() * 0.3)
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -274,40 +279,42 @@ export function ImageList() {
         ))}
       </div>
 
-      {/* Pro value prop — shown after compression completes for free overseas users */}
+      {/* Pro value prop — shown after compression completes for free users */}
       {allProcessed && !isPro && doneCount > 0 && (
-        <div className="mt-4 rounded-2xl border border-purple-700/30 bg-gradient-to-br from-purple-950/40 via-indigo-950/30 to-blue-950/20 overflow-hidden">
+        <div className="mt-4 rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 overflow-hidden">
           <div className="p-4 sm:p-5 space-y-3">
             {/* Header */}
             <div className="flex items-center gap-2">
-              <Dna className="w-5 h-5 text-purple-400" />
-              <span className="font-bold text-sm text-purple-200">
-                {t('list.proUnlockTitle')}
+              <Dna className="w-5 h-5 text-purple-600" />
+              <span className="font-bold text-sm text-neutral-900">
+                {locale === 'zh'
+                  ? `这次已省 ${formatFileSize(savedBytes)}，还能再小 30%`
+                  : `You saved ${formatFileSize(savedBytes)} — AVIF saves ~30% more`}
               </span>
             </div>
 
             {/* Savings comparison */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+              <div className="p-3 rounded-xl bg-white border border-gray-200">
                 <div className="text-xs text-neutral-500">
                   {t('list.currentCompression')}
                 </div>
-                <div className="text-lg font-bold text-blue-400 tabular-nums">
+                <div className="text-lg font-bold text-blue-600 tabular-nums">
                   {overallRatio().toFixed(0)}%
                 </div>
-                <div className="text-xs text-neutral-600">
-                  {options.outputFormat === 'original' ? 'PNG/JPEG' : options.outputFormat.toUpperCase()}
+                <div className="text-xs text-neutral-500">
+                  {options.outputFormat === 'original' ? 'PNG/JPEG' : options.outputFormat.toUpperCase()} · {formatFileSize(savedBytes)}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                <div className="text-xs text-purple-300">
+              <div className="p-3 rounded-xl bg-purple-100/70 border border-purple-200">
+                <div className="text-xs text-purple-700">
                   {t('list.avifEstimated')}
                 </div>
-                <div className="text-lg font-bold text-purple-300 tabular-nums">
+                <div className="text-lg font-bold text-purple-700 tabular-nums">
                   ~{Math.min(95, Math.round(overallRatio() * 1.3))}%
                 </div>
-                <div className="text-xs text-purple-400">
-                  AVIF · Pro
+                <div className="text-xs text-purple-600">
+                  AVIF · Pro · {locale === 'zh' ? '再省约' : 'extra'} {formatFileSize(avifExtraBytes)}
                 </div>
               </div>
             </div>
@@ -315,12 +322,16 @@ export function ImageList() {
             {/* CTA */}
             <a
               href={`/${locale}/pro`}
+              onClick={() => trackPro('click', 'image_list')}
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg shadow-purple-500/20 transition-all active:scale-[0.98]"
             >
               <Crown className="w-4 h-4" />
-              {t('list.upgradePro')}
+              {locale === 'zh' ? '解锁 AVIF 输出' : 'Unlock AVIF output'}
               <ArrowRight className="w-4 h-4" />
             </a>
+            <p className="text-[11px] text-center text-neutral-500">
+              {locale === 'zh' ? '一次买断 · 5 台设备 · 永久有效' : 'One-time payment · 5 devices · Lifetime access'}
+            </p>
           </div>
         </div>
       )}

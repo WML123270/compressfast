@@ -122,6 +122,60 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
+  // ---- Pro 转化漏斗 ----
+  const pro = data.proFunnel || {}
+  const proView = pro.view || 0
+  const proClick = pro.click || 0
+  const proCheckout = pro.checkout || 0
+  const proPurchase = pro.purchase || 0
+  const proFail = pro.fail || 0
+  const proPurchases = data.totalPurchases || 0
+  const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0)
+  const proDaily = pro.daily || []
+  let proDailyRows = ''
+  for (let i = 0; i < proDaily.length; i++) {
+    const d = proDaily[i] || {}
+    proDailyRows += `<tr>
+      <td class="date">${(d.date || '').slice(5)}</td>
+      <td class="num">${d.view || 0}</td>
+      <td class="num">${d.click || 0}</td>
+      <td class="num">${d.checkout || 0}</td>
+      <td class="num">${d.purchase || 0}</td>
+    </tr>`
+  }
+  const proSourceNames: Record<string, string> = {
+    header: '顶部导航',
+    quota_banner: '额度条',
+    image_list: '压缩结果卡片',
+    format_selector: 'AVIF 格式锁',
+    preset_manager: '预设锁',
+    watermark: '水印锁',
+    scene_presets: '场景预设锁',
+    home_cta: '首页按钮',
+    hero_cta: 'Pro 页首屏按钮',
+    ai_gate: 'AI 工具门控',
+    pro_buy: 'Pro 页购买按钮',
+    pro_cn_buy: 'Pro 页国内支付',
+    mobile_sticky: '移动端吸底',
+    creem: 'Creem 渠道',
+    hupijiao: '虎皮椒渠道',
+  }
+  const proSources = (pro.bySource || [])
+    .filter((s: any) => (s.click || 0) > 0 || (s.checkout || 0) > 0)
+    .sort((a: any, b: any) => (b.click || 0) - (a.click || 0))
+  let proSourceRows = ''
+  for (const s of proSources) {
+    proSourceRows += `<tr>
+      <td>${proSourceNames[s.source] || s.source}</td>
+      <td class="num">${s.click || 0}</td>
+      <td class="num">${s.checkout || 0}</td>
+      <td class="num">${s.click > 0 ? Math.round(((s.checkout || 0) / s.click) * 100) + '%' : '—'}</td>
+    </tr>`
+  }
+  if (!proSourceRows) {
+    proSourceRows = `<tr><td colspan="4" class="date">暂无数据（新埋点，从今天开始累计）</td></tr>`
+  }
+
   // ---- 图片转 PDF ----
   function fmtBytes(n: number): string {
     if (!Number.isFinite(n) || n <= 0) return '0 B'
@@ -229,6 +283,30 @@ function renderStats(data: any, ov: any, cn: any): string {
         <div class="s">PV ${(cn.totalPV || 0).toLocaleString()} · UV ${(cn.totalUV || 0).toLocaleString()} · 压缩 ${(cn.totalCompressions || 0).toLocaleString()}</div>
       </div>
     </div>
+    <h2>💳 Pro 转化漏斗（累计）</h2>
+    <p class="note">view=Pro 页曝光 · click=升级入口点击 · checkout=支付订单创建成功 · purchase=支付成功（含联调测试单）· fail=创建失败。purchase 从本次上线开始累计，历史订单数见 KPI，漏斗转化率仅作趋势参考。</p>
+    <div class="split">
+      <div class="box">
+        <h3>漏斗</h3>
+        <div class="s">曝光 ${proView} → 点击 ${proClick}（${pct(proClick, proView)}%）→ 创建支付 ${proCheckout}（${pct(proCheckout, proClick)}%）→ 支付成功 ${proPurchase}（${pct(proPurchase, proCheckout)}%）</div>
+        <div class="s">创建失败 ${proFail} · 历史订单 ${proPurchases}</div>
+      </div>
+      <div class="box">
+        <h3>说明</h3>
+        <div class="s">新埋点从 2026-11-18 开始累计，之前的数据为 0 属正常。</div>
+        <div class="s">若 click 高但 checkout 低，优先查支付表单；若 view 高但 click 低，优先改 Pro 页说服力。</div>
+      </div>
+    </div>
+    <h2>📅 Pro 漏斗近 7 天</h2>
+    <table>
+      <tr><th>日期</th><th class="num">曝光</th><th class="num">点击</th><th class="num">创建支付</th><th class="num">支付成功</th></tr>
+      ${proDailyRows}
+    </table>
+    <h2>🔎 升级入口来源</h2>
+    <table>
+      <tr><th>入口</th><th class="num">点击</th><th class="num">创建支付</th><th class="num">创建率</th></tr>
+      ${proSourceRows}
+    </table>
     <h2>🤖 AI 工具（累计）</h2>
     <div class="split">
       ${aiBox('✂️ AI 抠图', ai.removeBg || {})}

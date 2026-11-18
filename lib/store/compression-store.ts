@@ -489,7 +489,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           rotation: file.rotation,
           flipH: file.flipH,
           flipV: file.flipV,
-          watermark: watermark.enabled ? {
+          watermark: watermark.enabled && isPro ? {
             enabled: watermark.enabled,
             type: watermark.type,
             text: watermark.text,
@@ -637,7 +637,7 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
         rotation: file.rotation,
         flipH: file.flipH,
         flipV: file.flipV,
-        watermark: get().watermark.enabled ? {
+        watermark: get().watermark.enabled && isPro ? {
           enabled: get().watermark.enabled,
           type: get().watermark.type,
           text: get().watermark.text,

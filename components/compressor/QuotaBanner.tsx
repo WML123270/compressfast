@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useT } from '@/lib/i18n/context'
 import { isCnDeploy } from '@/lib/utils'
+import { trackPro } from '@/lib/pro-funnel'
 
 const IS_CN = isCnDeploy()
 
@@ -18,7 +19,7 @@ export function QuotaBanner() {
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
         <p className="font-semibold text-amber-800">{t('pro.quotaExceeded')}</p>
         <p className="text-amber-700 text-sm mt-1">{IS_CN ? '您本月已压缩 100 张图片，免费额度已用完。升级 Pro 即可无限使用。' : t('pro.quotaExceededDesc')}</p>
-        <Link href={`/${locale}/pro`} className="inline-block mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors">
+        <Link href={`/${locale}/pro`} onClick={() => trackPro('click', 'quota_banner')} className="inline-block mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors">
           {IS_CN ? '升级 Pro · ¥9.9 永久' : locale === 'zh' ? '升级 Pro · $24.99 永久' : 'Upgrade to Pro · $24.99 Lifetime'}
         </Link>
       </div>
@@ -44,7 +45,7 @@ export function QuotaBanner() {
           />
         </div>
       </div>
-      <Link href={`/${locale}/pro`} className="flex-shrink-0 px-2.5 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
+      <Link href={`/${locale}/pro`} onClick={() => trackPro('click', 'quota_banner')} className="flex-shrink-0 px-2.5 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
         {locale === 'zh' ? '升级 Pro' : 'Go Pro'}
       </Link>
     </div>

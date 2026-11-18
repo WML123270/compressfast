@@ -4,7 +4,8 @@ import { useState, useRef } from 'react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useT } from '@/lib/i18n/context'
 import { useToast } from '@/components/ui/Toast'
-import { Image, Type, X, Upload, ChevronDown, ChevronUp } from 'lucide-react'
+import { Image, Type, X, Upload, ChevronDown, ChevronUp, Lock } from 'lucide-react'
+import { trackPro } from '@/lib/pro-funnel'
 import type { WatermarkType, WatermarkPosition } from '@/lib/compression/types'
 
 const POSITIONS: { value: WatermarkPosition; label: string; col: number; row: number }[] = [
@@ -27,7 +28,7 @@ const TYPES: { value: WatermarkType; labelZh: string; labelEn: string }[] = [
 export function WatermarkSettings() {
   const { t, locale } = useT()
   const { toast } = useToast()
-  const { watermark, setWatermark, files } = useCompressionStore()
+  const { watermark, setWatermark, files, isPro } = useCompressionStore()
   const [expanded, setExpanded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageError, setImageError] = useState<string | null>(null)
@@ -60,6 +61,35 @@ export function WatermarkSettings() {
   }
 
   if (!hasFiles) return null
+
+  // 水印为 Pro 专属
+  if (!isPro) {
+    return (
+      <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <span className="flex items-center gap-2 font-medium text-neutral-800">
+            <Image className="w-4 h-4 text-neutral-700" />
+            {isZh ? '水印设置' : 'Watermark'}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+              <Lock className="w-3 h-3" /> Pro
+            </span>
+          </span>
+          <a
+            href={`/${locale}/pro`}
+            onClick={() => trackPro('click', 'watermark')}
+            className="flex-shrink-0 text-sm font-semibold text-blue-600 hover:underline"
+          >
+            {isZh ? '升级解锁 →' : 'Upgrade →'}
+          </a>
+        </div>
+        <p className="px-4 pb-3 text-xs text-neutral-600">
+          {isZh
+            ? '文字/图片水印、9 宫格定位，Pro 一次买断即可永久使用。'
+            : 'Text and image watermarks with 9-position placement — unlock with a one-time Pro purchase.'}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">

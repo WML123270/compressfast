@@ -54,7 +54,8 @@ export function FeedbackButton({ locale }: { locale?: string }) {
   return (
     <>
       {/* Floating button */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      {/* 移动端上移：避开底部「压缩全部」/「立即升级」吸底按钮 */}
+      <div className="fixed bottom-24 sm:bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         {/* Hint tooltip */}
         <div className="bg-[#0f1a2e] border border-white/10 text-white/90 text-xs px-3 py-1.5 rounded-lg shadow-lg animate-bounce backdrop-blur-sm">
           {isZh ? '💬 有建议？反馈给我们' : '💬 Feedback? Let us know'}

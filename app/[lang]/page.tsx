@@ -18,6 +18,7 @@ import { AdSlot } from '@/components/layout/AdSlot'
 import { PopularTools } from '@/components/layout/PopularTools'
 import { AnimatedBackground } from '@/components/layout/AnimatedBackground'
 import { Mascot } from '@/components/compressor/Mascot'
+import { trackPro } from '@/lib/pro-funnel'
 import { ProductWindow } from '@/components/compressor/ProductWindow'
 import { TOOLS } from '@/lib/tool-pages'
 import { TOOL_ICONS, TOOL_SHORT } from '@/lib/tool-icons'
@@ -301,7 +302,7 @@ export default function HomePage() {
                 <Crown className="w-4 h-4" /> {t('pro.active')}
               </Link>
             ) : (
-              <Link href={`/${locale}/pro`} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-sm font-semibold text-white transition-all">
+              <Link href={`/${locale}/pro`} onClick={() => trackPro('click', 'home_cta')} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-sm font-semibold text-white transition-all">
                 <Crown className="w-4 h-4" /> {isCn ? '¥9.9 解锁 Pro' : t('pro.badgePrice')}
               </Link>
             )}

@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName, incrementProEvent, PRO_STAGES, type ProStage } from '@/lib/stats'
 import { isLikelyBot } from '@/lib/bot-detection'
 import {
   PDF_TOOL_SLUGS,
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: 'bot' })
     }
 
-    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, pdfEvent, mode, pages, bytes } = await request.json()
+    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, pdfEvent, mode, pages, bytes, proStage, source } = await request.json()
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
     const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
@@ -109,6 +109,21 @@ export async function POST(request: NextRequest) {
             await recordPdfOutput(p, b, pdfTool as PdfTool)
           }
         }
+        break
+      }
+      case 'pro': {
+        const stage = String(proStage || '')
+        if (!PRO_STAGES.includes(stage as ProStage)) {
+          return NextResponse.json({ error: '未知 Pro 事件' }, { status: 400 })
+        }
+        // 点击/创建订单/失败要求先有 pageview 会话（防脚本直连刷量）；曝光放行
+        if (
+          stage !== 'view' &&
+          !(await isVisitorActive(visitorId || ''))
+        ) {
+          return NextResponse.json({ success: true, skipped: 'no_session' })
+        }
+        await incrementProEvent(stage as ProStage, typeof source === 'string' ? source : undefined)
         break
       }
       default:

@@ -7,6 +7,7 @@ import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { useIsCn } from '@/lib/use-is-cn'
 import { getDeviceFingerprint } from '@/lib/device-fingerprint'
+import { trackPro } from '@/lib/pro-funnel'
 
 /** 功能对比行数据 */
 interface FeatureRow {
@@ -42,6 +43,8 @@ export default function ProPage() {
 
   useEffect(() => {
     checkProStatus()
+    // 漏斗：Pro 页曝光（每次挂载记一次）
+    trackPro('view')
     const pendingEmail = localStorage.getItem('pro_pending_email')
     if (pendingEmail) {
       if (!forgotEmail) setForgotEmail(pendingEmail)
@@ -50,6 +53,7 @@ export default function ProPage() {
   }, [])
 
   const handleBuy = async () => {
+    trackPro('click', 'pro_buy')
     const email = buyEmail.trim()
     if (!email || !email.includes('@')) {
       setBuyError(locale === 'zh' ? '请输入有效邮箱' : 'Please enter a valid email')
@@ -65,19 +69,23 @@ export default function ProPage() {
       })
       const data = await res.json()
       if (data.checkoutUrl) {
+        trackPro('checkout', 'creem')
         localStorage.setItem('pro_pending_email', email)
         window.location.href = data.checkoutUrl
       } else {
+        trackPro('fail', 'creem')
         setBuyError(data.error || 'Server error')
         setBuyLoading(false)
       }
     } catch {
+      trackPro('fail', 'creem')
       setBuyError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
       setBuyLoading(false)
     }
   }
 
   const handleCnPay = async () => {
+    trackPro('click', 'pro_cn_buy')
     const email = cnEmail.trim()
     if (!email || !email.includes('@')) {
       setCnError(locale === 'zh' ? '请输入有效邮箱' : 'Please enter a valid email')
@@ -94,6 +102,7 @@ export default function ProPage() {
       })
       const data = await res.json()
       if (data.success) {
+        trackPro('checkout', 'hupijiao')
         localStorage.setItem('pro_pending_email', email)
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
         if (isMobile && data.url) {
@@ -104,9 +113,11 @@ export default function ProPage() {
           setCnError(locale === 'zh' ? '支付链接生成失败，请重试' : 'Failed to create payment, please retry')
         }
       } else {
+        trackPro('fail', 'hupijiao')
         setCnError(data.error || 'Server error')
       }
     } catch {
+      trackPro('fail', 'hupijiao')
       setCnError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
     }
     setCnLoading(false)
@@ -184,7 +195,7 @@ export default function ProPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
+    <div className="max-w-3xl mx-auto px-4 pt-8 pb-24 sm:py-12 space-y-8">
       <Link href={`/${locale}`} className="inline-flex items-center gap-1 text-neutral-600 hover:text-blue-600 transition-colors">
         <ArrowLeft className="w-4 h-4" /> {t('vs.back')}
       </Link>
@@ -196,6 +207,35 @@ export default function ProPage() {
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('pro.heading')}</h1>
         <p className="text-neutral-800 mt-2">{t('pro.subtitle')}</p>
+        <p className="text-neutral-700 mt-1 text-sm">
+          {locale === 'zh'
+            ? '解锁本地 AI 抠图/放大、AVIF 超小体积、水印与 500 张批量处理。'
+            : 'Unlock on-device AI background removal, upscaling, AVIF output, watermarks and 500-image batches.'}
+        </p>
+        {!isPro && (
+          <>
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs">
+              {(isCn
+                ? ['一次付费 · 无订阅', '5 台设备通用', '本地处理 · 不上传']
+                : ['One-time payment', '5 devices', 'Local · no upload']
+              ).map((item) => (
+                <span key={item} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-neutral-700">
+                  <Check className="w-3 h-3 text-green-600" /> {item}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                trackPro('click', 'hero_cta')
+                document.getElementById('buy')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }}
+              className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm shadow-sm transition-all"
+            >
+              <Crown className="w-4 h-4" />
+              {locale === 'zh' ? `立即升级 · ${isCn ? '¥9.9' : '$24.99'}` : 'Upgrade now · $24.99'}
+            </button>
+          </>
+        )}
       </section>
 
       {/* Feature Comparison Table */}
@@ -224,6 +264,7 @@ export default function ProPage() {
             const features: FeatureRow[] = [
               { feature: t('pro.feature.batch'), free: isCn ? '15 张/次' : t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
               { feature: t('pro.feature.sizePerFile'), free: t('pro.free.sizePerFile'), pro: t('pro.pro.sizePerFile'), proDesc: isZh ? '大图不受限' : 'Handle larger files' },
+              { feature: isZh ? 'AI 抠图 / AI 放大' : 'AI remove BG / upscale', free: false, pro: true, proDesc: isZh ? '本地 AI 模型，图片不上传' : 'On-device AI, no upload' },
               { feature: t('pro.feature.formats'), free: t('pro.free.formats'), pro: t('pro.pro.formats'), proDesc: t('pro.proDesc.formats'), highlight: true },
               { feature: t('pro.feature.watermark'), free: false, pro: true, proDesc: t('pro.proDesc.watermark') },
               { feature: t('pro.feature.presets'), free: false, pro: true, proDesc: t('pro.proDesc.presets') },
@@ -262,7 +303,7 @@ export default function ProPage() {
         </div>
 
         {/* 价格 CTA */}
-        <div className="mt-6 text-center space-y-3">
+        <div id="buy" className="mt-6 text-center space-y-3 scroll-mt-24">
           <div>
             <span className="text-3xl font-bold text-neutral-900">{isCn ? '¥9.9' : t('pro.price')}</span>
             <span className="text-neutral-700 ml-2">{t('pro.priceLabel')}</span>
@@ -345,6 +386,43 @@ export default function ProPage() {
           )}
         </div>
       </section>
+      )}
+
+      {/* FAQ — 消除购买前的疑问 */}
+      {!isPro && (
+        <section className="max-w-2xl mx-auto">
+          <h2 className="font-bold text-neutral-900 text-center mb-4">
+            {locale === 'zh' ? '购买前常见问题' : 'Before You Buy'}
+          </h2>
+          <div className="space-y-2">
+            {(isCn
+              ? [
+                  ['这是订阅吗？', '不是。一次付费 ¥9.9，永久有效，不会自动续费。'],
+                  ['激活码怎么拿到？', '付款成功后系统会自动把激活码发到你填写的邮箱。收到后在本页下方「激活 Pro」输入即可；忘记也可以凭邮箱随时查回。'],
+                  ['可以几台设备用？', '同一个激活码最多 5 台设备，手机、电脑、平板都算，重装系统后重新激活即可。'],
+                  ['图片会上传到服务器吗？', '不会。压缩、转格式、加水印全部在你的浏览器本地完成，文件不会离开你的设备。'],
+                  ['Pro 比免费版多了什么？', '本地 AI 抠图与 AI 放大、AVIF 输出（比 WebP 再小约 30%）、图片/文字水印、场景预设、自定义预设、500 张/次批量、单张 50MB 和邮件支持。'],
+                  ['免费版够用吗？', '每月可压缩 100 张、每次 15 张、单张 10MB。如果经常批量处理或需要 AVIF/水印，Pro 更合适。'],
+                ]
+              : [
+                  ['Is this a subscription?', 'No. Pay once ($24.99) and own it forever. No auto-renewal.'],
+                  ['How do I get my activation code?', 'It is emailed automatically after payment. Paste it into “Activate Pro” below. You can also look it up anytime with your email.'],
+                  ['How many devices?', 'Up to 5 devices per code — phone, computer and tablet all count. Re-activate after reinstalling your system.'],
+                  ['Are my images uploaded?', 'No. Compression, conversion and watermarking all run locally in your browser. Files never leave your device.'],
+                  ['What does Pro add?', 'On-device AI background removal and upscaling, AVIF output (~30% smaller than WebP), text/image watermarks, scene presets, custom presets, 500 images per batch, 50MB per file and email support.'],
+                  ['Is the free plan enough?', 'You get 400 images per month, 20 per batch and 10MB per file. Pro is for frequent batch work or AVIF/watermark needs.'],
+                ]
+            ).map(([q, a]) => (
+              <details key={q} className="group bg-white border border-gray-200 rounded-xl px-4 py-3 open:border-blue-200 open:bg-blue-50/40">
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-3 font-medium text-neutral-800 text-sm">
+                  <span>{q}</span>
+                  <span className="text-neutral-400 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
+                </summary>
+                <p className="mt-2 text-sm text-neutral-700 leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Affiliate teaser — non-Pro users only */}
@@ -486,6 +564,32 @@ export default function ProPage() {
           )}
         </div>
       </section>
+
+      {/* 移动端吸底 CTA — 长页面随时可下单 */}
+      {!isPro && (
+        <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-neutral-900 leading-tight">
+              {isCn ? '¥9.9' : '$24.99'}
+              <span className="ml-1.5 text-xs font-normal text-neutral-600">
+                {locale === 'zh' ? '一次买断' : 'one-time'}
+              </span>
+            </div>
+            <div className="text-[11px] text-neutral-500">
+              {locale === 'zh' ? '永久有效 · 5 台设备' : 'Lifetime · 5 devices'}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              trackPro('click', 'mobile_sticky')
+              document.getElementById('buy')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }}
+            className="flex-shrink-0 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm transition-all"
+          >
+            {locale === 'zh' ? '立即升级' : 'Upgrade'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

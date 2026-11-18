@@ -2,16 +2,45 @@
 
 import { useCompressionStore } from '@/lib/store/compression-store'
 import type { CompressionOptions } from '@/lib/compression/types'
-import { Package, Gauge, Share2 } from 'lucide-react'
+import { Package, Gauge, Share2, Lock } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { trackPro } from '@/lib/pro-funnel'
 
 export function ScenePresets() {
   const { t, locale } = useT()
-  const { options, setOptions } = useCompressionStore()
+  const { options, setOptions, isPro } = useCompressionStore()
   const hasFiles = useCompressionStore.getState().files.length > 0
   if (!hasFiles || options.targetKB) return null
 
   const isZh = locale === 'zh'
+
+  // 场景预设为 Pro 专属
+  if (!isPro) {
+    return (
+      <div className="pt-3 border-t border-gray-200/50">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 text-xs font-semibold text-neutral-700 uppercase tracking-widest">
+            {isZh ? '场景预设' : 'Scene Presets'}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 normal-case tracking-normal">
+              <Lock className="w-3 h-3" /> Pro
+            </span>
+          </span>
+          <a
+            href={`/${locale}/pro`}
+            onClick={() => trackPro('click', 'scene_presets')}
+            className="flex-shrink-0 text-sm font-semibold text-blue-600 hover:underline"
+          >
+            {isZh ? '升级解锁 →' : 'Upgrade →'}
+          </a>
+        </div>
+        <p className="mt-1 text-xs text-neutral-600">
+          {isZh
+            ? '社交媒体 / Web 优化 / 电商白底，一键套用常用参数。'
+            : 'One-click presets for social media, web optimization and e-commerce.'}
+        </p>
+      </div>
+    )
+  }
 
   const SCENARIOS: { key: string; label: string; icon: any; options: Partial<CompressionOptions>; descKey: string }[] = [
     { key: 'social', label: isZh ? '社交媒体' : 'Social Media', icon: Share2, options: { quality: 60, speed: 5, outputFormat: 'jpeg', resizeWidth: 1080, resizeHeight: 1080 }, descKey: 'preset.socialDesc' },

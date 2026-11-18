@@ -7,6 +7,7 @@ import { useT } from '@/lib/i18n/context'
 import { useIsCn } from '@/lib/use-is-cn'
 import { ToolsMenu } from './ToolsMenu'
 import { BrandLogo } from './BrandLogo'
+import { trackPro } from '@/lib/pro-funnel'
 
 export function Header() {
   const { t, locale } = useT()
@@ -45,6 +46,7 @@ export function Header() {
           </Link>
           <Link
             href={`/${locale}/pro`}
+            onClick={() => trackPro('click', 'header')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all"
           >
             <Crown className="w-3.5 h-3.5" />

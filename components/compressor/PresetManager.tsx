@@ -6,6 +6,7 @@ import { Bookmark, Lock, Save, Check, Trash2, Upload, Download } from 'lucide-re
 import { useT } from '@/lib/i18n/context'
 import { PRESETS_STORAGE_KEY } from '@/lib/compression/types'
 import { saveAs } from 'file-saver'
+import { trackPro } from '@/lib/pro-funnel'
 
 export function PresetManager() {
   const { t, locale } = useT()
@@ -44,6 +45,7 @@ export function PresetManager() {
           <span className="text-neutral-700">{t('preset.lockedHint')}</span>
           <a
             href={`/${locale}/pro`}
+            onClick={() => trackPro('click', 'preset_manager')}
             className="font-medium text-brand-400 hover:underline"
           >
             {locale === 'zh' ? '升级 →' : 'Upgrade →'}

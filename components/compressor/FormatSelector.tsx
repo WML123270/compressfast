@@ -4,6 +4,7 @@ import { useCompressionStore } from '@/lib/store/compression-store'
 import type { CompressionOptions } from '@/lib/compression/types'
 import { Lock, AlertTriangle, FileImage, Camera, Globe, Dna, RotateCcw } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { trackPro } from '@/lib/pro-funnel'
 
 interface FormatDef {
   value: CompressionOptions['outputFormat']
@@ -48,6 +49,7 @@ export function FormatSelector() {
               key={value}
               onClick={() => {
                 if (avifLocked) {
+                  trackPro('click', 'format_selector')
                   window.location.href = `/${locale}/pro`
                   return
                 }
@@ -127,6 +129,7 @@ export function AvifSection() {
           </div>
           <a
             href={`/${locale}/pro`}
+            onClick={() => trackPro('click', 'format_selector')}
             className="flex-shrink-0 px-4 py-2 font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors text-sm sm:text-xs self-stretch sm:self-auto text-center"
           >
             {isZh ? '升级 →' : 'Upgrade →'}
