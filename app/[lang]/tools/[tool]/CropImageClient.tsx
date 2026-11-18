@@ -147,6 +147,16 @@ export default function CropImageClient() {
     (format === 'original' &&
       (source?.file.type === 'image/jpeg' || source?.file.type === 'image/webp'))
 
+  // Canvas can only re-encode JPG/PNG/WebP reliably. Other inputs (AVIF, GIF,
+  // BMP, SVG) fall back to PNG, so label the option with what actually happens.
+  const originalLabel = (() => {
+    const type = source?.file.type
+    if (type === 'image/jpeg') return isZh ? '原格式（JPG）' : 'Original (JPG)'
+    if (type === 'image/png') return isZh ? '原格式（PNG）' : 'Original (PNG)'
+    if (type === 'image/webp') return isZh ? '原格式（WebP）' : 'Original (WebP)'
+    return isZh ? '自动转 PNG' : 'Auto (PNG)'
+  })()
+
   // ── Load / replace / clean up the source image ─────────────────────────
   const applySource = useCallback((next: LoadedImage) => {
     if (sourceRef.current) URL.revokeObjectURL(sourceRef.current.url)
@@ -771,7 +781,7 @@ export default function CropImageClient() {
                 }}
                 className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-neutral-900 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
               >
-                <option value="original">{isZh ? '原格式' : 'Original'}</option>
+                <option value="original">{originalLabel}</option>
                 <option value="png">PNG</option>
                 <option value="jpeg">JPG</option>
                 <option value="webp">WebP</option>
