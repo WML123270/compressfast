@@ -10,7 +10,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const BASE = 'http://localhost:3100'
+const BASE = process.env.BASE || 'http://localhost:3100'
 const OUT = path.join(__dirname, 'ai-stability-e2e')
 fs.mkdirSync(OUT, { recursive: true })
 
