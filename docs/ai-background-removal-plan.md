@@ -22,7 +22,7 @@
 |---|---|---|---|---|
 | RMBG-1.4 (BRIA) | 42MB | 最高（发丝级）| **CC-BY-NC-4.0** | ❌ 非商用 |
 | RMBG-2.0 (BRIA) | 234-490MB | 最高 | **CC-BY-NC-4.0** | ❌ 非商用 |
-| **isnet-general-use** | ~44MB | 高 | MIT/CC | ✅ |
+| **isnet-general-use** | ~88MB（fp16，线上实际） | 高 | MIT/CC | ✅ |
 | **modnet** | 25MB | 中高（人像）| Apache-2.0 | ✅ |
 | **u2net / u2netp** | 4.5-178MB | 中 | Apache-2.0 | ✅ |
 
@@ -74,6 +74,7 @@ interface AiRemoveBgRes {
 ### 大文件下载（已 gitignore，需手动准备）
 ```bash
 # isnet 量化模型（44MB）→ public/models/isnet-general-use.onnx
+# 注：线上实际部署的是 fp16 版 isnet-general-use-fp16.onnx（约 88MB），下载源以实际为准
 curl -sL -o public/models/isnet-general-use.onnx \
   "https://hf-mirror.com/Ko033/isnet-general-use-onnx/resolve/main/onnx/model_quantized.onnx"
 

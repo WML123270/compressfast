@@ -1,14 +1,20 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Upload, Sparkles, Download, Loader2, Lock, Trash2, ImagePlus } from 'lucide-react'
+import { Upload, Sparkles, Download, Loader2, Lock, Trash2, ImagePlus, RotateCw } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
-import { upscaleImage } from '@/lib/ai/upscale'
+import { upscaleImage, preloadUpscaleModel } from '@/lib/ai/upscale'
+import { AiError, aiErrorCopy, formatAiErrorDetail, isRetryableAiError, type AiErrorCode } from '@/lib/ai/ai-error'
+import { detectAiSupportIssue } from '@/lib/ai/support'
 import { trackAiEvent } from '@/lib/ai/analytics'
 import { trackPro } from '@/lib/pro-funnel'
 
 type Status = 'idle' | 'loading-model' | 'processing' | 'done' | 'error'
+type UiError = { code: AiErrorCode | 'file'; detail?: string }
+
+// 与压缩工具的单文件上限保持一致，避免超大文件先解码再 OOM
+const MAX_FILE_BYTES = 30 * 1024 * 1024
 
 export default function UpscaleClient() {
   const { locale } = useT()
@@ -39,9 +45,10 @@ export default function UpscaleClient() {
   const [result, setResult] = useState<string | null>(null)
   const [resultDims, setResultDims] = useState<{ w: number; h: number } | null>(null)
   const [status, setStatus] = useState<Status>('idle')
-  const [error, setError] = useState('')
+  const [errorInfo, setErrorInfo] = useState<UiError | null>(null)
   const [dragging, setDragging] = useState(false)
   const [scale, setScale] = useState<2 | 4>(4)
+  const [phase, setPhase] = useState<'model' | 'run' | null>(null)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [comparePos, setComparePos] = useState(50)
 
@@ -49,13 +56,22 @@ export default function UpscaleClient() {
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      setError(isZh ? '请选择图片文件' : 'Please select an image file')
+      setErrorInfo({ code: 'file', detail: isZh ? '请选择图片文件' : 'Please select an image file' })
       return
     }
-    setError('')
+    if (file.size > MAX_FILE_BYTES) {
+      setErrorInfo({
+        code: 'file',
+        detail: isZh ? '文件超过 30MB，请先压缩后再放大' : 'File is larger than 30MB — compress it first',
+      })
+      return
+    }
+    setErrorInfo(null)
     setResult(null)
     setResultDims(null)
     setStatus('idle')
+    setPhase(null)
+    setProgress(null)
     setOriginalName(file.name)
     setOriginal(URL.createObjectURL(file))
     setOriginalDims(null)
@@ -65,6 +81,13 @@ export default function UpscaleClient() {
       bmp.close()
     } catch { /* 读取尺寸失败不影响放大 */ }
   }, [isZh])
+
+  // 用户已选图且是 Pro：提前下载约 5MB 模型，点「放大」时不用再等
+  useEffect(() => {
+    if (!originalName || proLoading || !isPro) return
+    if (detectAiSupportIssue()) return
+    preloadUpscaleModel()
+  }, [originalName, proLoading, isPro])
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -78,17 +101,29 @@ export default function UpscaleClient() {
     const file = fileInputRef.current?.files?.[0]
     if (!file) return
 
+    const supportIssue = detectAiSupportIssue()
+    if (supportIssue) {
+      setStatus('error')
+      setErrorInfo({ code: 'unsupported', detail: supportIssue })
+      return
+    }
+
     const startedAt = performance.now()
     trackAiEvent('start', 'upscale', { scale })
 
     try {
-      setError('')
+      setErrorInfo(null)
       setProgress(null)
+      setPhase(null)
       setStatus('loading-model')
       const buf = await file.arrayBuffer()
       setStatus('processing')
-      const { blob } = await upscaleImage(buf, scale, setProgress)
+      const { blob } = await upscaleImage(buf, scale, (p) => {
+        setPhase(p.phase)
+        setProgress(p.total > 0 ? { done: p.done, total: p.total } : null)
+      })
       setProgress(null)
+      setPhase(null)
       setComparePos(50)
       setResult(URL.createObjectURL(blob))
       // 读取放大后尺寸用于展示
@@ -100,11 +135,14 @@ export default function UpscaleClient() {
       setStatus('done')
       trackAiEvent('success', 'upscale', { scale, durationMs: Math.round(performance.now() - startedAt) })
     } catch (e) {
+      const code: AiErrorCode = e instanceof AiError ? e.code : 'internal'
       setStatus('error')
-      setError(e instanceof Error ? e.message : (isZh ? '放大失败' : 'Failed to upscale'))
-      trackAiEvent('error', 'upscale', { scale })
+      setPhase(null)
+      setProgress(null)
+      setErrorInfo({ code, detail: formatAiErrorDetail(e) })
+      trackAiEvent('error', 'upscale', { scale, errorCode: code })
     }
-  }, [originalName, isZh, scale])
+  }, [originalName, scale])
 
   const reset = useCallback(() => {
     setOriginal(null)
@@ -113,7 +151,8 @@ export default function UpscaleClient() {
     setResult(null)
     setResultDims(null)
     setStatus('idle')
-    setError('')
+    setErrorInfo(null)
+    setPhase(null)
     setProgress(null)
     setComparePos(50)
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -135,13 +174,22 @@ export default function UpscaleClient() {
     setResult(null)
     setResultDims(null)
     setStatus('idle')
-    setError('')
+    setErrorInfo(null)
+    setPhase(null)
     setProgress(null)
   }, [scale])
 
   const locked = !isPro
   const busy = status === 'loading-model' || status === 'processing'
   const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
+  const busyLabel =
+    phase === 'model'
+      ? (isZh ? '加载 AI 模型（首次约 5MB）…' : 'Loading AI model (~5MB first time)…')
+      : phase === 'run'
+        ? pct > 0
+          ? (isZh ? `放大中 ${pct}%` : `Upscaling ${pct}%`)
+          : (isZh ? '放大中…' : 'Upscaling…')
+        : (isZh ? '准备中…' : 'Preparing…')
   // 与 worker 的 MAX_LONG_EDGE 保持一致
   const MAX_LONG_EDGE = 512
   const needsDownscale = !!originalDims && Math.max(originalDims.w, originalDims.h) > MAX_LONG_EDGE
@@ -221,15 +269,11 @@ export default function UpscaleClient() {
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {status === 'loading-model'
-                ? (isZh ? '加载模型中…' : 'Loading model…')
-                : status === 'processing'
-                  ? pct > 0
-                    ? (isZh ? `放大中 ${pct}%` : `Upscaling ${pct}%`)
-                    : (isZh ? '放大中…' : 'Upscaling…')
-                  : locked
-                    ? (isZh ? 'Pro 专属功能' : 'Pro Only')
-                    : (isZh ? `AI 放大 ${scale}x` : `AI Upscale ${scale}x`)}
+              {busy
+                ? busyLabel
+                : locked
+                  ? (isZh ? 'Pro 专属功能' : 'Pro Only')
+                  : (isZh ? `AI 放大 ${scale}x` : `AI Upscale ${scale}x`)}
             </button>
             <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:border-cyan-300">
               <ImagePlus className="w-4 h-4" /> {isZh ? '换图' : 'Change'}
@@ -248,10 +292,30 @@ export default function UpscaleClient() {
         </div>
       )}
 
-      {/* 错误提示 */}
-      {error && (
-        <p className="text-sm text-red-500 text-center">{error}</p>
-      )}
+      {/* 错误提示：可分类 + 可重试（Worker 已自动重置） */}
+      {errorInfo && (() => {
+        const copy = errorInfo.code === 'file'
+          ? { title: errorInfo.detail || '', hint: '' }
+          : aiErrorCopy(errorInfo.code, isZh)
+        return (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="font-medium text-red-700">{copy.title}</p>
+            {copy.hint && <p className="mt-1 text-sm text-red-600">{copy.hint}</p>}
+            {errorInfo.code !== 'file' && errorInfo.detail && (
+              <p className="mt-1 text-[11px] text-red-400 break-all">{errorInfo.detail}</p>
+            )}
+            {errorInfo.code !== 'file' && isRetryableAiError(errorInfo.code) && (
+              <button
+                onClick={run}
+                disabled={busy}
+                className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+              >
+                <RotateCw className="w-4 h-4" /> {isZh ? '重试' : 'Retry'}
+              </button>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Pro 门控提示 */}
       {locked && original && (

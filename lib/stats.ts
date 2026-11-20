@@ -7,6 +7,7 @@
 import { Redis } from '@upstash/redis'
 import type { LicenseRecord } from './license'
 import { PDF_TOOL_SLUGS, type PdfTool } from './pdf/constants'
+import { AI_ERROR_CODES, type AiErrorCode } from './ai/ai-error'
 
 // Lazy init Redis
 let redis: Redis | null = null
@@ -210,6 +211,11 @@ export async function incrementAiEvent(tool: AiTool, event: AiEventName): Promis
   ])
 }
 
+/** 记录一次 AI 失败类别（只存类别计数，不存错误堆栈 / 文件名，避免隐私问题） */
+export async function recordAiError(tool: AiTool, code: AiErrorCode): Promise<void> {
+  await incr(`stats:ai:error_code:total:${tool}:${code}`)
+}
+
 /** 记录成功推理耗时（毫秒），用于计算平均耗时 */
 export async function recordAiDuration(tool: AiTool, ms: number): Promise<void> {
   const safe = Math.max(0, Math.min(Math.round(ms), 10 * 60 * 1000))
@@ -313,6 +319,11 @@ export interface AiDailyPoint {
   error: number
 }
 
+export interface AiErrorCount {
+  code: AiErrorCode
+  count: number
+}
+
 export interface AiToolStats {
   view: number
   gate: number
@@ -321,6 +332,8 @@ export interface AiToolStats {
   error: number
   download: number
   averageDurationMs: number
+  /** 失败原因分类（只列出现过的类别） */
+  errors: AiErrorCount[]
   daily: AiDailyPoint[]
 }
 
@@ -576,6 +589,10 @@ async function getAiStats(): Promise<AiStats> {
       error: n(`stats:ai:error:total:${tool}`),
       download: n(`stats:ai:download:total:${tool}`),
       averageDurationMs: durationCount > 0 ? Math.round(durationMs / durationCount) : 0,
+      errors: AI_ERROR_CODES
+        .map((code) => ({ code, count: n(`stats:ai:error_code:total:${tool}:${code}`) }))
+        .filter((e) => e.count > 0)
+        .sort((a, b) => b.count - a.count),
       daily: days.map((date) => ({
         date,
         view: n(`stats:ai:view:daily:${tool}:${date}`),
@@ -601,6 +618,7 @@ async function getAiStats(): Promise<AiStats> {
         }
       }
       keys.push(`stats:ai:duration_ms:total:${tool}`, `stats:ai:duration_count:total:${tool}`)
+      for (const code of AI_ERROR_CODES) keys.push(`stats:ai:error_code:total:${tool}:${code}`)
     }
 
     const pipe = r.pipeline()

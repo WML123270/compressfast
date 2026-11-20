@@ -1,39 +1,46 @@
 // AI 抠图 —— 主线程封装
 // 懒加载独立 Worker（不在压缩 Worker 里跑，避免拖累压缩性能）
 
-let worker: Worker | null = null
+import { AiWorkerRunner } from './worker-runner'
 
-function getWorker(): Worker {
-  if (!worker) {
-    worker = new Worker(new URL('./remove-bg-worker.ts', import.meta.url))
+let runner: AiWorkerRunner | null = null
+
+function getRunner(): AiWorkerRunner {
+  if (!runner) {
+    runner = new AiWorkerRunner(() => new Worker(new URL('./remove-bg-worker.ts', import.meta.url)))
   }
-  return worker
+  return runner
 }
 
 export interface RemoveBgResult {
   blob: Blob
 }
 
+export interface RemoveBgProgress {
+  phase: 'model' | 'run'
+}
+
+/** 只预加载模型（约 88MB）—— 目前不自动触发，供后续「提前下载」入口使用 */
+export function preloadRemoveBgModel(): void {
+  getRunner().warmup()
+}
+
 /**
  * 对图片做本地 AI 抠图（去背景），返回透明背景 PNG。
  * 全程在浏览器本地推理，图片不上传服务器。
  */
-export function removeBackground(imageBuffer: ArrayBuffer): Promise<RemoveBgResult> {
-  return new Promise((resolve, reject) => {
-    const w = getWorker()
-    const id = Math.random().toString(36).slice(2) + Date.now().toString(36)
-
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.id !== id) return
-      w.removeEventListener('message', onMessage)
-      if (e.data.type === 'done') {
-        resolve({ blob: e.data.resultBlob as Blob })
-      } else {
-        reject(new Error(e.data?.error || '抠图失败'))
-      }
-    }
-
-    w.addEventListener('message', onMessage)
-    w.postMessage({ id, imageBuffer }, [imageBuffer])
-  })
+export function removeBackground(
+  imageBuffer: ArrayBuffer,
+  onProgress?: (p: RemoveBgProgress) => void,
+): Promise<RemoveBgResult> {
+  return getRunner()
+    .run(
+      { imageBuffer },
+      {
+        transfer: [imageBuffer],
+        idleTimeoutMs: 180_000,
+        onProgress: onProgress ? (p) => onProgress({ phase: p.phase }) : undefined,
+      },
+    )
+    .then((blob) => ({ blob }))
 }

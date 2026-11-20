@@ -1,4 +1,4 @@
-export {}
+import { formatAiErrorDetail, isMemoryError, type AiErrorCode } from './ai-error'
 
 // AI 抠图 Worker —— 在浏览器本地跑 isnet-general-use 模型（onnxruntime-web）
 //
@@ -32,11 +32,17 @@ async function getSession(): Promise<any> {
   if (session) return session
   if (!loading) {
     loading = (async () => {
-      const o = await getOrt()
-      session = await o.InferenceSession.create(MODEL_URL, {
-        executionProviders: ['wasm'],
-      })
-      return session
+      try {
+        const o = await getOrt()
+        session = await o.InferenceSession.create(MODEL_URL, {
+          executionProviders: ['wasm'],
+        })
+        return session
+      } catch (err) {
+        // 失败后清空 loading，允许重试（否则一次网络抖动 = 永久失败）
+        loading = null
+        throw err
+      }
     })()
   }
   return loading
@@ -44,7 +50,16 @@ async function getSession(): Promise<any> {
 
 interface RemoveBgMsg {
   id: string
-  imageBuffer: ArrayBuffer
+  type?: 'warmup'
+  imageBuffer?: ArrayBuffer
+}
+
+function post(id: string, msg: Record<string, unknown>) {
+  ;(self as unknown as Worker).postMessage({ id, ...msg })
+}
+
+function postFailure(id: string, code: AiErrorCode, err: unknown) {
+  post(id, { type: 'error', code, error: formatAiErrorDetail(err) })
 }
 
 // ─── 预处理：resize 到 1024 + (x/255 - 0.5) + CHW float32 ───
@@ -146,12 +161,19 @@ function boxBlur(src: Float32Array, w: number, h: number, radius: number): Float
 }
 
 // ─── 合成：把 alpha 遮罩缩放回原图尺寸，作为原图的透明通道 ───
-async function compositeWithAlpha(
+// 输出长边上限：超大原图（如 48MP 手机照片）在移动端一次性 getImageData 可能 OOM，
+// 超过上限时先等比缩小；仍然失败则降一档重试（见 compositeWithAlpha）。
+const MAX_OUTPUT_EDGE = 4096
+const FALLBACK_OUTPUT_EDGE = 2048
+
+async function compositeAt(
   bitmap: ImageBitmap,
   mask: Float32Array,
+  maxEdge: number,
 ): Promise<Blob> {
-  const origW = bitmap.width
-  const origH = bitmap.height
+  const k = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height))
+  const origW = Math.max(1, Math.round(bitmap.width * k))
+  const origH = Math.max(1, Math.round(bitmap.height * k))
 
   // 1. mask → 1024x1024 灰度图
   const maskCanvas = new OffscreenCanvas(INPUT_SIZE, INPUT_SIZE)
@@ -166,10 +188,10 @@ async function compositeWithAlpha(
   }
   maskCtx.putImageData(maskImg, 0, 0)
 
-  // 2. 原图 → 原尺寸 canvas
+  // 2. 原图 → 目标尺寸 canvas
   const outCanvas = new OffscreenCanvas(origW, origH)
   const outCtx = outCanvas.getContext('2d')!
-  outCtx.drawImage(bitmap, 0, 0)
+  outCtx.drawImage(bitmap, 0, 0, origW, origH)
   const origImg = outCtx.getImageData(0, 0, origW, origH)
 
   // 3. mask 缩放回原尺寸
@@ -188,34 +210,90 @@ async function compositeWithAlpha(
   return outCanvas.convertToBlob({ type: 'image/png' })
 }
 
-self.onmessage = async (e: MessageEvent<RemoveBgMsg>) => {
-  const { id, imageBuffer } = e.data
+async function compositeWithAlpha(bitmap: ImageBitmap, mask: Float32Array): Promise<Blob> {
   try {
-    const o = await getOrt()
-    const bitmap = await createImageBitmap(new Blob([imageBuffer]))
+    return await compositeAt(bitmap, mask, MAX_OUTPUT_EDGE)
+  } catch (err) {
+    if (!isMemoryError(err)) throw err
+    // 低内存设备上超大 canvas 分配失败：降一档重试，而不是直接让用户失败
+    return compositeAt(bitmap, mask, FALLBACK_OUTPUT_EDGE)
+  }
+}
 
-    const s = await getSession()
-    const tensor = bitmapToTensor(o, bitmap)
+self.onmessage = async (e: MessageEvent<RemoveBgMsg>) => {
+  const { id, imageBuffer, type } = e.data
 
-    // 动态取输入/输出名，避免写死
-    const inputName = s.inputNames[0]
-    const outputName = s.outputNames[0]
-    const feeds: Record<string, any> = {}
-    feeds[inputName] = tensor
+  // 预热：只加载模型（失败静默，正式任务会重试并上报）
+  if (type === 'warmup') {
+    try {
+      await getSession()
+    } catch {
+      /* ignore */
+    }
+    return
+  }
 
-    const results = await s.run(feeds)
-    const output = results[outputName]
-    const mask = toAlphaMask(output.data as Float32Array)
+  if (!imageBuffer) {
+    postFailure(id, 'internal', 'Missing image data')
+    return
+  }
 
-    const blob = await compositeWithAlpha(bitmap, mask)
-    bitmap.close()
+  let phase: 'model' | 'run' = 'model'
+  const heartbeat = setInterval(() => post(id, { type: 'phase', phase }), 3000)
 
-    ;(self as unknown as Worker).postMessage({ id, type: 'done', resultBlob: blob })
-  } catch (err: unknown) {
-    ;(self as unknown as Worker).postMessage({
-      id,
-      type: 'error',
-      error: err instanceof Error ? err.message : String(err),
-    })
+  try {
+    let bitmap: ImageBitmap
+    try {
+      bitmap = await createImageBitmap(new Blob([imageBuffer]))
+    } catch (err) {
+      postFailure(id, 'decode', err)
+      return
+    }
+
+    let o: any
+    try {
+      o = await getOrt()
+    } catch (err) {
+      postFailure(id, 'model_load', err)
+      return
+    }
+
+    post(id, { type: 'phase', phase: 'model' })
+    let s: any
+    try {
+      s = await getSession()
+    } catch (err) {
+      postFailure(id, 'model_load', err)
+      return
+    }
+
+    phase = 'run'
+    post(id, { type: 'phase', phase })
+
+    let blob: Blob
+    try {
+      const tensor = bitmapToTensor(o, bitmap)
+
+      // 动态取输入/输出名，避免写死
+      const inputName = s.inputNames[0]
+      const outputName = s.outputNames[0]
+      const feeds: Record<string, any> = {}
+      feeds[inputName] = tensor
+
+      const results = await s.run(feeds)
+      const output = results[outputName]
+      const mask = toAlphaMask(output.data as Float32Array)
+
+      blob = await compositeWithAlpha(bitmap, mask)
+    } catch (err) {
+      postFailure(id, isMemoryError(err) ? 'oom' : 'run', err)
+      return
+    } finally {
+      bitmap.close()
+    }
+
+    post(id, { type: 'done', resultBlob: blob })
+  } finally {
+    clearInterval(heartbeat)
   }
 }

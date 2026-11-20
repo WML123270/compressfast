@@ -104,10 +104,15 @@ function renderStats(data: any, ov: any, cn: any): string {
     const startRate = view > 0 ? Math.round((start / view) * 100) : 0
     const successRate = start > 0 ? Math.round((success / start) * 100) : 0
     const avg = s.averageDurationMs > 0 ? (s.averageDurationMs / 1000).toFixed(1) + 's' : '—'
+    const errors: { code: string; count: number }[] = Array.isArray(s.errors) ? s.errors : []
+    const errorLine = errors.length
+      ? `<div class="s">失败原因：${errors.map((e) => `${e.code}×${e.count}`).join(' · ')}</div>`
+      : ''
     return `<div class="box">
       <h3>${title}</h3>
       <div class="s">曝光 ${view} · 门控 ${gate} · 开始 ${start} · 成功 ${success} · 失败 ${error} · 下载 ${download}</div>
       <div class="s">开始/曝光 ${startRate}% · 成功/开始 ${successRate}% · 平均耗时 ${avg}</div>
+      ${errorLine}
     </div>`
   }
   const aiDaily = ai.upscale?.daily || ai.removeBg?.daily || []

@@ -1,4 +1,4 @@
-export {}
+import { classifyAiError, formatAiErrorDetail, type AiErrorCode } from './ai-error'
 
 // AI 图片放大 Worker —— 在浏览器本地跑 realesr-general-x4v3 模型（onnxruntime-web）
 //
@@ -37,14 +37,21 @@ async function getSession(): Promise<any> {
   if (session) return session
   if (!loading) {
     loading = (async () => {
-      const o = await getOrt()
-      // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
-      // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
-      // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。
-      session = await o.InferenceSession.create(MODEL_URL, {
-        executionProviders: ['wasm'],
-      })
-      return session
+      try {
+        const o = await getOrt()
+        // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
+        // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
+        // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。
+        session = await o.InferenceSession.create(MODEL_URL, {
+          executionProviders: ['wasm'],
+        })
+        return session
+      } catch (err) {
+        // 关键修复：失败后清空 loading，否则一次网络抖动会让本 Worker 永久失败，
+        // 用户点重试也只会拿到同一个 rejected Promise。
+        loading = null
+        throw err
+      }
     })()
   }
   return loading
@@ -52,8 +59,17 @@ async function getSession(): Promise<any> {
 
 interface UpscaleMsg {
   id: string
-  imageBuffer: ArrayBuffer
-  scale: 2 | 4
+  type?: 'warmup'
+  imageBuffer?: ArrayBuffer
+  scale?: 2 | 4
+}
+
+function post(id: string, msg: Record<string, unknown>) {
+  ;(self as unknown as Worker).postMessage({ id, ...msg })
+}
+
+function postFailure(id: string, code: AiErrorCode, err: unknown) {
+  post(id, { type: 'error', code, error: formatAiErrorDetail(err) })
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -269,17 +285,59 @@ async function upscaleBitmap(bitmap: ImageBitmap, scale: 2 | 4, id: string): Pro
 }
 
 self.onmessage = async (e: MessageEvent<UpscaleMsg>) => {
-  const { id, imageBuffer, scale } = e.data
+  const { id, imageBuffer, scale, type } = e.data
+
+  // 预热：只加载模型，不处理图片（失败静默，正式任务会重试并上报）
+  if (type === 'warmup') {
+    try {
+      await getSession()
+    } catch {
+      /* ignore */
+    }
+    return
+  }
+
+  if (!imageBuffer) {
+    postFailure(id, 'internal', 'Missing image data')
+    return
+  }
+
+  // 心跳：模型下载 / 推理期间每 3 秒一条，主线程据此判断 Worker 是否卡死
+  let phase: 'model' | 'run' = 'model'
+  const heartbeat = setInterval(() => post(id, { type: 'phase', phase }), 3000)
+
   try {
-    const bitmap = await createImageBitmap(new Blob([imageBuffer]))
-    const blob = await upscaleBitmap(bitmap, scale ?? 4, id)
-    bitmap.close()
-    ;(self as unknown as Worker).postMessage({ id, type: 'done', resultBlob: blob })
-  } catch (err: unknown) {
-    ;(self as unknown as Worker).postMessage({
-      id,
-      type: 'error',
-      error: err instanceof Error ? err.message : String(err),
-    })
+    let bitmap: ImageBitmap
+    try {
+      bitmap = await createImageBitmap(new Blob([imageBuffer]))
+    } catch (err) {
+      postFailure(id, 'decode', err)
+      return
+    }
+
+    post(id, { type: 'phase', phase: 'model' })
+    try {
+      await getSession()
+    } catch (err) {
+      postFailure(id, 'model_load', err)
+      return
+    }
+
+    phase = 'run'
+    post(id, { type: 'phase', phase })
+
+    let blob: Blob
+    try {
+      blob = await upscaleBitmap(bitmap, scale ?? 4, id)
+    } catch (err) {
+      postFailure(id, classifyAiError(err), err)
+      return
+    } finally {
+      bitmap.close()
+    }
+
+    post(id, { type: 'done', resultBlob: blob })
+  } finally {
+    clearInterval(heartbeat)
   }
 }

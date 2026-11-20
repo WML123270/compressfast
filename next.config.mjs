@@ -24,6 +24,21 @@ const nextConfig = {
         ],
       },
       {
+        // AI 模型（5MB / 88MB）：默认 max-age=0 会导致每次进页面都回源校验，
+        // 长缓存后首次下载一次即可。模型文件更新时请改文件名。
+        source: '/models/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+        ],
+      },
+      {
+        // onnxruntime-web 运行时（带 ?v= 版本号）
+        source: '/ort/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=2592000' },
+        ],
+      },
+      {
         source: '/(.*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },

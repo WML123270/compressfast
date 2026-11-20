@@ -8,6 +8,8 @@ export type AiEventName = 'view' | 'gate' | 'start' | 'success' | 'error' | 'dow
 interface AiEventPayload {
   scale?: 2 | 4
   durationMs?: number
+  /** 仅 error 事件：失败类别（白名单见 lib/ai/ai-error.ts） */
+  errorCode?: string
 }
 
 export function trackAiEvent(event: AiEventName, tool: AiTool, payload: AiEventPayload = {}): void {
@@ -24,6 +26,7 @@ export function trackAiEvent(event: AiEventName, tool: AiTool, payload: AiEventP
         tool,
         scale: payload.scale,
         durationMs: payload.durationMs,
+        errorCode: payload.errorCode,
         visitorId,
         host: window.location.hostname,
       }),
