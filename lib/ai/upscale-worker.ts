@@ -1,4 +1,5 @@
 import { classifyAiError, formatAiErrorDetail, type AiErrorCode } from './ai-error'
+import { loadModelData, onModelProgress, type ModelLoadProgress } from './model-loader'
 
 // AI 图片放大 Worker —— 在浏览器本地跑 realesr-general-x4v3 模型（onnxruntime-web）
 //
@@ -33,28 +34,37 @@ const DIRECT_MAX_PIXELS = MAX_LONG_EDGE * MAX_LONG_EDGE
 let session: any = null
 let loading: Promise<any> | null = null
 
-async function getSession(): Promise<any> {
+// 自己下载模型（model-loader 负责进度 + 缓存），再交给 ORT 从内存创建 session
+async function createSession(): Promise<any> {
+  const o = await getOrt()
+  const data = await loadModelData(MODEL_URL)
+  // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
+  // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
+  // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。
+  return o.InferenceSession.create(data, { executionProviders: ['wasm'] })
+}
+
+async function getSession(onProgress?: (p: ModelLoadProgress) => void): Promise<any> {
   if (session) return session
-  if (!loading) {
-    loading = (async () => {
-      try {
-        const o = await getOrt()
-        // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
-        // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
-        // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。
-        session = await o.InferenceSession.create(MODEL_URL, {
-          executionProviders: ['wasm'],
-        })
-        return session
-      } catch (err) {
-        // 关键修复：失败后清空 loading，否则一次网络抖动会让本 Worker 永久失败，
-        // 用户点重试也只会拿到同一个 rejected Promise。
-        loading = null
-        throw err
-      }
-    })()
+  const off = onProgress ? onModelProgress(MODEL_URL, onProgress) : undefined
+  try {
+    if (!loading) {
+      loading = (async () => {
+        try {
+          session = await createSession()
+          return session
+        } catch (err) {
+          // 关键修复：失败后清空 loading，否则一次网络抖动会让本 Worker 永久失败，
+          // 用户点重试也只会拿到同一个 rejected Promise。
+          loading = null
+          throw err
+        }
+      })()
+    }
+    return await loading
+  } finally {
+    off?.()
   }
-  return loading
 }
 
 interface UpscaleMsg {
@@ -317,7 +327,15 @@ self.onmessage = async (e: MessageEvent<UpscaleMsg>) => {
 
     post(id, { type: 'phase', phase: 'model' })
     try {
-      await getSession()
+      await getSession((p) =>
+        post(id, {
+          type: 'progress',
+          phase: 'model',
+          done: p.loaded,
+          total: p.total,
+          cached: p.cached,
+        }),
+      )
     } catch (err) {
       postFailure(id, 'model_load', err)
       return

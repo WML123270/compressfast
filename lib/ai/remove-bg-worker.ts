@@ -1,4 +1,5 @@
 import { formatAiErrorDetail, isMemoryError, type AiErrorCode } from './ai-error'
+import { loadModelData, onModelProgress, type ModelLoadProgress } from './model-loader'
 
 // AI 抠图 Worker —— 在浏览器本地跑 isnet-general-use 模型（onnxruntime-web）
 //
@@ -28,24 +29,34 @@ const INPUT_SIZE = 1024
 let session: any = null
 let loading: Promise<any> | null = null
 
-async function getSession(): Promise<any> {
+// 自己下载模型（model-loader 负责进度 + 缓存），再交给 ORT 从内存创建 session
+async function createSession(): Promise<any> {
+  const o = await getOrt()
+  const data = await loadModelData(MODEL_URL)
+  return o.InferenceSession.create(data, { executionProviders: ['wasm'] })
+}
+
+async function getSession(onProgress?: (p: ModelLoadProgress) => void): Promise<any> {
   if (session) return session
-  if (!loading) {
-    loading = (async () => {
-      try {
-        const o = await getOrt()
-        session = await o.InferenceSession.create(MODEL_URL, {
-          executionProviders: ['wasm'],
-        })
-        return session
-      } catch (err) {
-        // 失败后清空 loading，允许重试（否则一次网络抖动 = 永久失败）
-        loading = null
-        throw err
-      }
-    })()
+  // 先订阅再启动下载，避免错过前几个进度；warmup 已下载时这里会立刻回放快照
+  const off = onProgress ? onModelProgress(MODEL_URL, onProgress) : undefined
+  try {
+    if (!loading) {
+      loading = (async () => {
+        try {
+          session = await createSession()
+          return session
+        } catch (err) {
+          // 失败后清空 loading，允许重试（否则一次网络抖动 = 永久失败）
+          loading = null
+          throw err
+        }
+      })()
+    }
+    return await loading
+  } finally {
+    off?.()
   }
-  return loading
 }
 
 interface RemoveBgMsg {
@@ -261,7 +272,15 @@ self.onmessage = async (e: MessageEvent<RemoveBgMsg>) => {
     post(id, { type: 'phase', phase: 'model' })
     let s: any
     try {
-      s = await getSession()
+      s = await getSession((p) =>
+        post(id, {
+          type: 'progress',
+          phase: 'model',
+          done: p.loaded,
+          total: p.total,
+          cached: p.cached,
+        }),
+      )
     } catch (err) {
       postFailure(id, 'model_load', err)
       return

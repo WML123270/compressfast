@@ -5,6 +5,7 @@ import { Upload, Sparkles, Download, Loader2, Lock, Trash2, ImagePlus, RotateCw 
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { upscaleImage, preloadUpscaleModel } from '@/lib/ai/upscale'
+import ModelDownloadBar from '@/components/ai/ModelDownloadBar'
 import { AiError, aiErrorCopy, formatAiErrorDetail, isRetryableAiError, type AiErrorCode } from '@/lib/ai/ai-error'
 import { detectAiSupportIssue } from '@/lib/ai/support'
 import { trackAiEvent } from '@/lib/ai/analytics'
@@ -50,6 +51,7 @@ export default function UpscaleClient() {
   const [scale, setScale] = useState<2 | 4>(4)
   const [phase, setPhase] = useState<'model' | 'run' | null>(null)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const [modelProgress, setModelProgress] = useState<{ done: number; total: number; cached: boolean } | null>(null)
   const [comparePos, setComparePos] = useState(50)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -72,6 +74,7 @@ export default function UpscaleClient() {
     setStatus('idle')
     setPhase(null)
     setProgress(null)
+    setModelProgress(null)
     setOriginalName(file.name)
     setOriginal(URL.createObjectURL(file))
     setOriginalDims(null)
@@ -114,15 +117,24 @@ export default function UpscaleClient() {
     try {
       setErrorInfo(null)
       setProgress(null)
+      setModelProgress(null)
       setPhase(null)
       setStatus('loading-model')
       const buf = await file.arrayBuffer()
       setStatus('processing')
       const { blob } = await upscaleImage(buf, scale, (p) => {
         setPhase(p.phase)
-        setProgress(p.total > 0 ? { done: p.done, total: p.total } : null)
+        if (p.phase === 'model') {
+          if (p.total > 0) {
+            setModelProgress({ done: p.done, total: p.total, cached: !!p.cached })
+          }
+        } else {
+          setModelProgress(null)
+          if (p.total > 0) setProgress({ done: p.done, total: p.total })
+        }
       })
       setProgress(null)
+      setModelProgress(null)
       setPhase(null)
       setComparePos(50)
       setResult(URL.createObjectURL(blob))
@@ -139,6 +151,7 @@ export default function UpscaleClient() {
       setStatus('error')
       setPhase(null)
       setProgress(null)
+      setModelProgress(null)
       setErrorInfo({ code, detail: formatAiErrorDetail(e) })
       trackAiEvent('error', 'upscale', { scale, errorCode: code })
     }
@@ -154,6 +167,7 @@ export default function UpscaleClient() {
     setErrorInfo(null)
     setPhase(null)
     setProgress(null)
+    setModelProgress(null)
     setComparePos(50)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
@@ -177,14 +191,25 @@ export default function UpscaleClient() {
     setErrorInfo(null)
     setPhase(null)
     setProgress(null)
+    setModelProgress(null)
   }, [scale])
 
   const locked = !isPro
   const busy = status === 'loading-model' || status === 'processing'
   const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
+  const modelPct =
+    modelProgress && modelProgress.total > 0
+      ? Math.min(100, Math.round((modelProgress.done / modelProgress.total) * 100))
+      : 0
   const busyLabel =
     phase === 'model'
-      ? (isZh ? '加载 AI 模型（首次约 5MB）…' : 'Loading AI model (~5MB first time)…')
+      ? modelProgress?.cached
+        ? (isZh ? '模型已缓存，初始化中…' : 'Initializing cached model…')
+        : modelPct >= 100
+          ? (isZh ? '模型下载完成，初始化中…' : 'Model downloaded — initializing…')
+          : modelPct > 0
+            ? (isZh ? `下载 AI 模型 ${modelPct}%` : `Downloading AI model ${modelPct}%`)
+            : (isZh ? '加载 AI 模型（首次约 5MB）…' : 'Loading AI model (~5MB first time)…')
       : phase === 'run'
         ? pct > 0
           ? (isZh ? `放大中 ${pct}%` : `Upscaling ${pct}%`)
@@ -282,6 +307,16 @@ export default function UpscaleClient() {
               <Trash2 className="w-4 h-4" /> {isZh ? '清除' : 'Clear'}
             </button>
           </div>
+          {busy && phase === 'model' && modelProgress && (
+            <div className="px-4 pb-3">
+              <ModelDownloadBar
+                done={modelProgress.done}
+                total={modelProgress.total}
+                cached={modelProgress.cached}
+                isZh={isZh}
+              />
+            </div>
+          )}
           {needsDownscale && originalDims && downscaledDims && (
             <p className="px-4 pb-4 text-xs leading-relaxed text-amber-700">
               {isZh

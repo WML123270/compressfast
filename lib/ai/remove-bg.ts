@@ -18,6 +18,11 @@ export interface RemoveBgResult {
 
 export interface RemoveBgProgress {
   phase: 'model' | 'run'
+  /** 模型下载进度（phase=model 时有值） */
+  done?: number
+  total?: number
+  /** 模型命中本地缓存，无需下载 */
+  cached?: boolean
 }
 
 /** 只预加载模型（约 88MB）—— 目前不自动触发，供后续「提前下载」入口使用 */
@@ -39,7 +44,9 @@ export function removeBackground(
       {
         transfer: [imageBuffer],
         idleTimeoutMs: 180_000,
-        onProgress: onProgress ? (p) => onProgress({ phase: p.phase }) : undefined,
+        onProgress: onProgress
+          ? (p) => onProgress({ phase: p.phase, done: p.done, total: p.total, cached: p.cached })
+          : undefined,
       },
     )
     .then((blob) => ({ blob }))

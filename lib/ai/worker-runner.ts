@@ -11,6 +11,8 @@ export interface AiWorkerProgress {
   phase: 'model' | 'run'
   done?: number
   total?: number
+  /** phase=model 时：true = 模型命中本地缓存，无需下载 */
+  cached?: boolean
 }
 
 export interface AiWorkerRunOptions {
@@ -140,7 +142,12 @@ export class AiWorkerRunner {
         arm()
 
         if (d.type === 'progress') {
-          emit({ phase: d.phase === 'model' ? 'model' : 'run', done: d.done, total: d.total })
+          emit({
+            phase: d.phase === 'model' ? 'model' : 'run',
+            done: d.done,
+            total: d.total,
+            cached: d.cached === true,
+          })
           return
         }
         if (d.type === 'phase') {

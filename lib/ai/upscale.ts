@@ -20,6 +20,8 @@ export interface UpscaleProgress {
   phase: 'model' | 'run'
   done: number
   total: number
+  /** phase=model 时：true = 模型命中本地缓存，无需下载 */
+  cached?: boolean
 }
 
 /** 只预加载模型（下载约 5MB），用于用户已选图、即将点放大的场景 */
@@ -44,7 +46,7 @@ export function upscaleImage(
         transfer: [imageBuffer],
         idleTimeoutMs: 120_000,
         onProgress: onProgress
-          ? (p) => onProgress({ phase: p.phase, done: p.done ?? 0, total: p.total ?? 0 })
+          ? (p) => onProgress({ phase: p.phase, done: p.done ?? 0, total: p.total ?? 0, cached: p.cached })
           : undefined,
       },
     )

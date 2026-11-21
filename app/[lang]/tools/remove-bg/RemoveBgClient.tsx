@@ -5,6 +5,7 @@ import { Upload, Scissors, Download, Loader2, Lock, Trash2, ImagePlus, Palette, 
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { removeBackground } from '@/lib/ai/remove-bg'
+import ModelDownloadBar from '@/components/ai/ModelDownloadBar'
 import { compositeBackground, type BackgroundOption } from '@/lib/ai/composite'
 import { AiError, aiErrorCopy, formatAiErrorDetail, isRetryableAiError, type AiErrorCode } from '@/lib/ai/ai-error'
 import { detectAiSupportIssue } from '@/lib/ai/support'
@@ -59,6 +60,7 @@ export default function RemoveBgClient() {
   const [status, setStatus] = useState<Status>('idle')
   const [errorInfo, setErrorInfo] = useState<UiError | null>(null)
   const [phase, setPhase] = useState<'model' | 'run' | null>(null)
+  const [modelProgress, setModelProgress] = useState<{ done: number; total: number; cached: boolean } | null>(null)
   const [originalDims, setOriginalDims] = useState<{ w: number; h: number } | null>(null)
   const [dragging, setDragging] = useState(false)
 
@@ -87,6 +89,7 @@ export default function RemoveBgClient() {
     setFinalUrl(null)
     setStatus('idle')
     setPhase(null)
+    setModelProgress(null)
     setOriginalDims(null)
     setOriginalName(file.name)
     setOriginal(URL.createObjectURL(file))
@@ -123,11 +126,18 @@ export default function RemoveBgClient() {
     try {
       setErrorInfo(null)
       setPhase(null)
+      setModelProgress(null)
       setStatus('loading-model')
       const buf = await file.arrayBuffer()
       setStatus('processing')
-      const { blob } = await removeBackground(buf, (p) => setPhase(p.phase))
+      const { blob } = await removeBackground(buf, (p) => {
+        setPhase(p.phase)
+        if (p.phase === 'model' && (p.total ?? 0) > 0) {
+          setModelProgress({ done: p.done ?? 0, total: p.total ?? 0, cached: !!p.cached })
+        }
+      })
       setPhase(null)
+      setModelProgress(null)
       setResultBlob(blob)
       setResult(URL.createObjectURL(blob))
       setBgMode('transparent')
@@ -141,6 +151,7 @@ export default function RemoveBgClient() {
       const code: AiErrorCode = e instanceof AiError ? e.code : 'internal'
       setStatus('error')
       setPhase(null)
+      setModelProgress(null)
       setErrorInfo({ code, detail: formatAiErrorDetail(e) })
       trackAiEvent('error', 'remove-bg', { errorCode: code })
     }
@@ -159,6 +170,7 @@ export default function RemoveBgClient() {
     setStatus('idle')
     setErrorInfo(null)
     setPhase(null)
+    setModelProgress(null)
     setOriginalDims(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
@@ -214,9 +226,19 @@ export default function RemoveBgClient() {
 
   const locked = !isPro
   const busy = status === 'loading-model' || status === 'processing'
+  const modelPct =
+    modelProgress && modelProgress.total > 0
+      ? Math.min(100, Math.round((modelProgress.done / modelProgress.total) * 100))
+      : 0
   const busyLabel =
     phase === 'model'
-      ? (isZh ? `加载 AI 模型（首次约 ${MODEL_SIZE_MB}MB）…` : `Loading AI model (~${MODEL_SIZE_MB}MB first time)…`)
+      ? modelProgress?.cached
+        ? (isZh ? '模型已缓存，初始化中…' : 'Initializing cached model…')
+        : modelPct >= 100
+          ? (isZh ? '模型下载完成，初始化中…' : 'Model downloaded — initializing…')
+          : modelPct > 0
+            ? (isZh ? `下载 AI 模型 ${modelPct}%` : `Downloading AI model ${modelPct}%`)
+            : (isZh ? `加载 AI 模型（首次约 ${MODEL_SIZE_MB}MB）…` : `Loading AI model (~${MODEL_SIZE_MB}MB first time)…`)
       : (isZh ? 'AI 抠图中…' : 'Removing background…')
   const needsDownscale = !!originalDims && Math.max(originalDims.w, originalDims.h) > MAX_OUTPUT_EDGE
 
@@ -293,6 +315,16 @@ export default function RemoveBgClient() {
               <Trash2 className="w-4 h-4" /> {isZh ? '清除' : 'Clear'}
             </button>
           </div>
+          {busy && phase === 'model' && modelProgress && (
+            <div className="px-4 pb-3">
+              <ModelDownloadBar
+                done={modelProgress.done}
+                total={modelProgress.total}
+                cached={modelProgress.cached}
+                isZh={isZh}
+              />
+            </div>
+          )}
           {needsDownscale && originalDims && (
             <p className="px-4 pb-3 text-xs leading-relaxed text-amber-700">
               {isZh
