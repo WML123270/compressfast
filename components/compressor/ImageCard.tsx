@@ -166,6 +166,8 @@ export function ImageCard({ image, showDragHandle, selected, onSelect }: ImageCa
               <button
                 onClick={handleDownload}
                 disabled={downloading}
+                title={downloading ? t('card.exporting') : t('card.download')}
+                aria-label={downloading ? t('card.exporting') : t('card.download')}
                 className="flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-1.5 font-medium text-white bg-blue-600 hover:bg-blue-600 disabled:bg-blue-400 rounded-lg transition-colors text-xs sm:text-sm"
               >
                 {downloading ? (

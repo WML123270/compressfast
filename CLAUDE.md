@@ -46,3 +46,5 @@ public/       — 静态资源（sw.js, manifest.json, robots.txt 等）
 - RustPoint 账号：756971388@qq.com（验证码模式注册，下次继续）
 - Playwright headless 需加 `--no-proxy-server` 和反 webdriver 检测
 - nav3.cn 提交 API：`POST https://api.nav3.cn/api/save`
+- **本地 `npm run build` 前先 `rm -rf .next`**：增量构建可能让 webpack runtime 里的 Worker chunk 哈希与磁盘文件不一致（runtime 指向旧 `7085.<hash>.js`），表现为所有压缩一直卡在「压缩中」。部署请直接用 `deploy/package.sh`（内部已清理）。
+- **GIF 不能走 canvas 重编码**：canvas 只能编码 PNG/JPEG/WebP，会退化成首帧静态图。动画 GIF 压缩用 `gifsicle-wasm-browser`（主线程，结果透传 Worker），GIF→WebP 用 `@btheegg-kimth/gif2webp`（Worker 内 wasm，保留动画）。

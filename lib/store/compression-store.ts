@@ -43,6 +43,129 @@ async function decodeHEICOnMain(buffer: ArrayBuffer): Promise<ArrayBuffer> {
 
 function isHEIC(t: string) { return t === 'image/heic' || t === 'image/heif' || t === 'image/heic-sequence' }
 
+function isSVG(t: string) { return t === 'image/svg+xml' }
+
+function isGIF(t: string) { return t === 'image/gif' }
+
+/**
+ * 动画 GIF 优化（保留动画）。
+ * 浏览器的 canvas 只能编码 PNG/JPEG/WebP，无法编码 GIF；之前 GIF 会走静态管线，
+ * 输出其实是 PNG 却命名 .gif，动画也丢了。这里用 gifsicle WASM 真正压缩动画 GIF。
+ * 返回优化后的 GIF 字节；如果结果反而更大且没有任何变换，返回原文件。
+ */
+async function optimizeGifOnMain(
+  buffer: ArrayBuffer,
+  opts: {
+    quality: number
+    speed: number
+    lossless: boolean
+    resizeWidth: number
+    resizeHeight: number
+    rotation: number
+    flipH: boolean
+    flipV: boolean
+    targetKB: number
+  },
+): Promise<ArrayBuffer> {
+  const gifsicle = (await import('gifsicle-wasm-browser')).default
+
+  const transforms: string[] = []
+  if (opts.rotation === 90) transforms.push('--rotate-90')
+  else if (opts.rotation === 180) transforms.push('--rotate-180')
+  else if (opts.rotation === 270) transforms.push('--rotate-270')
+  if (opts.flipH) transforms.push('--flip-horizontal')
+  if (opts.flipV) transforms.push('--flip-vertical')
+
+  const resize: string[] = []
+  if (opts.resizeWidth > 0 || opts.resizeHeight > 0) {
+    const w = opts.resizeWidth > 0 ? String(opts.resizeWidth) : '_'
+    const h = opts.resizeHeight > 0 ? String(opts.resizeHeight) : '_'
+    resize.push('--resize-fit', `${w}x${h}`)
+  }
+
+  // 目标大小模式：逐档加大 lossy 并同步减色，尽量贴近目标；
+  // 普通模式按画质滑块换算一次
+  const defaultColors = opts.lossless || opts.quality >= 85
+    ? 0
+    : opts.quality >= 60 ? 128 : opts.quality >= 30 ? 64 : 32
+  const attempts = opts.targetKB > 0
+    ? [
+        { lossy: 60, colors: 128 },
+        { lossy: 120, colors: 64 },
+        { lossy: 200, colors: 32 },
+      ]
+    : [{ lossy: opts.lossless ? 0 : Math.round((100 - opts.quality) * 1.2), colors: defaultColors }]
+
+  let best: ArrayBuffer | null = null
+  for (const { lossy, colors } of attempts) {
+    const args: string[] = []
+    args.push(opts.speed >= 8 || buffer.byteLength > 10 * 1024 * 1024 ? '-O1' : '-O2')
+    if (lossy > 0) args.push(`--lossy=${Math.min(200, Math.max(1, Math.round(lossy)))}`)
+    if (colors > 0) args.push('--colors', String(colors))
+    args.push(...resize, ...transforms, 'input.gif', '-o', '/out/out.gif')
+
+    const files = await gifsicle.run({
+      // 用 Blob 而不是 ArrayBuffer：避免库内部 transfer 掉原 buffer，影响兜底/多次尝试
+      input: [{ file: new Blob([buffer], { type: 'image/gif' }), name: 'input.gif' }],
+      command: [args.join(' ')],
+      isStrict: true,
+    })
+    const file = files && files[0]
+    if (!file) throw new Error('GIF 压缩失败')
+    const out = await file.arrayBuffer()
+    if (!best || out.byteLength < best.byteLength) best = out
+    if (opts.targetKB <= 0) break
+    if (out.byteLength <= opts.targetKB * 1024) break
+  }
+
+  if (!best) throw new Error('GIF 压缩失败')
+  const changed = resize.length > 0 || transforms.length > 0
+  if (!changed && best.byteLength >= buffer.byteLength) return buffer
+  return best
+}
+
+/**
+ * 把 SVG 光栅化为 PNG（主线程用 Image + canvas）。
+ * 仅当工具要求输出位图时使用（如「SVG 转 PNG」）；「压缩 SVG」保持矢量原样。
+ * 放在主线程是因为 Safari 的 Worker createImageBitmap 对 SVG 支持不稳定。
+ */
+async function rasterizeSVGOnMain(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+  const url = URL.createObjectURL(new Blob([buffer], { type: 'image/svg+xml' }))
+  try {
+    const img = new Image()
+    img.decoding = 'async'
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve()
+      img.onerror = () => reject(new Error('SVG 解码失败'))
+      img.src = url
+    })
+
+    // 没有 width/height 的 SVG，浏览器可能给出 0，用 viewBox 尺寸兜底
+    let w = img.naturalWidth
+    let h = img.naturalHeight
+    if (!w || !h) {
+      const text = new TextDecoder().decode(buffer)
+      const vb = text.match(/viewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)/i)
+      w = vb ? Math.round(Number(vb[1])) : 300
+      h = vb ? Math.round(Number(vb[2])) : 150
+    }
+
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, w)
+    canvas.height = Math.max(1, h)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Canvas 创建失败')
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('SVG 转 PNG 失败'))), 'image/png')
+    })
+    return blob.arrayBuffer()
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
 /** Ensure Worker pool is initialized */
 function ensureWorkers(): void {
   if (_workers.length > 0) return
@@ -473,11 +596,56 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           }
         }
 
+        // SVG → PNG on main thread when a bitmap output is requested（如 svg-to-png）
+        if (isSVG(fileType) && effectiveFormat !== 'original') {
+          try {
+            fileBuffer = await rasterizeSVGOnMain(fileBuffer)
+            fileType = 'image/png'
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === file.id ? { ...f, status: 'error' as const, error: 'SVG转换失败' } : f
+              ),
+            })
+            checkDone()
+            return
+          }
+        }
+
+        // 动画 GIF：canvas 无法编码 GIF，用 gifsicle 真正压缩（保留动画），
+        // 处理结果直接透传给 Worker，避免 Worker 再按静态图重编码
+        let skipProcessing = false
+        if (isGIF(fileType) && effectiveFormat === 'original' && !(watermark.enabled && isPro)) {
+          try {
+            fileBuffer = await optimizeGifOnMain(fileBuffer, {
+              quality: options.quality,
+              speed: options.speed,
+              lossless: options.lossless,
+              resizeWidth: options.resizeWidth || 0,
+              resizeHeight: options.resizeHeight || 0,
+              rotation: file.rotation,
+              flipH: file.flipH,
+              flipV: file.flipV,
+              targetKB: options.targetKB || 0,
+            })
+            skipProcessing = true
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === file.id ? { ...f, status: 'error' as const, error: 'GIF压缩失败' } : f
+              ),
+            })
+            checkDone()
+            return
+          }
+        }
+
         getNextWorker().postMessage({
           id: file.id,
           fileBuffer,
           fileName: file.file.name,
           fileType,
+          skipProcessing,
           quality: options.quality,
           speed: options.speed,
           lossless: options.lossless,
@@ -621,11 +789,58 @@ export const useCompressionStore = create<CompressionState>((set, get) => ({
           }
         }
 
+        // SVG → PNG on main thread when a bitmap output is requested（如 svg-to-png）
+        if (isSVG(fileType) && effectiveFormat !== 'original') {
+          try {
+            fileBuffer = await rasterizeSVGOnMain(fileBuffer)
+            fileType = 'image/png'
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === file.id ? { ...f, status: 'error' as const, error: 'SVG转换失败' } : f
+              ),
+            })
+            w.removeEventListener('message', handler)
+            _compressOneCleanups.delete(id)
+            return
+          }
+        }
+
+        // 动画 GIF：canvas 无法编码 GIF，用 gifsicle 真正压缩（保留动画），
+        // 处理结果直接透传给 Worker，避免 Worker 再按静态图重编码
+        let skipProcessing = false
+        if (isGIF(fileType) && effectiveFormat === 'original' && !(get().watermark.enabled && isPro)) {
+          try {
+            fileBuffer = await optimizeGifOnMain(fileBuffer, {
+              quality: options.quality,
+              speed: options.speed,
+              lossless: options.lossless,
+              resizeWidth: options.resizeWidth || 0,
+              resizeHeight: options.resizeHeight || 0,
+              rotation: file.rotation,
+              flipH: file.flipH,
+              flipV: file.flipV,
+              targetKB: options.targetKB || 0,
+            })
+            skipProcessing = true
+          } catch {
+            set({
+              files: get().files.map(f =>
+                f.id === file.id ? { ...f, status: 'error' as const, error: 'GIF压缩失败' } : f
+              ),
+            })
+            w.removeEventListener('message', handler)
+            _compressOneCleanups.delete(id)
+            return
+          }
+        }
+
           w.postMessage({
         id: file.id,
         fileBuffer,
         fileName: file.file.name,
         fileType,
+        skipProcessing,
         quality: options.quality,
         speed: options.speed,
         lossless: options.lossless,

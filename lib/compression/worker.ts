@@ -24,6 +24,8 @@ interface WMsg {
   fileBuffer: ArrayBuffer
   fileName: string
   fileType: string
+  /** GIF 已在主线程用 gifsicle 处理过：直接原样返回，不再解码/重编码 */
+  skipProcessing?: boolean
   quality: number
   speed: number
   lossless: boolean
@@ -54,8 +56,9 @@ interface WRes {
   error?: string
 }
 
-async function decodeImage(buffer: ArrayBuffer): Promise<ImageData> {
-  const blob = new Blob([buffer])
+async function decodeImage(buffer: ArrayBuffer, mime?: string): Promise<ImageData> {
+  // 必须带上 MIME：SVG 等格式靠 Blob type 才能被 createImageBitmap 正确识别
+  const blob = mime ? new Blob([buffer], { type: mime }) : new Blob([buffer])
   const bitmap = await createImageBitmap(blob)
   const w = bitmap.width, h = bitmap.height
   if (w === 0 || h === 0) { bitmap.close(); throw new Error('图片尺寸无效') }
@@ -610,20 +613,59 @@ async function optimizeSvg(buffer: ArrayBuffer): Promise<ArrayBuffer> {
 function isSVG(t: string) { return t === 'image/svg+xml' }
 
 self.onmessage = async (e: MessageEvent<WMsg>) => {
-  const { id, fileBuffer, fileType, quality, speed, lossless, outputFormat, targetKB, resizeWidth, resizeHeight, stripMetadata, watermark: wm } = e.data
+  const { id, fileBuffer, fileType, skipProcessing, quality, speed, lossless, outputFormat, targetKB, resizeWidth, resizeHeight, stripMetadata, watermark: wm } = e.data
   try {
+    // 主线程已处理好的结果（如 gifsicle 优化后的动画 GIF）：直接返回，保持格式不变
+    if (skipProcessing) {
+      const size = fileBuffer.byteLength
+      self.postMessage({
+        id, type: 'done',
+        compressedBuffer: fileBuffer,
+        compressedSize: size,
+        outputMime: fileType,
+        metadataStripped: false,
+      } as WRes)
+      return
+    }
+
     // 确定输出 MIME
     let outMime = fileType
     if (outputFormat === 'png') outMime = 'image/png'
     else if (outputFormat === 'jpeg') outMime = 'image/jpeg'
     else if (outputFormat === 'webp') outMime = 'image/webp'
     else if (outputFormat === 'avif') outMime = 'image/avif'
+    // canvas 不能编码 GIF（浏览器会退回 PNG）。旧逻辑把 PNG 字节标成 image/gif，
+    // 下载出来是「改了扩展名的 PNG」。这里统一改成 PNG，文件名就正确了。
+    if (outMime === 'image/gif') outMime = 'image/png'
 
     const targetBytes = targetKB ? targetKB * 1024 : 0
     const shouldStrip = stripMetadata !== false // 默认 true
 
-    // SVG: 文本级优化，不走 Canvas 光栅化（保持矢量格式）
-    if (isSVG(fileType)) {
+    // 动画 GIF → 动画 WebP：canvas 只能取首帧，用 libwebp 的 gif2webp wasm 保留动画
+    if (fileType === 'image/gif' && outMime === 'image/webp') {
+      const { gif2webp } = await import('@btheegg-kimth/gif2webp')
+      const webp = await gif2webp(new Uint8Array(fileBuffer), {
+        quality: Math.max(0, Math.min(100, quality)),
+        mixed: true,
+        ...(resizeWidth || resizeHeight
+          ? { resize: { width: resizeWidth || 0, height: resizeHeight || 0 } }
+          : {}),
+      })
+      const buf = webp.buffer.slice(webp.byteOffset, webp.byteOffset + webp.byteLength) as ArrayBuffer
+      self.postMessage({
+        id, type: 'done',
+        compressedBuffer: buf,
+        compressedSize: buf.byteLength,
+        outputMime: 'image/webp',
+        qualityTier: calcQualityTier(fileBuffer.byteLength, buf.byteLength),
+        metadataStripped: true,
+      } as WRes)
+      return
+    }
+
+    // SVG 且要求保持原格式：文本级优化，保持矢量格式
+    // （要求输出 PNG 等位图时，主线程已先光栅化为 PNG；这里作为兜底继续走位图管线）
+    if (isSVG(fileType) && (!outputFormat || outputFormat === 'original')) {
       let resultBuf = await optimizeSvg(fileBuffer)
       const resultSize = resultBuf.byteLength
       const qualityTier = calcQualityTier(fileBuffer.byteLength, resultSize)
@@ -648,7 +690,7 @@ self.onmessage = async (e: MessageEvent<WMsg>) => {
     }
 
     // 解码
-    let img = await decodeImage(fileBuffer)
+    let img = await decodeImage(fileBuffer, fileType)
 
     // 用户指定的尺寸调整（先于压缩进行）
     if ((resizeWidth && resizeWidth > 0) || (resizeHeight && resizeHeight > 0)) {

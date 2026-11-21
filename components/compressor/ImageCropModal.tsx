@@ -42,6 +42,31 @@ export function ImageCropModal({ imageUrl, fileName, onCrop, onClose }: ImageCro
   const [dragMode, setDragMode] = useState<DragMode | null>(null)
   const [cursor, setCursor] = useState('default')
 
+  // 点击比例预设时立即把裁剪框调整为该比例（居中，保留当前宽度），
+  // 而不是等用户下一次拖动才生效
+  const applyRatio = useCallback((next: AspectRatio) => {
+    setRatio(next)
+    const aspect = RATIO_MAP[next]
+    if (!aspect) return // 自由比例：保留当前选框
+    const { w: iw, h: ih } = imgSize
+    if (!iw || !ih) return
+    const baseW = crop.w > 0 ? crop.w : iw * 0.8
+    let w = Math.min(baseW, iw)
+    let h = w / aspect
+    if (h > ih) {
+      h = ih
+      w = h * aspect
+    }
+    w = Math.max(MIN_CROP, Math.round(w))
+    h = Math.max(MIN_CROP, Math.round(h))
+    setCrop({
+      x: Math.round((iw - w) / 2),
+      y: Math.round((ih - h) / 2),
+      w,
+      h,
+    })
+  }, [imgSize, crop.w])
+
   // Load image
   useEffect(() => {
     const img = new Image()
@@ -346,7 +371,7 @@ export function ImageCropModal({ imageUrl, fileName, onCrop, onClose }: ImageCro
               {(['free', '1:1', '4:3', '16:9'] as AspectRatio[]).map(r => (
                 <button
                   key={r}
-                  onClick={() => setRatio(r)}
+                  onClick={() => applyRatio(r)}
                   className={`px-2 py-1 text-xs font-medium rounded-md transition-colors ${
                     ratio === r ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-700 hover:text-neutral-800'
                   }`}
