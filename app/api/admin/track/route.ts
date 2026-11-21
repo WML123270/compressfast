@@ -26,6 +26,30 @@ function getIP(request: NextRequest): string {
   return '0.0.0.0'
 }
 
+/**
+ * 开发 / 测试 / 预览环境的主机名。
+ * 本地 `.env.local` 与生产共用同一个 Upstash Redis，Playwright E2E 的
+ * Pro 漏斗点击、AI 事件、压缩量都会写进生产后台。这些事件直接丢弃。
+ */
+function isDevHost(raw: unknown): boolean {
+  if (typeof raw !== 'string') return false
+  let host = raw.trim().toLowerCase()
+  if (!host) return false
+  if (host.startsWith('[')) {
+    const end = host.indexOf(']')
+    if (end > 0) host = host.slice(1, end)
+  } else {
+    host = host.replace(/:\d+$/, '')
+  }
+  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '::1') return true
+  if (host.endsWith('.local')) return true
+  if (host.endsWith('.vercel.app')) return true // 预览部署不算生产流量
+  if (/^10\.\d+\.\d+\.\d+$/.test(host)) return true
+  if (/^192\.168\.\d+\.\d+$/.test(host)) return true
+  if (/^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/.test(host)) return true
+  return false
+}
+
 export async function POST(request: NextRequest) {
   try {
     // 过滤爬虫/自动化流量，避免污染统计
@@ -34,6 +58,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, errorCode, pdfEvent, mode, pages, bytes, proStage, source } = await request.json()
+
+    // 过滤本地开发 / E2E / 预览部署：它们与生产共用 Redis，会污染后台统计
+    if (isDevHost(host) || isDevHost(request.headers.get('host'))) {
+      return NextResponse.json({ success: true, skipped: 'dev_host' })
+    }
 
     // 按域名区分：jisuyatu.com=国内 / 其他=海外
     const site = (host === 'jisuyatu.com' || host === 'www.jisuyatu.com') ? 'cn' : 'os'
