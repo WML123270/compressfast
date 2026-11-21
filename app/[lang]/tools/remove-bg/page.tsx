@@ -44,7 +44,7 @@ export default function RemoveBgPage({ params }: Props) {
     },
     {
       q: isZh ? '为什么需要 Pro？' : 'Why do I need Pro?',
-      a: isZh ? 'AI 抠图依赖本地下载 AI 模型（约 88MB，首次使用下载一次，之后走浏览器缓存），作为高级功能提供给 Pro 用户，一次性买断永久使用。' : 'AI removal downloads an on-device model (~88MB, once; later runs use the browser cache) and is offered as a Pro feature with one-time purchase.',
+      a: isZh ? 'AI 抠图依赖本地下载 AI 模型（约 45MB，首次使用下载一次，之后走浏览器缓存），作为高级功能提供给 Pro 用户，一次性买断永久使用。' : 'AI removal downloads an on-device model (~45MB, once; later runs use the browser cache) and is offered as a Pro feature with one-time purchase.',
     },
   ]
 

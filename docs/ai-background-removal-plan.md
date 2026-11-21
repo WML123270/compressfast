@@ -22,7 +22,7 @@
 |---|---|---|---|---|
 | RMBG-1.4 (BRIA) | 42MB | 最高（发丝级）| **CC-BY-NC-4.0** | ❌ 非商用 |
 | RMBG-2.0 (BRIA) | 234-490MB | 最高 | **CC-BY-NC-4.0** | ❌ 非商用 |
-| **isnet-general-use** | ~88MB（fp16，线上实际） | 高 | MIT/CC | ✅ |
+| **isnet-general-use** | ~45MB（int8 静态量化，线上实际） | 高 | MIT/CC | ✅ |
 | **modnet** | 25MB | 中高（人像）| Apache-2.0 | ✅ |
 | **u2net / u2netp** | 4.5-178MB | 中 | Apache-2.0 | ✅ |
 
@@ -72,9 +72,13 @@ interface AiRemoveBgRes {
 3. `requestIdleCallback` 预加载，2G 网络跳过。
 
 ### 大文件下载（已 gitignore，需手动准备）
+- 线上实际部署：`public/models/isnet-general-use-int8.onnx`（44.6MB，int8 静态量化）
+- 由 fp16 原版本地量化得到：
+  - `scripts/quantize-isnet-static.py`（fp16→fp32→QDQ + 百分位 99.9 校准）
+  - `scripts/verify-isnet-quant.py`（质量/速度对比，MAE≈0.001）
+- 旧的 `isnet-general-use-fp16.onnx`（88MB）只作回退参考，不再线上部署
 ```bash
-# isnet 量化模型（44MB）→ public/models/isnet-general-use.onnx
-# 注：线上实际部署的是 fp16 版 isnet-general-use-fp16.onnx（约 88MB），下载源以实际为准
+# 可选：从 hf-mirror 下载现成的量化模型作为参考
 curl -sL -o public/models/isnet-general-use.onnx \
   "https://hf-mirror.com/Ko033/isnet-general-use-onnx/resolve/main/onnx/model_quantized.onnx"
 

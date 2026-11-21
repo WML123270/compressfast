@@ -20,8 +20,8 @@ type UiError = { code: AiErrorCode | 'file'; detail?: string }
 const MAX_FILE_BYTES = 30 * 1024 * 1024
 // 与 remove-bg-worker.ts 的 MAX_OUTPUT_EDGE 保持一致
 const MAX_OUTPUT_EDGE = 4096
-// 模型实际大小（public/models/isnet-general-use-fp16.onnx）
-const MODEL_SIZE_MB = 88
+// 模型实际大小（public/models/isnet-general-use-int8.onnx，int8 量化版）
+const MODEL_SIZE_MB = 45
 
 const PRESET_COLORS = ['#ffffff', '#000000', '#ff0000', '#3b82f6', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6']
 

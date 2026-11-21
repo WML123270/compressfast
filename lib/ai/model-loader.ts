@@ -1,13 +1,13 @@
 // AI 模型下载器 —— 带下载进度 + Cache Storage 持久缓存
 //
 // 为什么自己下载：onnxruntime-web 的 InferenceSession.create(url) 内部自己拉模型，
-// 拿不到任何下载进度。85MB 的抠图模型首次下载时手机用户只看到「加载中」转圈，
+// 拿不到任何下载进度。几十 MB 的抠图模型首次下载时手机用户只看到「加载中」转圈，
 // 容易以为卡死直接离开。这里先流式 fetch（上报已下载字节），再从内存创建 session。
 //
 // 缓存策略：
 //   - 优先读 Cache Storage（ai-models-v1），命中则跳过网络（cached: true）
 //   - 未命中用 fetch + ReadableStream 边下边报进度，完成后写入 Cache Storage
-//   - fetch 用 no-store，避免同一份 85MB 模型在 HTTP 缓存和 Cache Storage 存两遍
+//   - fetch 用 no-store，避免同一份大模型在 HTTP 缓存和 Cache Storage 存两遍
 //   - 缓存读写失败（配额不足/隐私模式/非安全上下文）不影响本次使用，下次重新下载
 //
 // 模型文件更新时请改文件名（缓存 key 是 URL），否则旧缓存会一直命中。

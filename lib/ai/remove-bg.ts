@@ -25,7 +25,7 @@ export interface RemoveBgProgress {
   cached?: boolean
 }
 
-/** 只预加载模型（约 88MB）—— 目前不自动触发，供后续「提前下载」入口使用 */
+/** 只预加载模型（约 45MB，int8 量化版）—— 目前不自动触发，供后续「提前下载」入口使用 */
 export function preloadRemoveBgModel(): void {
   getRunner().warmup()
 }

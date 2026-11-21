@@ -60,3 +60,6 @@ public/ort/*.wasm
 
 # 百度推送 token（敏感，勿提交）
 .baidu-token
+
+# local python tooling
+.venv-onnx/

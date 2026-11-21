@@ -112,7 +112,7 @@ async function newProPage(browser) {
     // ───────── 2. AI 抠图：模型失败 → 重试成功 ─────────
     const { ctx: ctx2, page: page2 } = await newProPage(browser)
     let blockBgModel = true
-    await page2.route('**/models/isnet-general-use-fp16.onnx', (route) => {
+    await page2.route('**/models/isnet-general-use-int8.onnx', (route) => {
       return blockBgModel ? route.abort() : route.continue()
     })
 

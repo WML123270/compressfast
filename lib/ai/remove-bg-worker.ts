@@ -23,10 +23,12 @@ async function getOrt(): Promise<any> {
   return ort
 }
 
-const MODEL_URL = '/models/isnet-general-use-fp16.onnx'
+// isnet-general-use 的 int8 静态量化版（QDQ + 百分位校准，44.6MB，质量与 fp16 基本一致）
+// 量化脚本：scripts/quantize-isnet-static.py；对比：scripts/verify-isnet-quant.py
+const MODEL_URL = '/models/isnet-general-use-int8.onnx'
 // 模型文件字节数（换了模型文件要同步改）：Vercel 用 chunked 不给 Content-Length，
 // 进度条靠这个值算百分比
-const MODEL_BYTES = 88_141_111
+const MODEL_BYTES = 44_603_539
 const INPUT_SIZE = 1024
 
 let session: any = null
