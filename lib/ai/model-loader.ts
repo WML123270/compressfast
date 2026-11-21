@@ -11,6 +11,10 @@
 //   - 缓存读写失败（配额不足/隐私模式/非安全上下文）不影响本次使用，下次重新下载
 //
 // 模型文件更新时请改文件名（缓存 key 是 URL），否则旧缓存会一直命中。
+//
+// ⚠️ 海外 Vercel/Cloudflare 对大文件返回 `Transfer-Encoding: chunked`，没有
+// Content-Length（HEAD 也不给）。所以调用方可以传 fallbackTotal（仓库里模型的
+// 实际字节数），否则海外站只能显示不确定进度条、没有百分比。
 
 export interface ModelLoadProgress {
   /** 已下载字节数 */
@@ -96,7 +100,7 @@ async function writeCache(url: string, data: Uint8Array): Promise<void> {
  * 取得模型字节。命中缓存直接返回；否则流式下载并通过 onModelProgress 广播进度。
  * 失败（网络/HTTP 错误）会抛错，由 Worker 归类为 model_load。
  */
-export async function loadModelData(url: string): Promise<Uint8Array> {
+export async function loadModelData(url: string, fallbackTotal = 0): Promise<Uint8Array> {
   const cached = await readCache(url)
   if (cached) {
     emit(url, { loaded: cached.byteLength, total: cached.byteLength, cached: true })
@@ -106,7 +110,8 @@ export async function loadModelData(url: string): Promise<Uint8Array> {
   const res = await fetch(url, { cache: 'no-store' })
   if (!res.ok) throw new Error(`Model download failed: HTTP ${res.status}`)
 
-  const total = Number(res.headers.get('content-length') || 0) || 0
+  // 服务端没给 Content-Length（Vercel chunked）时用调用方提供的文件大小
+  const total = Number(res.headers.get('content-length') || 0) || fallbackTotal
 
   if (!res.body) {
     // 极老浏览器没有流式 body：一次性读取，进度只能 0 → 100
@@ -161,7 +166,8 @@ export async function loadModelData(url: string): Promise<Uint8Array> {
     }
   }
 
-  emit(url, { loaded, total: total || loaded, cached: false })
+  // 下载已完成：total 直接取实际字节数，保证一定到 100%（fallback 与实际不符时也能收尾）
+  emit(url, { loaded, total: loaded, cached: false })
   await writeCache(url, out)
   return out
 }

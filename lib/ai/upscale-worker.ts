@@ -23,6 +23,8 @@ async function getOrt(): Promise<any> {
 }
 
 const MODEL_URL = '/models/realesr-general-x4v3.onnx'
+// 模型文件字节数（换了模型文件要同步改）：Vercel 用 chunked 不给 Content-Length
+const MODEL_BYTES = 4_871_181
 const SCALE = 4
 const TILE_SIZE = 256 // 输入 tile 尺寸
 const TILE_PAD = 16 // 重叠 padding（输入像素），消除拼缝
@@ -37,7 +39,7 @@ let loading: Promise<any> | null = null
 // 自己下载模型（model-loader 负责进度 + 缓存），再交给 ORT 从内存创建 session
 async function createSession(): Promise<any> {
   const o = await getOrt()
-  const data = await loadModelData(MODEL_URL)
+  const data = await loadModelData(MODEL_URL, MODEL_BYTES)
   // ⚠️ 固定用 WASM：ORT WebGPU 在 realesr-general-x4v3 的 4x 输出上会触发
   // Clip kernel 失败（[WebGPU] Kernel "[Clip]" failed, dims [1,1024,1024,3]）。
   // 该问题只在有 GPU 的真机上出现，headless E2E 无法覆盖；WASM 单线程已验证稳定。

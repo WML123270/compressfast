@@ -24,6 +24,9 @@ async function getOrt(): Promise<any> {
 }
 
 const MODEL_URL = '/models/isnet-general-use-fp16.onnx'
+// 模型文件字节数（换了模型文件要同步改）：Vercel 用 chunked 不给 Content-Length，
+// 进度条靠这个值算百分比
+const MODEL_BYTES = 88_141_111
 const INPUT_SIZE = 1024
 
 let session: any = null
@@ -32,7 +35,7 @@ let loading: Promise<any> | null = null
 // 自己下载模型（model-loader 负责进度 + 缓存），再交给 ORT 从内存创建 session
 async function createSession(): Promise<any> {
   const o = await getOrt()
-  const data = await loadModelData(MODEL_URL)
+  const data = await loadModelData(MODEL_URL, MODEL_BYTES)
   return o.InferenceSession.create(data, { executionProviders: ['wasm'] })
 }
 
