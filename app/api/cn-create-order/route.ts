@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
       totalFee: '9.9',
       title: '极速压图 Pro 永久买断',
       notifyUrl: `${siteUrl}/api/cn-pay-notify`,
-      returnUrl: `${siteUrl}/pro`,
+      // paid=1 让 Pro 页在用户支付返回后自动凭邮箱查激活码
+      returnUrl: `${siteUrl}/pro?paid=1`,
     })
 
     if (!result.ok) {

@@ -16,14 +16,15 @@ export function FeedbackButton({ locale }: { locale?: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [hiddenPage, setHiddenPage] = useState(false)
 
   useEffect(() => {
-    setIsAdmin(window.location.pathname.startsWith('/admin'))
+    // 管理后台不显示；Pro 页隐藏，避免浮球遮挡购买按钮、分散下单注意力
+    const path = window.location.pathname
+    setHiddenPage(path.startsWith('/admin') || /\/pro\/?$/.test(path))
   }, [])
 
-  // 管理后台页面不显示
-  if (isAdmin) return null
+  if (hiddenPage) return null
 
   // Chinese detection — locale prop from server, no SSR/client guessing needed
   const isZh = locale === 'zh'

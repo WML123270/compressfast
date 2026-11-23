@@ -41,6 +41,37 @@ check('进入 Pro 页', page.url().includes('/pro'))
 const clicks = trackBodies.filter(b => b.event === 'pro' && b.proStage === 'click')
 check('水印入口埋点', clicks.some(b => b.source === 'watermark' || b.source === 'scene_presets'), JSON.stringify(clicks.map(c => c.source)))
 
+// ---- 文件超限时给升级入口 ----
+const page2 = await ctx.newPage()
+const track2 = []
+page2.on('request', (req) => {
+  if (req.url().includes('/api/admin/track')) {
+    try { track2.push(JSON.parse(req.postData() || '{}')) } catch {}
+  }
+})
+await page2.goto(`${BASE}/zh`, { waitUntil: 'networkidle' })
+await page2.locator('input[type=file]').first().setInputFiles({
+  name: 'too-big.png',
+  mimeType: 'image/png',
+  buffer: Buffer.alloc(11 * 1024 * 1024),
+})
+await page2.waitForTimeout(900)
+const limitBody = await page2.locator('body').textContent()
+check('超限提示', limitBody?.includes('文件过大'))
+check('超限提示带 Pro 权益', limitBody?.includes('Pro 支持每次 500 张、单张 50MB'))
+const upgrade = page2.getByTestId('dropzone-upgrade')
+check('超限提示带升级入口', await upgrade.isVisible())
+check('升级入口指向 Pro 页', (await upgrade.getAttribute('href'))?.includes('/pro'))
+
+await upgrade.click()
+await page2.waitForTimeout(1200)
+check('超限升级入口进入 Pro 页', page2.url().includes('/pro'))
+check(
+  '超限升级入口埋点 source=dropzone',
+  track2.some(b => b.event === 'pro' && b.proStage === 'click' && b.source === 'dropzone'),
+  JSON.stringify(track2.filter(b => b.event === 'pro').map(b => `${b.proStage}:${b.source}`))
+)
+
 await browser.close()
 const failed = results.filter(r => !r.ok)
 console.log(`\n${results.length - failed.length}/${results.length} passed`)

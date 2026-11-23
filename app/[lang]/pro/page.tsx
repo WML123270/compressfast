@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, Loader2, Crown, X, Minus, Star, Sparkles } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { ArrowLeft, Check, Loader2, Crown, X, Minus, Sparkles, ShieldCheck, Mail, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from '@/lib/i18n/context'
 import { useCompressionStore } from '@/lib/store/compression-store'
@@ -18,10 +18,25 @@ interface FeatureRow {
   highlight?: boolean
 }
 
+const PENDING_KEY = 'pro_pending_email'
+const PENDING_AT_KEY = 'pro_pending_at'
+const LAST_EMAIL_KEY = 'pro_last_email'
+const PENDING_TTL_MS = 24 * 60 * 60 * 1000
+
+function maskEmail(email: string): string {
+  const [name, domain] = email.split('@')
+  if (!domain) return email
+  return `${name.slice(0, 2)}***@${domain}`
+}
+
 export default function ProPage() {
   const { t, locale } = useT()
   const isCn = useIsCn()
   const { isPro, checkProStatus } = useCompressionStore()
+  const isZh = locale === 'zh'
+  const price = isCn ? '¥9.9' : '$24.99'
+  const supportEmail = 'support@compressfast.site'
+
   const [activateCode, setActivateCode] = useState('')
   const [activating, setActivating] = useState(false)
   const [activateResult, setActivateResult] = useState<'success' | 'invalid' | 'limit' | 'error' | null>(null)
@@ -29,6 +44,11 @@ export default function ProPage() {
   const [forgotEmail, setForgotEmail] = useState('')
   const [resending, setResending] = useState(false)
   const [resendResult, setResendResult] = useState<'success' | 'error' | 'notfound' | 'pending' | null>(null)
+  const [foundCode, setFoundCode] = useState('')
+  const [codeCopied, setCodeCopied] = useState(false)
+  const [pendingRetry, setPendingRetry] = useState(0)
+  const [activatingFound, setActivatingFound] = useState(false)
+  const lookupInFlight = useRef(false)
 
   // 购买流程
   const [buyEmail, setBuyEmail] = useState('')
@@ -41,24 +61,104 @@ export default function ProPage() {
   const [cnQrcode, setCnQrcode] = useState('')
   const [cnError, setCnError] = useState('')
 
+  // 支付返回后的找回激活码提示
+  const [paidBannerEmail, setPaidBannerEmail] = useState('')
+
+  /** 凭邮箱查激活码；pending 时自动重试（支付回调写入有延迟） */
+  const lookupCode = useCallback(async (email: string, retriesLeft = 5) => {
+    const addr = email.trim()
+    if (!addr.includes('@') || lookupInFlight.current) return
+    lookupInFlight.current = true
+    setResending(true)
+    setResendResult(null)
+    setFoundCode('')
+    try {
+      const res = await fetch('/api/resend-license', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: addr }),
+      })
+      const data = await res.json()
+      if (data.code) {
+        setFoundCode(data.code)
+        setResendResult('success')
+        setPendingRetry(0)
+      } else if (data.pending) {
+        setResendResult('pending')
+        setPendingRetry(Math.min(6 - retriesLeft + 1, 5))
+        if (retriesLeft > 0) {
+          lookupInFlight.current = false
+          setTimeout(() => { lookupCode(addr, retriesLeft - 1) }, 3000)
+          return
+        }
+        setPendingRetry(0)
+        setResendResult('notfound')
+      } else {
+        setResendResult('notfound')
+        setPendingRetry(0)
+      }
+    } catch {
+      setResendResult('error')
+      setPendingRetry(0)
+    }
+    lookupInFlight.current = false
+    setResending(false)
+  }, [])
+
   useEffect(() => {
     checkProStatus()
     // 漏斗：Pro 页曝光（每次挂载记一次）
     trackPro('view')
-    const pendingEmail = localStorage.getItem('pro_pending_email')
-    if (pendingEmail) {
-      if (!forgotEmail) setForgotEmail(pendingEmail)
-      if (!buyEmail) setBuyEmail(pendingEmail)
+
+    let pending = ''
+    let pendingAt = 0
+    let last = ''
+    try {
+      pending = localStorage.getItem(PENDING_KEY) || ''
+      pendingAt = Number(localStorage.getItem(PENDING_AT_KEY) || 0)
+      last = localStorage.getItem(LAST_EMAIL_KEY) || ''
+    } catch {}
+
+    const prefill = pending || last
+    if (prefill) {
+      setForgotEmail((v) => v || prefill)
+      setBuyEmail((v) => v || prefill)
+      setCnEmail((v) => v || prefill)
     }
+
+    // 只提示最近 24h 内创建过订单的邮箱，避免长期打扰
+    const pendingFresh = !!pending && (!pendingAt || Date.now() - pendingAt < PENDING_TTL_MS)
+    if (pendingFresh) setPaidBannerEmail(pending)
+
+    // 国内支付返回 /pro?paid=1：自动查码（最多重试 6 次）
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('paid') === '1' && pendingFresh) {
+      setTimeout(() => { lookupCode(pending, 6) }, 800)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const rememberEmail = (email: string) => {
+    try { localStorage.setItem(LAST_EMAIL_KEY, email) } catch {}
+  }
+
+  const markPending = (email: string) => {
+    try {
+      localStorage.setItem(PENDING_KEY, email)
+      localStorage.setItem(PENDING_AT_KEY, String(Date.now()))
+    } catch {}
+    setPaidBannerEmail(email)
+  }
+
   const handleBuy = async () => {
-    trackPro('click', 'pro_buy')
+    trackPro('buy', 'pro_buy')
     const email = buyEmail.trim()
     if (!email || !email.includes('@')) {
-      setBuyError(locale === 'zh' ? '请输入有效邮箱' : 'Please enter a valid email')
+      setBuyError(isZh ? '请输入有效邮箱' : 'Please enter a valid email')
+      document.getElementById('buy-email')?.focus()
       return
     }
+    rememberEmail(email)
     setBuyLoading(true)
     setBuyError('')
     try {
@@ -70,7 +170,7 @@ export default function ProPage() {
       const data = await res.json()
       if (data.checkoutUrl) {
         trackPro('checkout', 'creem')
-        localStorage.setItem('pro_pending_email', email)
+        markPending(email)
         window.location.href = data.checkoutUrl
       } else {
         trackPro('fail', 'creem')
@@ -79,18 +179,20 @@ export default function ProPage() {
       }
     } catch {
       trackPro('fail', 'creem')
-      setBuyError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
+      setBuyError(isZh ? '网络错误，请重试' : 'Network error, please retry')
       setBuyLoading(false)
     }
   }
 
   const handleCnPay = async () => {
-    trackPro('click', 'pro_cn_buy')
+    trackPro('buy', 'pro_cn_buy')
     const email = cnEmail.trim()
     if (!email || !email.includes('@')) {
-      setCnError(locale === 'zh' ? '请输入有效邮箱' : 'Please enter a valid email')
+      setCnError(isZh ? '请输入有效邮箱' : 'Please enter a valid email')
+      document.getElementById('buy-email')?.focus()
       return
     }
+    rememberEmail(email)
     setCnLoading(true)
     setCnError('')
     setCnQrcode('')
@@ -103,14 +205,14 @@ export default function ProPage() {
       const data = await res.json()
       if (data.success) {
         trackPro('checkout', 'hupijiao')
-        localStorage.setItem('pro_pending_email', email)
+        markPending(email)
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
         if (isMobile && data.url) {
           window.location.href = data.url
         } else if (data.qrcode) {
           setCnQrcode(data.qrcode)
         } else {
-          setCnError(locale === 'zh' ? '支付链接生成失败，请重试' : 'Failed to create payment, please retry')
+          setCnError(isZh ? '支付链接生成失败，请重试' : 'Failed to create payment, please retry')
         }
       } else {
         trackPro('fail', 'hupijiao')
@@ -118,23 +220,30 @@ export default function ProPage() {
       }
     } catch {
       trackPro('fail', 'hupijiao')
-      setCnError(locale === 'zh' ? '网络错误，请重试' : 'Network error, please retry')
+      setCnError(isZh ? '网络错误，请重试' : 'Network error, please retry')
     }
     setCnLoading(false)
   }
 
-  const handleActivate = async () => {
+  const activateWithCode = async (code: string) => {
+    const normalized = code.toUpperCase().trim()
+    if (!normalized) return
     setActivating(true)
     setActivateResult(null)
     try {
       const res = await fetch('/api/verify-license', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: activateCode, fingerprint: getDeviceFingerprint() }),
+        body: JSON.stringify({ code: normalized, fingerprint: getDeviceFingerprint() }),
       })
       const data = await res.json()
       if (data.valid) {
-        localStorage.setItem('pro_license', activateCode.toUpperCase().trim())
+        localStorage.setItem('pro_license', normalized)
+        try {
+          localStorage.removeItem(PENDING_KEY)
+          localStorage.removeItem(PENDING_AT_KEY)
+        } catch {}
+        setPaidBannerEmail('')
         await checkProStatus()
         setActivateResult('success')
       } else if (data.reason === 'device_limit') {
@@ -148,42 +257,24 @@ export default function ProPage() {
     setActivating(false)
   }
 
-  // Forgot code → lookup in Redis
-  const [foundCode, setFoundCode] = useState('')
-  const [codeCopied, setCodeCopied] = useState(false)
-  const [pendingRetry, setPendingRetry] = useState(0)
+  const handleActivate = async () => {
+    await activateWithCode(activateCode)
+  }
 
   const handleLookup = async () => {
-    setResending(true)
-    setResendResult(null)
-    setFoundCode('')
-    try {
-      const res = await fetch('/api/resend-license', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
-      })
-      const data = await res.json()
-      if (data.code) {
-        setFoundCode(data.code)
-        setResendResult('success')
-        setPendingRetry(0)
-      } else if (data.pending) {
-        setResendResult('pending')
-        const retries = pendingRetry + 1
-        setPendingRetry(retries)
-        if (retries <= 5) {
-          setTimeout(() => handleLookup(), 3000)
-        }
-      } else {
-        setResendResult('notfound')
-        setPendingRetry(0)
-      }
-    } catch {
-      setResendResult('error')
-      setPendingRetry(0)
+    if (!forgotEmail.trim()) return
+    await lookupCode(forgotEmail, 5)
+  }
+
+  const handlePaidCheck = () => {
+    const email = paidBannerEmail || forgotEmail
+    if (!email) {
+      document.getElementById('lookup')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
     }
-    setResending(false)
+    setForgotEmail(email)
+    document.getElementById('lookup')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    lookupCode(email, 6)
   }
 
   const handleCopyCode = async () => {
@@ -193,6 +284,43 @@ export default function ProPage() {
       setTimeout(() => setCodeCopied(false), 3000)
     } catch {}
   }
+
+  const features: FeatureRow[] = [
+    { feature: t('pro.feature.batch'), free: isCn ? (isZh ? '15 张/次' : '15/batch') : t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
+    { feature: t('pro.feature.sizePerFile'), free: t('pro.free.sizePerFile'), pro: t('pro.pro.sizePerFile'), proDesc: isZh ? '大图不受限' : 'Handle larger files' },
+    { feature: isZh ? 'AI 抠图 / AI 放大' : 'AI remove BG / upscale', free: false, pro: true, proDesc: isZh ? '本地 AI 模型，图片不上传' : 'On-device AI, no upload' },
+    { feature: t('pro.feature.formats'), free: t('pro.free.formats'), pro: t('pro.pro.formats'), proDesc: t('pro.proDesc.formats'), highlight: true },
+    { feature: t('pro.feature.watermark'), free: false, pro: true, proDesc: t('pro.proDesc.watermark') },
+    { feature: t('pro.feature.presets'), free: false, pro: true, proDesc: t('pro.proDesc.presets') },
+    { feature: t('pro.feature.scenes'), free: false, pro: true, proDesc: t('pro.proDesc.scenes') },
+    { feature: t('pro.feature.presetExport'), free: false, pro: true, proDesc: t('pro.proDesc.export') },
+    { feature: t('pro.feature.ads'), free: false, pro: true, proDesc: isZh ? '纯净体验' : 'Clean experience' },
+    { feature: t('pro.feature.support'), free: false, pro: true, proDesc: t('pro.proDesc.support') },
+    { feature: t('pro.feature.devices'), free: '1', pro: '5', proDesc: isZh ? '手机+电脑+平板全支持' : 'Phone + PC + tablet' },
+    { feature: t('pro.feature.updates'), free: true, pro: true, proDesc: isZh ? '持续免费更新' : 'Free updates forever' },
+  ]
+
+  const faqs: [string, string][] = isZh
+    ? [
+        ['这是订阅吗？', `不是。一次付费 ${price}，永久有效，不会自动续费。`],
+        ['激活码怎么拿到？', `付款成功后系统会自动把激活码发到你填写的邮箱，通常几秒内到达。收到后在本页「激活 Pro」输入即可；没收到也可以在下方凭邮箱查询并一键激活。`],
+        ['可以几台设备用？', '同一个激活码最多 5 台设备，手机、电脑、平板都算，重装系统后重新激活即可。'],
+        ['图片会上传到服务器吗？', '不会。压缩、转格式、AI 抠图/放大、加水印全部在你的浏览器本地完成，文件不会离开你的设备。'],
+        ['Pro 比免费版多了什么？', '本地 AI 抠图与 AI 放大、AVIF 输出（比 WebP 再小约 30%）、图片/文字水印、场景预设、自定义预设、500 张/次批量、单张 50MB 和邮件支持。'],
+        ['免费版够用吗？', `每月可压缩 ${isCn ? 100 : 400} 张、每次 ${isCn ? 15 : 20} 张、单张 10MB。如果经常批量处理或需要 AVIF/水印，Pro 更合适。`],
+        ['可以退款吗？', '购买后 7 天内且激活码未在任何设备激活使用，可申请全额退款；已激活原则上不支持退款。退款请邮件联系客服，注明购买邮箱和订单号。'],
+        ['支付遇到问题怎么办？', `发邮件到 ${supportEmail}，注明购买邮箱和订单号，我们会在 24 小时内回复（工作日通常 2–4 小时）。`],
+      ]
+    : [
+        ['Is this a subscription?', `No. Pay once (${price}) and own it forever. No auto-renewal.`],
+        ['How do I get my activation code?', 'It is emailed automatically after payment, usually within seconds. Paste it into “Activate Pro” below. If it does not arrive, look it up with your email below and activate in one click.'],
+        ['How many devices?', 'Up to 5 devices per code — phone, computer and tablet all count. Re-activate after reinstalling your system.'],
+        ['Are my images uploaded?', 'No. Compression, conversion, AI background removal/upscaling and watermarking all run locally in your browser. Files never leave your device.'],
+        ['What does Pro add?', 'On-device AI background removal and upscaling, AVIF output (~30% smaller than WebP), text/image watermarks, scene presets, custom presets, 500 images per batch, 50MB per file and email support.'],
+        ['Is the free plan enough?', `You get ${isCn ? 100 : 400} images per month, ${isCn ? 15 : 20} per batch and 10MB per file. Pro is for frequent batch work or AVIF/watermark needs.`],
+        ['Can I get a refund?', 'Full refund within 7 days of purchase if the license code has not been activated on any device. Activated codes are generally non-refundable. Email support with your purchase email and order ID.'],
+        ['What if I have a payment problem?', `Email ${supportEmail} with your purchase email and order ID. We reply within 24 hours (usually 2–4 hours on weekdays).`],
+      ]
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-8 pb-24 sm:py-12 space-y-8">
@@ -208,14 +336,14 @@ export default function ProPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('pro.heading')}</h1>
         <p className="text-neutral-800 mt-2">{t('pro.subtitle')}</p>
         <p className="text-neutral-700 mt-1 text-sm">
-          {locale === 'zh'
+          {isZh
             ? '解锁本地 AI 抠图/放大、AVIF 超小体积、水印与 500 张批量处理。'
             : 'Unlock on-device AI background removal, upscaling, AVIF output, watermarks and 500-image batches.'}
         </p>
         {!isPro && (
           <>
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs">
-              {(isCn
+              {(isZh
                 ? ['一次付费 · 无订阅', '5 台设备通用', '本地处理 · 不上传']
                 : ['One-time payment', '5 devices', 'Local · no upload']
               ).map((item) => (
@@ -226,63 +354,222 @@ export default function ProPage() {
             </div>
             <button
               onClick={() => {
-                trackPro('click', 'hero_cta')
+                trackPro('intent', 'hero_cta')
                 document.getElementById('buy')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }}
               className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm shadow-sm transition-all"
             >
               <Crown className="w-4 h-4" />
-              {locale === 'zh' ? `立即升级 · ${isCn ? '¥9.9' : '$24.99'}` : 'Upgrade now · $24.99'}
+              {isZh ? `立即升级 · ${price}` : `Upgrade now · ${price}`}
             </button>
           </>
         )}
       </section>
 
+      {/* 购买区 — 放在对比表之前，首屏 CTA 一步到位 */}
+      {!isPro && (
+        <section id="buy" className="max-w-xl mx-auto scroll-mt-24 space-y-3">
+          {/* 支付返回后的找回激活码提示 */}
+          {paidBannerEmail && (
+            <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm">
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-green-800">
+                    {isZh ? '已经完成支付？' : 'Already paid?'}
+                  </p>
+                  <p className="text-green-700 mt-0.5 leading-relaxed">
+                    {isZh
+                      ? `激活码会自动发送到 ${maskEmail(paidBannerEmail)}，通常几秒内到达。没收到可以直接在这里查。`
+                      : `Your code is emailed to ${maskEmail(paidBannerEmail)}, usually within seconds. If it has not arrived, look it up here.`}
+                  </p>
+                  <button
+                    onClick={handlePaidCheck}
+                    disabled={resending}
+                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium text-xs transition-colors"
+                  >
+                    {resending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                    {isZh ? '查询并激活' : 'Find and activate'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-b from-blue-50/70 to-white p-5 sm:p-6 shadow-sm">
+            <div className="text-center">
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="text-4xl font-bold text-neutral-900">{price}</span>
+                <span className="text-sm text-neutral-600">{isZh ? '一次买断' : 'one-time'}</span>
+              </div>
+              <p className="text-neutral-700 text-sm mt-1">
+                {isZh ? '永久有效 · 一个激活码 5 台设备通用 · 无需订阅' : 'Lifetime access · 5 devices per code · no subscription'}
+              </p>
+            </div>
+
+            {/* 三个核心价值 */}
+            <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+              {(isZh
+                ? [
+                    ['✂️', 'AI 抠图 / 放大'],
+                    ['📦', 'AVIF 再省 30%'],
+                    ['⚡', '500 张批量'],
+                  ]
+                : [
+                    ['✂️', 'AI remove BG'],
+                    ['📦', 'AVIF −30%'],
+                    ['⚡', '500 per batch'],
+                  ]
+              ).map(([icon, label]) => (
+                <div key={label} className="rounded-lg bg-white/80 border border-blue-100 px-2 py-2">
+                  <div className="text-base leading-none">{icon}</div>
+                  <div className="text-[11px] font-medium text-neutral-700 mt-1">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {isCn ? (
+              <div className="mt-4 space-y-2.5 text-left">
+                <label htmlFor="buy-email" className="block text-xs font-medium text-neutral-700">
+                  {isZh ? '接收激活码的邮箱' : 'Email for your activation code'}
+                </label>
+                <input
+                  id="buy-email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={cnEmail}
+                  onChange={(e) => { setCnEmail(e.target.value); setCnError('') }}
+                  onBlur={() => rememberEmail(cnEmail.trim())}
+                  placeholder={isZh ? 'you@example.com' : 'you@example.com'}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
+                />
+                {cnError && <p className="text-red-500 text-sm text-center">{cnError}</p>}
+
+                {cnQrcode ? (
+                  <div className="text-center space-y-2 py-2">
+                    <p className="text-sm font-medium text-neutral-800">
+                      {isZh ? `用微信 / 支付宝扫码支付 ${price}` : `Scan with WeChat / Alipay to pay ${price}`}
+                    </p>
+                    <img src={cnQrcode} alt="支付二维码" className="w-48 h-48 mx-auto rounded-lg border border-gray-200" />
+                    <p className="text-xs text-neutral-600">
+                      {isZh ? '支付完成后回到本页，激活码会自动发到邮箱' : 'After paying, come back to this page — your code is emailed automatically'}
+                    </p>
+                    <button
+                      onClick={() => setCnQrcode('')}
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      {isZh ? '重新选择' : 'Start over'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleCnPay}
+                    disabled={cnLoading}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    {cnLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isZh ? `去支付 ${price}（微信 / 支付宝）` : `Pay ${price} via WeChat / Alipay`)}
+                  </button>
+                )}
+
+                <p className="text-xs text-neutral-600 text-center">
+                  {isZh
+                    ? '支付由虎皮椒（第三方平台）提供，付款成功后激活码自动发到你的邮箱。'
+                    : 'Payment is handled by HupiJiao (third party). Your code is emailed automatically after payment.'}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-4 space-y-2.5">
+                <label htmlFor="buy-email" className="block text-xs font-medium text-neutral-700 text-left">
+                  {isZh ? '接收激活码的邮箱' : 'Email for your activation code'}
+                </label>
+                <input
+                  id="buy-email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={buyEmail}
+                  onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
+                  onBlur={() => rememberEmail(buyEmail.trim())}
+                  placeholder="you@example.com"
+                  className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
+                />
+                {buyError && <p className="text-red-500 text-sm text-center">{buyError}</p>}
+                <button
+                  onClick={handleBuy}
+                  disabled={buyLoading}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
+                >
+                  {buyLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4" /> {t('pro.buyButton')}
+                    </>
+                  )}
+                </button>
+                <p className="text-neutral-600 text-xs text-center">
+                  {isZh ? '🔒 安全支付由 Creem 处理 · 支持 Visa / Mastercard，付款后自动发码' : '🔒 Secure payment via Creem · Visa/Mastercard · code emailed automatically'}
+                </p>
+              </div>
+            )}
+
+            {/* 信任与售后 */}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-green-600" />
+                {isZh ? '7 天未激活可申请全额退款' : '7-day refund if unused'}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Mail className="w-3 h-3 text-blue-600" />
+                <a href={`mailto:${supportEmail}`} className="hover:text-blue-600 hover:underline">
+                  {isZh ? '支付遇到问题？联系客服' : 'Payment issue? Contact support'}
+                </a>
+              </span>
+            </div>
+
+            {/* 已有码 / 没收到码 的快捷入口 */}
+            <div className="mt-3 pt-3 border-t border-blue-100 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+              <a href="#activate" className="text-blue-600 hover:underline">
+                {isZh ? '已有激活码？直接激活 ↓' : 'Have a code? Activate ↓'}
+              </a>
+              <a href="#lookup" className="text-blue-600 hover:underline">
+                {isZh ? '付款后没收到？查询激活码 ↓' : 'Code not received? Look it up ↓'}
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Feature Comparison Table */}
       {!isPro && (
-      <section className="max-w-2xl mx-auto">
-        <h2 className="font-bold text-neutral-900 text-center mb-5">
-          {locale === 'zh' ? '功能对比' : 'Feature Comparison'}
-        </h2>
+        <section className="max-w-2xl mx-auto">
+          <h2 className="font-bold text-neutral-900 text-center mb-5">
+            {isZh ? '功能对比' : 'Feature Comparison'}
+          </h2>
 
-        {/* 表头 */}
-        <div className="grid grid-cols-[1fr_100px_100px] gap-px bg-gray-200 rounded-xl overflow-hidden text-sm">
-          <div className="bg-white p-3 font-semibold text-neutral-800">
-            {locale === 'zh' ? '功能' : 'Feature'}
-          </div>
-          <div className="bg-white p-3 font-semibold text-center text-neutral-700">
-            {t('pro.freePlan')}
-          </div>
-          <div className="bg-blue-50 p-3 font-semibold text-center text-blue-700">
-            <span className="flex items-center justify-center gap-1">
-              <Crown className="w-3.5 h-3.5" /> Pro
-            </span>
-          </div>
+          {/* 表头 */}
+          <div className="grid grid-cols-[1fr_100px_100px] gap-px bg-gray-200 rounded-xl overflow-hidden text-sm">
+            <div className="bg-white p-3 font-semibold text-neutral-800">
+              {isZh ? '功能' : 'Feature'}
+            </div>
+            <div className="bg-white p-3 font-semibold text-center text-neutral-700">
+              {t('pro.freePlan')}
+            </div>
+            <div className="bg-blue-50 p-3 font-semibold text-center text-blue-700">
+              <span className="flex items-center justify-center gap-1">
+                <Crown className="w-3.5 h-3.5" /> Pro
+              </span>
+            </div>
 
-          {(() => {
-            const isZh = locale === 'zh'
-            const features: FeatureRow[] = [
-              { feature: t('pro.feature.batch'), free: isCn ? '15 张/次' : t('pro.free.batch'), pro: t('pro.pro.batch'), proDesc: isZh ? '海量处理，一次搞定' : 'Massive batch in one go' },
-              { feature: t('pro.feature.sizePerFile'), free: t('pro.free.sizePerFile'), pro: t('pro.pro.sizePerFile'), proDesc: isZh ? '大图不受限' : 'Handle larger files' },
-              { feature: isZh ? 'AI 抠图 / AI 放大' : 'AI remove BG / upscale', free: false, pro: true, proDesc: isZh ? '本地 AI 模型，图片不上传' : 'On-device AI, no upload' },
-              { feature: t('pro.feature.formats'), free: t('pro.free.formats'), pro: t('pro.pro.formats'), proDesc: t('pro.proDesc.formats'), highlight: true },
-              { feature: t('pro.feature.watermark'), free: false, pro: true, proDesc: t('pro.proDesc.watermark') },
-              { feature: t('pro.feature.presets'), free: false, pro: true, proDesc: t('pro.proDesc.presets') },
-              { feature: t('pro.feature.scenes'), free: false, pro: true, proDesc: t('pro.proDesc.scenes') },
-              { feature: t('pro.feature.presetExport'), free: false, pro: true, proDesc: t('pro.proDesc.export') },
-              { feature: t('pro.feature.ads'), free: false, pro: true, proDesc: isZh ? '纯净体验' : 'Clean experience' },
-              { feature: t('pro.feature.support'), free: false, pro: true, proDesc: t('pro.proDesc.support') },
-              { feature: t('pro.feature.devices'), free: '1', pro: '5', proDesc: isZh ? '手机+电脑+平板全支持' : 'Phone + PC + tablet' },
-              { feature: t('pro.feature.updates'), free: true, pro: true, proDesc: isZh ? '持续免费更新' : 'Free updates forever' },
-            ]
-            return features.map((row, i) => {
+            {features.map((row, i) => {
               const bg = row.highlight
                 ? 'bg-blue-50'
                 : i % 2 === 0
                   ? 'bg-gray-50'
                   : 'bg-white'
               return (
-                <div key={i} className={`contents text-xs`}>
+                <div key={i} className="contents text-xs">
                   <div className={`${bg} p-3 flex items-center gap-2 font-medium text-neutral-800`}>
                     {row.highlight && <Sparkles className="w-3 h-3 text-blue-500 flex-shrink-0" />}
                     {row.feature}
@@ -298,121 +585,32 @@ export default function ProPage() {
                   </div>
                 </div>
               )
-            })
-          })()}
-        </div>
-
-        {/* 价格 CTA */}
-        <div id="buy" className="mt-6 text-center space-y-3 scroll-mt-24">
-          <div>
-            <span className="text-3xl font-bold text-neutral-900">{isCn ? '¥9.9' : t('pro.price')}</span>
-            <span className="text-neutral-700 ml-2">{t('pro.priceLabel')}</span>
+            })}
           </div>
-          <p className="text-neutral-700">
-            {locale === 'zh'
-              ? '一次付费，永久有效。无需订阅，无需登录。'
-              : 'Pay once, own forever. No subscription. No login.'}
-          </p>
 
-          {isCn ? (
-            <div className="max-w-sm mx-auto space-y-3 text-left">
-              <input
-                type="email"
-                value={cnEmail}
-                onChange={(e) => { setCnEmail(e.target.value); setCnError('') }}
-                placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
-              />
-              {cnError && <p className="text-red-500 text-sm text-center">{cnError}</p>}
-
-              {cnQrcode ? (
-                <div className="text-center space-y-2 py-2">
-                  <p className="text-sm font-medium text-neutral-800">
-                    {locale === 'zh' ? '用微信/支付宝扫码支付 ¥9.9' : 'Scan with WeChat/Alipay to pay ¥9.9'}
-                  </p>
-                  <img src={cnQrcode} alt="支付二维码" className="w-48 h-48 mx-auto rounded-lg border border-gray-200" />
-                  <button
-                    onClick={() => setCnQrcode('')}
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    {locale === 'zh' ? '重新选择' : 'Start over'}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleCnPay}
-                  disabled={cnLoading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
-                >
-                  {cnLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (locale === 'zh' ? '去支付 ¥9.9（跳转虎皮椒）' : 'Pay ¥9.9 via HupiJiao')}
-                </button>
-              )}
-
-              <p className="text-xs text-neutral-600 text-center">
-                {locale === 'zh'
-                  ? '支付在虎皮椒（第三方平台）完成，付款成功后激活码自动发到你的邮箱。'
-                  : 'Payment happens on HupiJiao (third-party). Your code is emailed automatically after payment.'}
-              </p>
-            </div>
-          ) : (
-            <div className="max-w-sm mx-auto space-y-2">
-              <input
-                type="email"
-                value={buyEmail}
-                onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
-                placeholder={locale === 'zh' ? '输入邮箱接收激活码' : 'Your email for activation code'}
-                className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
-              />
-              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-              <button
-                onClick={handleBuy}
-                disabled={buyLoading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl transition-colors text-base flex items-center justify-center gap-2 shadow-sm"
-              >
-                {buyLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <Crown className="w-4 h-4" /> {t('pro.buyButton')}
-                  </>
-                )}
-              </button>
-              <p className="text-neutral-600 text-xs">
-                {locale === 'zh'
-                  ? '🔒 安全支付由 Creem 处理 · 支持 Visa/Mastercard'
-                  : '🔒 Secure payment via Creem · Visa/Mastercard'}
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => {
+                trackPro('intent', 'table_cta')
+                document.getElementById('buy')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm shadow-sm transition-all"
+            >
+              <Crown className="w-4 h-4" />
+              {isZh ? `升级 Pro · ${price}` : `Upgrade to Pro · ${price}`}
+            </button>
+          </div>
+        </section>
       )}
 
       {/* FAQ — 消除购买前的疑问 */}
       {!isPro && (
         <section className="max-w-2xl mx-auto">
           <h2 className="font-bold text-neutral-900 text-center mb-4">
-            {locale === 'zh' ? '购买前常见问题' : 'Before You Buy'}
+            {isZh ? '购买前常见问题' : 'Before You Buy'}
           </h2>
           <div className="space-y-2">
-            {(isCn
-              ? [
-                  ['这是订阅吗？', '不是。一次付费 ¥9.9，永久有效，不会自动续费。'],
-                  ['激活码怎么拿到？', '付款成功后系统会自动把激活码发到你填写的邮箱。收到后在本页下方「激活 Pro」输入即可；忘记也可以凭邮箱随时查回。'],
-                  ['可以几台设备用？', '同一个激活码最多 5 台设备，手机、电脑、平板都算，重装系统后重新激活即可。'],
-                  ['图片会上传到服务器吗？', '不会。压缩、转格式、加水印全部在你的浏览器本地完成，文件不会离开你的设备。'],
-                  ['Pro 比免费版多了什么？', '本地 AI 抠图与 AI 放大、AVIF 输出（比 WebP 再小约 30%）、图片/文字水印、场景预设、自定义预设、500 张/次批量、单张 50MB 和邮件支持。'],
-                  ['免费版够用吗？', '每月可压缩 100 张、每次 15 张、单张 10MB。如果经常批量处理或需要 AVIF/水印，Pro 更合适。'],
-                ]
-              : [
-                  ['Is this a subscription?', 'No. Pay once ($24.99) and own it forever. No auto-renewal.'],
-                  ['How do I get my activation code?', 'It is emailed automatically after payment. Paste it into “Activate Pro” below. You can also look it up anytime with your email.'],
-                  ['How many devices?', 'Up to 5 devices per code — phone, computer and tablet all count. Re-activate after reinstalling your system.'],
-                  ['Are my images uploaded?', 'No. Compression, conversion and watermarking all run locally in your browser. Files never leave your device.'],
-                  ['What does Pro add?', 'On-device AI background removal and upscaling, AVIF output (~30% smaller than WebP), text/image watermarks, scene presets, custom presets, 500 images per batch, 50MB per file and email support.'],
-                  ['Is the free plan enough?', 'You get 400 images per month, 20 per batch and 10MB per file. Pro is for frequent batch work or AVIF/watermark needs.'],
-                ]
-            ).map(([q, a]) => (
+            {faqs.map(([q, a]) => (
               <details key={q} className="group bg-white border border-gray-200 rounded-xl px-4 py-3 open:border-blue-200 open:bg-blue-50/40">
                 <summary className="cursor-pointer list-none flex items-center justify-between gap-3 font-medium text-neutral-800 text-sm">
                   <span>{q}</span>
@@ -433,15 +631,15 @@ export default function ProPage() {
               <span className="text-2xl">💰</span>
               <div>
                 <h3 className="font-semibold text-green-800 text-sm">
-                  {locale === 'zh' ? '赚回你的 Pro 费用' : 'Earn back your Pro cost'}
+                  {isZh ? '赚回你的 Pro 费用' : 'Earn back your Pro cost'}
                 </h3>
                 <p className="text-green-700 text-xs mt-1 leading-relaxed">
-                  {locale === 'zh'
+                  {isZh
                     ? '加入联盟分销计划，推荐朋友购买 Pro，每单赚 $12.50（50%佣金）。只需 2 单就回本，上不封顶。'
                     : 'Join our affiliate program. Refer users to Pro and earn $12.50 per sale (50%). Just 2 referrals and Pro pays for itself.'}
                 </p>
                 <span className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-green-600 group-hover:text-green-700 transition-colors">
-                  {locale === 'zh' ? '了解详情 →' : 'Learn more →'}
+                  {isZh ? '了解详情 →' : 'Learn more →'}
                 </span>
               </div>
             </div>
@@ -461,9 +659,9 @@ export default function ProPage() {
       )}
 
       {/* Activate */}
-      <section className="max-w-md mx-auto pt-8">
+      <section id="activate" className="max-w-md mx-auto pt-8 scroll-mt-24">
         <h2 className="font-semibold text-neutral-900 mb-4 text-center">
-          {isPro ? (locale === 'zh' ? '管理激活码' : 'Manage License') : t('pro.activate.title')}
+          {isPro ? (isZh ? '管理激活码' : 'Manage License') : t('pro.activate.title')}
         </h2>
         <div className="flex gap-2">
           <input
@@ -490,11 +688,16 @@ export default function ProPage() {
         {activateResult === 'limit' && (
           <p className="mt-2 text-amber-600 text-sm">{t('pro.activate.limit')}</p>
         )}
+        {activateResult === 'error' && (
+          <p className="mt-2 text-red-500 text-sm">
+            {isZh ? '网络错误，请重试' : 'Network error, please retry'}
+          </p>
+        )}
 
         {/* Forgot code */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div id="lookup" className="mt-6 pt-4 border-t border-gray-200 scroll-mt-24">
           <p className="text-neutral-700 mb-2 text-sm">
-            {locale === 'zh' ? '忘记激活码？输入购买邮箱直接查' : 'Forgot your code? Look it up with your email'}
+            {isZh ? '忘记激活码？输入购买邮箱直接查' : 'Forgot your code? Look it up with your email'}
           </p>
           <div className="flex gap-2">
             <input
@@ -509,28 +712,46 @@ export default function ProPage() {
               disabled={resending || !forgotEmail.includes('@')}
               className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium text-sm transition-colors"
             >
-              {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : (locale === 'zh' ? '查找' : 'Look Up')}
+              {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : (isZh ? '查找' : 'Look Up')}
             </button>
           </div>
 
           {foundCode && (
             <div className="mt-3 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
               <p className="text-green-700 mb-2 text-sm">
-                {locale === 'zh' ? '🎉 找到你的激活码：' : '🎉 Your activation code:'}
+                {isZh ? '🎉 找到你的激活码：' : '🎉 Your activation code:'}
               </p>
-              <div className="flex items-center gap-2 justify-center">
+              <div className="flex items-center gap-2 justify-center flex-wrap">
                 <code className="px-4 py-2 bg-white rounded-lg font-bold tracking-widest text-neutral-900 border border-gray-200 select-all text-sm">
                   {foundCode}
                 </code>
                 <button
                   onClick={handleCopyCode}
-                  className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="px-3 py-2 bg-white hover:bg-gray-50 text-neutral-800 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
                 >
-                  {codeCopied ? (locale === 'zh' ? '已复制' : 'Copied!') : (locale === 'zh' ? '复制' : 'Copy')}
+                  {codeCopied ? (isZh ? '已复制' : 'Copied!') : (isZh ? '复制' : 'Copy')}
                 </button>
               </div>
+              {isPro ? (
+                <p className="mt-3 inline-flex items-center gap-1 text-green-700 font-medium text-sm">
+                  <Check className="w-4 h-4" /> {isZh ? '已激活 Pro' : 'Pro activated'}
+                </p>
+              ) : (
+                <button
+                  onClick={async () => {
+                    setActivatingFound(true)
+                    await activateWithCode(foundCode)
+                    setActivatingFound(false)
+                  }}
+                  disabled={activating || activatingFound}
+                  className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold text-sm transition-colors"
+                >
+                  {activatingFound ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  {isZh ? '一键激活' : 'Activate now'}
+                </button>
+              )}
               <p className="text-neutral-600 mt-2 text-xs">
-                {locale === 'zh' ? '复制后回到上方激活框粘贴即可' : 'Copy and paste it in the activation box above'}
+                {isZh ? '也可以复制后回到上方激活框粘贴' : 'Or copy it into the activation box above'}
               </p>
             </div>
           )}
@@ -542,7 +763,7 @@ export default function ProPage() {
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
               <Loader2 className="w-4 h-4 animate-spin mx-auto mb-1 text-blue-600" />
               <p className="text-blue-700 text-sm">
-                {locale === 'zh'
+                {isZh
                   ? `付款已收到，正在生成激活码...(${pendingRetry}/5)`
                   : `Payment received, generating your code... (${pendingRetry}/5)`}
               </p>
@@ -551,16 +772,22 @@ export default function ProPage() {
           {resendResult === 'notfound' && (
             <div className="mt-2 text-amber-700 space-y-1 text-sm">
               <p>
-                {locale === 'zh'
-                  ? '该邮箱暂未找到激活码。可能的原因：'
-                  : 'No code found. Possible reasons:'}
+                {isZh ? '该邮箱暂未找到激活码。可能的原因：' : 'No code found. Possible reasons:'}
               </p>
               <ul className="list-disc list-inside text-xs space-y-0.5 text-amber-600">
-                <li>{locale === 'zh' ? '刚付款？激活码生成需要几秒，会自动重试' : 'Just paid? Code generation takes a few seconds'}</li>
-                <li>{locale === 'zh' ? '付款用了不同的邮箱？（PayPal 有自己的邮箱）' : 'Used a different email for payment?'}</li>
-                <li>{locale === 'zh' ? '邮箱有拼写错误？' : 'Typo in the email?'}</li>
+                <li>{isZh ? '刚付款？激活码生成需要几秒，会自动重试' : 'Just paid? Code generation takes a few seconds'}</li>
+                <li>{isZh ? '付款用了不同的邮箱？（PayPal 有自己的邮箱）' : 'Used a different email for payment?'}</li>
+                <li>{isZh ? '邮箱有拼写错误？' : 'Typo in the email?'}</li>
               </ul>
+              <p className="text-xs text-neutral-600">
+                {isZh ? '仍未解决请邮件联系客服，注明订单号。' : 'Still stuck? Email support with your order ID.'}
+              </p>
             </div>
+          )}
+          {resendResult === 'error' && (
+            <p className="mt-2 text-red-500 text-sm">
+              {isZh ? '查询失败，请稍后重试或邮件联系客服' : 'Lookup failed. Please retry or email support.'}
+            </p>
           )}
         </div>
       </section>
@@ -570,23 +797,23 @@ export default function ProPage() {
         <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
           <div className="flex-1 min-w-0">
             <div className="font-bold text-neutral-900 leading-tight">
-              {isCn ? '¥9.9' : '$24.99'}
+              {price}
               <span className="ml-1.5 text-xs font-normal text-neutral-600">
-                {locale === 'zh' ? '一次买断' : 'one-time'}
+                {isZh ? '一次买断' : 'one-time'}
               </span>
             </div>
             <div className="text-[11px] text-neutral-500">
-              {locale === 'zh' ? '永久有效 · 5 台设备' : 'Lifetime · 5 devices'}
+              {isZh ? '永久有效 · 5 台设备' : 'Lifetime · 5 devices'}
             </div>
           </div>
           <button
             onClick={() => {
-              trackPro('click', 'mobile_sticky')
+              trackPro('intent', 'mobile_sticky')
               document.getElementById('buy')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
             }}
             className="flex-shrink-0 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm transition-all"
           >
-            {locale === 'zh' ? '立即升级' : 'Upgrade'}
+            {isZh ? '立即升级' : 'Upgrade'}
           </button>
         </div>
       )}

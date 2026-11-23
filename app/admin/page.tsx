@@ -130,6 +130,8 @@ function renderStats(data: any, ov: any, cn: any): string {
   // ---- Pro 转化漏斗 ----
   const pro = data.proFunnel || {}
   const proView = pro.view || 0
+  const proIntent = pro.intent || 0
+  const proBuy = pro.buy || 0
   const proClick = pro.click || 0
   const proCheckout = pro.checkout || 0
   const proPurchase = pro.purchase || 0
@@ -144,6 +146,8 @@ function renderStats(data: any, ov: any, cn: any): string {
       <td class="date">${(d.date || '').slice(5)}</td>
       <td class="num">${d.view || 0}</td>
       <td class="num">${d.click || 0}</td>
+      <td class="num">${d.intent || 0}</td>
+      <td class="num">${d.buy || 0}</td>
       <td class="num">${d.checkout || 0}</td>
       <td class="num">${d.purchase || 0}</td>
     </tr>`
@@ -158,27 +162,34 @@ function renderStats(data: any, ov: any, cn: any): string {
     scene_presets: '场景预设锁',
     home_cta: '首页按钮',
     hero_cta: 'Pro 页首屏按钮',
+    table_cta: 'Pro 页对比表按钮',
     ai_gate: 'AI 工具门控',
     pro_buy: 'Pro 页购买按钮',
     pro_cn_buy: 'Pro 页国内支付',
     mobile_sticky: '移动端吸底',
+    dropzone: '文件超限提示',
     creem: 'Creem 渠道',
     hupijiao: '虎皮椒渠道',
   }
   const proSources = (pro.bySource || [])
-    .filter((s: any) => (s.click || 0) > 0 || (s.checkout || 0) > 0)
-    .sort((a: any, b: any) => (b.click || 0) - (a.click || 0))
+    .filter((s: any) => (s.click || 0) > 0 || (s.intent || 0) > 0 || (s.buy || 0) > 0 || (s.checkout || 0) > 0)
+    .sort((a: any, b: any) =>
+      ((b.intent || 0) + (b.buy || 0)) - ((a.intent || 0) + (a.buy || 0)) ||
+      (b.click || 0) - (a.click || 0)
+    )
   let proSourceRows = ''
   for (const s of proSources) {
     proSourceRows += `<tr>
       <td>${proSourceNames[s.source] || s.source}</td>
       <td class="num">${s.click || 0}</td>
+      <td class="num">${s.intent || 0}</td>
+      <td class="num">${s.buy || 0}</td>
       <td class="num">${s.checkout || 0}</td>
-      <td class="num">${s.click > 0 ? Math.round(((s.checkout || 0) / s.click) * 100) + '%' : '—'}</td>
+      <td class="num">${s.buy > 0 ? Math.round(((s.checkout || 0) / s.buy) * 100) + '%' : '—'}</td>
     </tr>`
   }
   if (!proSourceRows) {
-    proSourceRows = `<tr><td colspan="4" class="date">暂无数据（新埋点，从今天开始累计）</td></tr>`
+    proSourceRows = `<tr><td colspan="6" class="date">暂无数据（新埋点，从今天开始累计）</td></tr>`
   }
 
   // ---- 图片转 PDF ----
@@ -289,27 +300,29 @@ function renderStats(data: any, ov: any, cn: any): string {
       </div>
     </div>
     <h2>💳 Pro 转化漏斗（累计）</h2>
-    <p class="note">view=Pro 页曝光 · click=升级入口点击 · checkout=支付订单创建成功 · purchase=支付成功（含联调测试单）· fail=创建失败。purchase 从本次上线开始累计，历史订单数见 KPI，漏斗转化率仅作趋势参考。</p>
+    <p class="note">view=Pro 页曝光 · intent=Pro 页内点「立即升级」 · buy=点支付按钮 · checkout=支付订单创建成功 · purchase=支付成功（含联调测试单）· fail=创建失败 · click=其他页面升级入口点击（不参与漏斗，单独看来源）。2026-11-23 起拆分 intent/buy，之前的数据归在 click 里。</p>
     <div class="split">
       <div class="box">
-        <h3>漏斗</h3>
-        <div class="s">曝光 ${proView} → 点击 ${proClick}（${pct(proClick, proView)}%）→ 创建支付 ${proCheckout}（${pct(proCheckout, proClick)}%）→ 支付成功 ${proPurchase}（${pct(proPurchase, proCheckout)}%）</div>
-        <div class="s">创建失败 ${proFail} · 历史订单 ${proPurchases}</div>
+        <h3>漏斗（点击支付后）</h3>
+        <div class="s">曝光 ${proView} → 购买意图 ${proIntent}（${pct(proIntent, proView)}%）→ 点支付 ${proBuy}（${pct(proBuy, proIntent)}%）→ 创建订单 ${proCheckout}（${pct(proCheckout, proBuy)}%）→ 支付成功 ${proPurchase}（${pct(proPurchase, proCheckout)}%）</div>
+        <div class="s">站内入口点击 ${proClick} · 创建失败 ${proFail} · 历史订单 ${proPurchases}</div>
       </div>
       <div class="box">
-        <h3>说明</h3>
-        <div class="s">新埋点从 2026-11-18 开始累计，之前的数据为 0 属正常。</div>
-        <div class="s">若 click 高但 checkout 低，优先查支付表单；若 view 高但 click 低，优先改 Pro 页说服力。</div>
+        <h3>怎么读</h3>
+        <div class="s">曝光高、意图低：Pro 页首屏说服力/价格问题。</div>
+        <div class="s">意图高、点支付低：购买区文案、邮箱填写或信任问题。</div>
+        <div class="s">点支付高、创建订单低：邮箱校验/接口错误，查 fail。</div>
+        <div class="s">创建订单高、支付成功低：支付渠道体验或用户放弃付款。</div>
       </div>
     </div>
     <h2>📅 Pro 漏斗近 7 天</h2>
     <table>
-      <tr><th>日期</th><th class="num">曝光</th><th class="num">点击</th><th class="num">创建支付</th><th class="num">支付成功</th></tr>
+      <tr><th>日期</th><th class="num">曝光</th><th class="num">入口点击</th><th class="num">购买意图</th><th class="num">点支付</th><th class="num">创建订单</th><th class="num">支付成功</th></tr>
       ${proDailyRows}
     </table>
     <h2>🔎 升级入口来源</h2>
     <table>
-      <tr><th>入口</th><th class="num">点击</th><th class="num">创建支付</th><th class="num">创建率</th></tr>
+      <tr><th>入口</th><th class="num">入口点击</th><th class="num">购买意图</th><th class="num">点支付</th><th class="num">创建订单</th><th class="num">支付→创建率</th></tr>
       ${proSourceRows}
     </table>
     <h2>🤖 AI 工具（累计）</h2>

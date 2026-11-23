@@ -1,12 +1,14 @@
 'use client'
 
 import { useCallback, useState, useRef } from 'react'
+import Link from 'next/link'
 import { useDropzone, type FileRejection } from 'react-dropzone'
-import { AlertCircle, Loader2, Camera } from 'lucide-react'
+import { AlertCircle, Loader2, Camera, Crown } from 'lucide-react'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { getLimits, getMonthlyFreeQuota, getMonthlyQuota } from '@/lib/compression/types'
 import { formatFileSize } from '@/lib/compression/utils'
 import { useT } from '@/lib/i18n/context'
+import { trackPro } from '@/lib/pro-funnel'
 import { ProductWindow } from '@/components/compressor/ProductWindow'
 import { SAMPLE_IMAGES, type SampleImage } from '@/lib/sample-images'
 
@@ -27,12 +29,19 @@ export function DropZone() {
   const limits = getLimits(isPro)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [limitHit, setLimitHit] = useState(false)
   const [sampleLoading, setSampleLoading] = useState<string | null>(null)
+
+  const showError = (message: string, isLimit = false) => {
+    setError(message)
+    setLimitHit(isLimit)
+  }
 
   const handleCameraCapture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const capturedFiles = e.target.files
     if (!capturedFiles || capturedFiles.length === 0) return
     setError(null)
+    setLimitHit(false)
 
     const imageFiles = Array.from(capturedFiles).filter(f => f.type.startsWith('image/'))
     if (imageFiles.length === 0) {
@@ -42,7 +51,7 @@ export function DropZone() {
 
     const available = limits.maxFiles - files.length
     if (available <= 0) {
-      setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
+      showError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }), true)
       return
     }
 
@@ -50,7 +59,7 @@ export function DropZone() {
     if (!isPro) {
       const q = getMonthlyQuota()
       if (q.count >= getMonthlyFreeQuota()) {
-        setError(t('pro.quotaExceeded'))
+        showError(t('pro.quotaExceeded'), true)
         return
       }
     }
@@ -65,11 +74,12 @@ export function DropZone() {
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       setError(null)
+      setLimitHit(false)
       if (fileRejections.length > 0) {
         const first = fileRejections[0]?.errors[0]
-        if (first?.code === 'file-too-large') setError(t('dropzone.error.tooLarge', { maxSize: formatFileSize(limits.maxSizePerFile) }))
+        if (first?.code === 'file-too-large') showError(t('dropzone.error.tooLarge', { maxSize: formatFileSize(limits.maxSizePerFile) }), true)
         else if (first?.code === 'file-invalid-type') setError(t('dropzone.error.unsupported'))
-        else if (first?.code === 'too-many-files') setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
+        else if (first?.code === 'too-many-files') showError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }), true)
         else setError(t('dropzone.error.invalid'))
         return
       }
@@ -80,19 +90,19 @@ export function DropZone() {
       }
       const available = limits.maxFiles - files.length
       if (available <= 0) {
-        setError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }))
+        showError(t('dropzone.error.tooMany', { maxFiles: limits.maxFiles }), true)
         return
       }
       // Monthly quota check for free users
       if (!isPro) {
         const q = getMonthlyQuota()
         if (q.count >= getMonthlyFreeQuota()) {
-          setError(t('pro.quotaExceeded'))
+          showError(t('pro.quotaExceeded'), true)
           return
         }
       }
       if (imageFiles.length > available) {
-        setError(t('dropzone.remaining', { n: available }))
+        showError(t('dropzone.remaining', { n: available }), true)
       }
       addFiles(imageFiles)
     },
@@ -220,9 +230,27 @@ export function DropZone() {
       )}
 
       {error && (
-        <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 animate-slide-up">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{error}</span>
+        <div className="text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 animate-slide-up">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+          {limitHit && !isPro && (
+            <div className="mt-2 pt-2 border-t border-red-200 flex flex-wrap items-center gap-2 text-xs text-neutral-700">
+              <span>
+                {isZh ? 'Pro 支持每次 500 张、单张 50MB' : 'Pro supports 500 per batch and 50MB per file'}
+              </span>
+              <Link
+                href={`/${locale}/pro`}
+                data-testid="dropzone-upgrade"
+                onClick={() => trackPro('click', 'dropzone')}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+              >
+                <Crown className="w-3 h-3" />
+                {isZh ? '升级 Pro' : 'Upgrade'}
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

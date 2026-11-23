@@ -260,11 +260,15 @@ export async function recordPdfOutput(
 }
 
 // ---- Pro 转化漏斗埋点 ----
-// view=看到 Pro 页 / click=点击升级入口 / checkout=成功创建支付订单 / fail=创建订单失败
+// view=看到 Pro 页 / click=点击站内升级入口 / intent=Pro 页内点击升级 CTA
+// buy=点击支付按钮 / checkout=成功创建支付订单 / fail=创建订单失败
 // source 记录入口或支付渠道，用于判断哪个入口真正带单
 
-export const PRO_STAGES = ['view', 'click', 'checkout', 'fail'] as const
+export const PRO_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'fail'] as const
 export type ProStage = (typeof PRO_STAGES)[number]
+
+/** 参与近 7 天聚合的阶段（purchase 由支付回调单独累加） */
+const PRO_DAILY_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'purchase'] as const
 
 export const PRO_SOURCES = [
   'header',
@@ -276,10 +280,12 @@ export const PRO_SOURCES = [
   'scene_presets',
   'home_cta',
   'hero_cta',
+  'table_cta',
   'ai_gate',
   'pro_buy',
   'pro_cn_buy',
   'mobile_sticky',
+  'dropzone',
   'creem',
   'hupijiao',
 ] as const
@@ -372,6 +378,8 @@ export interface PdfStats {
 
 export interface ProSourceStats {
   source: string
+  intent: number
+  buy: number
   click: number
   checkout: number
 }
@@ -379,6 +387,8 @@ export interface ProSourceStats {
 export interface ProFunnelDailyPoint {
   date: string
   view: number
+  intent: number
+  buy: number
   click: number
   checkout: number
   purchase: number
@@ -386,6 +396,8 @@ export interface ProFunnelDailyPoint {
 
 export interface ProFunnelStats {
   view: number
+  intent: number
+  buy: number
   click: number
   checkout: number
   purchase: number
@@ -511,12 +523,14 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
 
   const empty = (): ProFunnelStats => ({
     view: 0,
+    intent: 0,
+    buy: 0,
     click: 0,
     checkout: 0,
     purchase: 0,
     fail: 0,
-    bySource: PRO_SOURCES.map((source) => ({ source, click: 0, checkout: 0 })),
-    daily: days.map((date) => ({ date, view: 0, click: 0, checkout: 0, purchase: 0 })),
+    bySource: PRO_SOURCES.map((source) => ({ source, intent: 0, buy: 0, click: 0, checkout: 0 })),
+    daily: days.map((date) => ({ date, view: 0, intent: 0, buy: 0, click: 0, checkout: 0, purchase: 0 })),
   })
 
   const r = getRedis()
@@ -526,11 +540,13 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
     const keys: string[] = []
     for (const stage of PRO_STAGES) keys.push(`stats:pro_funnel:${stage}:total`)
     for (const source of PRO_SOURCES) {
+      keys.push(`stats:pro_funnel:intent:source:${source}:total`)
+      keys.push(`stats:pro_funnel:buy:source:${source}:total`)
       keys.push(`stats:pro_funnel:click:source:${source}:total`)
       keys.push(`stats:pro_funnel:checkout:source:${source}:total`)
     }
     for (const date of days) {
-      for (const stage of ['view', 'click', 'checkout', 'purchase'] as const) {
+      for (const stage of PRO_DAILY_STAGES) {
         keys.push(`stats:pro_funnel:${stage}:daily:${date}`)
       }
     }
@@ -545,18 +561,24 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
 
     return {
       view: n('stats:pro_funnel:view:total'),
+      intent: n('stats:pro_funnel:intent:total'),
+      buy: n('stats:pro_funnel:buy:total'),
       click: n('stats:pro_funnel:click:total'),
       checkout: n('stats:pro_funnel:checkout:total'),
       purchase: n('stats:pro_funnel:purchase:total'),
       fail: n('stats:pro_funnel:fail:total'),
       bySource: PRO_SOURCES.map((source) => ({
         source,
+        intent: n(`stats:pro_funnel:intent:source:${source}:total`),
+        buy: n(`stats:pro_funnel:buy:source:${source}:total`),
         click: n(`stats:pro_funnel:click:source:${source}:total`),
         checkout: n(`stats:pro_funnel:checkout:source:${source}:total`),
       })),
       daily: days.map((date) => ({
         date,
         view: n(`stats:pro_funnel:view:daily:${date}`),
+        intent: n(`stats:pro_funnel:intent:daily:${date}`),
+        buy: n(`stats:pro_funnel:buy:daily:${date}`),
         click: n(`stats:pro_funnel:click:daily:${date}`),
         checkout: n(`stats:pro_funnel:checkout:daily:${date}`),
         purchase: n(`stats:pro_funnel:purchase:daily:${date}`),
