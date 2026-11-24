@@ -15,6 +15,7 @@ const SplitPdfClient = dynamic(() => import('./SplitPdfClient'), { ssr: false })
 const CompressPdfClient = dynamic(() => import('./CompressPdfClient'), { ssr: false })
 const PdfToImageClient = dynamic(() => import('./PdfToImageClient'), { ssr: false })
 const CropImageClient = dynamic(() => import('./CropImageClient'), { ssr: false })
+const StitchImagesClient = dynamic(() => import('./StitchImagesClient'), { ssr: false })
 
 const PDF_CLIENTS: Record<string, ComponentType> = {
   'image-to-pdf': ImageToPdfClient,
@@ -28,6 +29,7 @@ const PDF_CLIENTS: Record<string, ComponentType> = {
 const SPECIAL_CLIENTS: Record<string, ComponentType> = {
   ...PDF_CLIENTS,
   'crop-image': CropImageClient,
+  'stitch-images': StitchImagesClient,
 }
 
 interface Props { params: { tool: string; lang: string } }
@@ -82,6 +84,7 @@ export default function ToolPage({ params }: Props) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://compressfast.site'
   const SpecialClient = SPECIAL_CLIENTS[params.tool]
   const isPdfTool = Boolean(PDF_CLIENTS[params.tool])
+  const isStitchTool = params.tool === 'stitch-images'
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -113,9 +116,13 @@ export default function ToolPage({ params }: Props) {
             ? (isZh
                 ? '极速压图的 PDF 工具（合并、拆分、压缩、PDF 转图片、图片转 PDF）全部在浏览器本地运行——文件不会上传到任何服务器，敏感文档更安全，也省去上传下载的等待。'
                 : 'Every CompressFast PDF tool — merge, split, compress, PDF-to-image and image-to-PDF — runs in your browser. Files are never uploaded to a server, so sensitive documents stay safe and there is no upload/download wait.')
-            : (isZh
-                ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
-                : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.')}
+            : isStitchTool
+              ? (isZh
+                  ? '极速压图的图片拼接工具完全在浏览器本地运行：逐张读取、绘制到画布、合成导出，全程没有上传请求。聊天截图、票据和私人照片拼成长图后，可以再用压缩工具或转 WebP 进一步缩小体积。'
+                  : 'The CompressFast image stitcher runs entirely in your browser: each file is read, drawn to a canvas and exported locally, with no upload request. After stitching screenshots or photos into a long image, run the result through the compressor or convert it to WebP to shrink it further.')
+              : (isZh
+                  ? '极速压图是一款纯浏览器端图片处理工具——压缩过程不需要上传文件到任何服务器。你的文件始终留在自己的设备上，处理速度快，隐私绝对安全。'
+                  : 'CompressFast is a pure browser-side image processing tool — no files are ever uploaded to any server during compression. Your files stay on your device, processing is fast, and privacy is absolute.')}
         </p>
       </section>
 
@@ -214,7 +221,9 @@ export default function ToolPage({ params }: Props) {
         <Link href={`/${params.lang}`} className="text-gray-700 hover:text-blue-600 text-sm transition-colors">
           {isPdfTool
             ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
-            : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
+            : isStitchTool
+              ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
+              : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
         </Link>
       </div>
     </div>

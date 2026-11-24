@@ -115,6 +115,20 @@ export async function incrementCompression(count: number, site: string = 'os'): 
   ])
 }
 
+// ---- 普通工具埋点（图片拼接等，无需 Pro / AI 模型）----
+
+export const TOOL_EVENTS = ['generate', 'download', 'error'] as const
+export type ToolEventName = (typeof TOOL_EVENTS)[number]
+
+/** 记录一次工具行为（generate/download/error） */
+export async function incrementToolEvent(tool: string, event: ToolEventName): Promise<void> {
+  const date = formatDate(new Date())
+  await Promise.all([
+    incr(`stats:tool:${tool}:${event}:total`),
+    incr(`stats:tool:${tool}:${event}:daily:${date}`),
+  ])
+}
+
 // ---- 压缩事件限流（防爬虫污染统计） ----
 
 const DAILY_COMPRESSION_LIMIT_PER_IP = 200
@@ -376,6 +390,20 @@ export interface PdfStats {
   byTool: PdfToolStats[]
 }
 
+export interface ToolDailyPoint {
+  date: string
+  generate: number
+  error: number
+  download: number
+}
+
+export interface StitchStats {
+  generate: number
+  error: number
+  download: number
+  daily: ToolDailyPoint[]
+}
+
 export interface ProSourceStats {
   source: string
   intent: number
@@ -420,6 +448,7 @@ export interface DashboardStats {
   china: SiteStats
   ai: AiStats
   pdf: PdfStats
+  stitch: StitchStats
   proFunnel: ProFunnelStats
 }
 
@@ -486,11 +515,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china, ai, pdf, proFunnel] = await Promise.all([
+  const [overseas, china, ai, pdf, stitch, proFunnel] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
     getAiStats(),
     getPdfStats(),
+    getStitchStats(),
     getProFunnelStats(),
   ])
 
@@ -508,7 +538,59 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     china,
     ai,
     pdf,
+    stitch,
     proFunnel,
+  }
+}
+
+/** 图片拼接工具累计 + 近 7 天数据（一次 pipeline） */
+async function getStitchStats(): Promise<StitchStats> {
+  const days: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    days.push(formatDate(d))
+  }
+
+  const empty = (): StitchStats => ({
+    generate: 0,
+    error: 0,
+    download: 0,
+    daily: days.map(date => ({ date, generate: 0, error: 0, download: 0 })),
+  })
+
+  const r = getRedis()
+  if (!r) return empty()
+
+  const prefix = 'stats:tool:stitch-images'
+  try {
+    const keys: string[] = []
+    for (const ev of TOOL_EVENTS) keys.push(`${prefix}:${ev}:total`)
+    for (const date of days) {
+      for (const ev of TOOL_EVENTS) keys.push(`${prefix}:${ev}:daily:${date}`)
+    }
+
+    const pipe = r.pipeline()
+    for (const key of keys) pipe.get(key)
+    const vals = (await pipe.exec()) as unknown[]
+
+    const map = new Map<string, number>()
+    keys.forEach((key, i) => map.set(key, Number(vals[i]) || 0))
+    const n = (key: string) => map.get(key) || 0
+
+    return {
+      generate: n(`${prefix}:generate:total`),
+      error: n(`${prefix}:error:total`),
+      download: n(`${prefix}:download:total`),
+      daily: days.map(date => ({
+        date,
+        generate: n(`${prefix}:generate:daily:${date}`),
+        error: n(`${prefix}:error:daily:${date}`),
+        download: n(`${prefix}:download:daily:${date}`),
+      })),
+    }
+  } catch {
+    return empty()
   }
 }
 

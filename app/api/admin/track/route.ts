@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, recordAiError, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName, incrementProEvent, PRO_STAGES, type ProStage } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, recordAiError, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName, incrementProEvent, PRO_STAGES, type ProStage, incrementToolEvent, TOOL_EVENTS, type ToolEventName } from '@/lib/stats'
 import { AI_ERROR_CODES, type AiErrorCode } from '@/lib/ai/ai-error'
 import { isLikelyBot } from '@/lib/bot-detection'
 import {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: 'bot' })
     }
 
-    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, errorCode, pdfEvent, mode, pages, bytes, proStage, source } = await request.json()
+    const { event, count, visitorId, host, sizes, aiEvent, tool, durationMs, errorCode, pdfEvent, mode, pages, bytes, proStage, source, toolEvent } = await request.json()
 
     // 过滤本地开发 / E2E / 预览部署：它们与生产共用 Redis，会污染后台统计
     if (isDevHost(host) || isDevHost(request.headers.get('host'))) {
@@ -157,6 +157,20 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ success: true, skipped: 'no_session' })
         }
         await incrementProEvent(stage as ProStage, typeof source === 'string' ? source : undefined)
+        break
+      }
+      case 'tool': {
+        // 普通工具埋点（目前只有图片拼接）
+        const toolSlug = String(tool || '')
+        const toolEv = String(toolEvent || '')
+        if (toolSlug !== 'stitch-images' || !TOOL_EVENTS.includes(toolEv as ToolEventName)) {
+          return NextResponse.json({ error: '未知工具事件' }, { status: 400 })
+        }
+        // 要求先有 pageview 会话，防脚本直连刷量
+        if (!(await isVisitorActive(visitorId || ''))) {
+          return NextResponse.json({ success: true, skipped: 'no_session' })
+        }
+        await incrementToolEvent(toolSlug, toolEv as ToolEventName)
         break
       }
       default:

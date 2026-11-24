@@ -1845,6 +1845,79 @@ Privacy note: exporting through a canvas strips EXIF metadata, including GPS coo
 隐私提示：通过 canvas 导出会去除 EXIF 元数据，包括 GPS 坐标、相机型号和拍摄时间，公开发布照片前更安全。原始文件不会被修改——工具只生成一份新的裁剪副本。`,
     relatedTools: ['resize-image', 'compress-images', 'png-to-jpg'],
   },
+  'stitch-images': {
+    slug: 'stitch-images',
+    titleEn: 'Merge Images Online Free — Stitch Screenshots into a Long Image | CompressFast',
+    titleZh: '在线图片拼接 — 长图拼接 / 多图拼图，免费无水印 | 极速压图',
+    descriptionEn: 'Merge images online for free. Stitch screenshots into one long image, combine photos side by side, or build a 2–4 column grid collage. Up to 30 images, 100% browser-based, no upload and no watermark.',
+    descriptionZh: '免费在线图片拼接：把多张截图拼成一张长图、图片横向并排，或做成 2–4 列网格拼图。最多 30 张，全程浏览器本地处理，不上传、无水印。',
+    keywords: ['merge images', 'merge images online', 'stitch images', 'combine images', 'image stitcher', 'long image maker', 'merge screenshots', 'screenshot stitcher', 'photo collage maker', 'join images online', '图片拼接', '长图拼接', '在线拼图', '多图拼接', '截图拼接', '聊天记录拼接', '拼图工具'],
+    heroTitleEn: 'Merge & Stitch Images Online',
+    heroTitleZh: '在线拼接图片',
+    heroSubEn: 'Stack screenshots into a long image, join photos side by side, or build a grid collage — free, private, no watermark.',
+    heroSubZh: '把截图拼成长图、多图横向并排，或做成网格拼图——免费、本地处理、无水印。',
+    targetFormat: 'original',
+    benefits: [
+      { icon: '🔒', titleEn: '100% Local & Private', titleZh: '100% 本地处理', descEn: 'Images are decoded and combined in your browser with canvas. Nothing is uploaded, so chats, tickets and client work stay on your device.', descZh: '图片在浏览器里用 canvas 解码和合成，不会上传。聊天记录、票据和客户资料都留在你自己的设备上。' },
+      { icon: '🧩', titleEn: 'Three Layouts', titleZh: '三种拼接方式', descEn: 'Vertical long images for screenshots, horizontal joins for before/after comparisons, and 2–4 column grid collages — with adjustable gap and background color.', descZh: '纵向长图拼截图、横向并排做前后对比、2–4 列网格拼图；间距和背景色都能调。' },
+      { icon: '🎛️', titleEn: 'Reorder & Export', titleZh: '排序与多格式导出', descEn: 'Move any image forward or back, then export PNG, JPG or WebP. PNG keeps every pixel, JPG is smallest, WebP balances both.', descZh: '任意图片都能前后调序，导出 PNG、JPG 或 WebP。PNG 保留每个像素，JPG 体积最小，WebP 兼顾两者。' },
+    ],
+    howTo: [
+      { step: 1, titleEn: 'Add Your Images', titleZh: '添加图片', descEn: 'Drag in up to 30 images, click to browse, or paste screenshots from the clipboard. JPG, PNG, WebP, AVIF and GIF are supported — nothing is uploaded.', descZh: '拖入最多 30 张图片、点击选择，或直接粘贴剪贴板里的截图。支持 JPG、PNG、WebP、AVIF、GIF——不上传。' },
+      { step: 2, titleEn: 'Pick a Layout & Order', titleZh: '选择方式与顺序', descEn: 'Choose vertical, horizontal or grid, set the gap and background color, and use the arrow buttons to put every image in the right order.', descZh: '选择纵向、横向或网格，调整间距和背景色，用箭头按钮把每张图放到正确的位置。' },
+      { step: 3, titleEn: 'Preview & Download', titleZh: '预览下载', descEn: 'The preview updates automatically. Pick PNG, JPG or WebP, then download your stitched image — free, with no watermark.', descZh: '预览会自动更新。选择 PNG、JPG 或 WebP，下载拼接结果——免费、无水印。' },
+    ],
+    faqs: [
+      { qEn: 'Are my images uploaded to a server?', qZh: '图片会被上传到服务器吗？', aEn: 'No. Every image is read with the browser File API, decoded locally and drawn onto a canvas on your device. There is no upload request, and the page even works offline once it has loaded.', aZh: '不会。所有图片都通过浏览器 File API 读取、在本地解码并绘制到画布，没有任何上传请求。页面加载完成后断网也能继续拼接。' },
+      { qEn: 'Which image formats can I combine?', qZh: '支持拼接哪些图片格式？', aEn: 'JPG, PNG, WebP, AVIF, GIF (first frame) and BMP work in most modern browsers. iPhone HEIC photos cannot be decoded by Chrome, Edge or Firefox — convert them to JPG first with the HEIC to JPG tool, then stitch.', aZh: '大多数现代浏览器支持 JPG、PNG、WebP、AVIF、GIF（首帧）和 BMP。iPhone 的 HEIC 无法在 Chrome、Edge、Firefox 中解码——请先用 HEIC 转 JPG 工具转换后再拼接。' },
+      { qEn: 'How many images can I stitch at once?', qZh: '一次最多能拼几张？', aEn: 'Up to 30 images, each up to 30MB. Very tall long images may be scaled down automatically to fit the browser canvas limit; the preview tells you when that happens. Stitch fewer images if you need maximum resolution.', aZh: '最多 30 张，单张不超过 30MB。特别长的拼接结果可能会自动等比缩小以适配浏览器画布上限，界面会提示。需要最高分辨率时请减少图片数量。' },
+      { qEn: 'How do I change the order of the images?', qZh: '怎么调整图片顺序？', aEn: 'Each thumbnail has up/down (or left/right in horizontal mode) buttons. The preview regenerates immediately, so you can see the new order before downloading.', aZh: '每个缩略图都有上移/下移按钮（横向模式为左移/右移）。预览会立即重新生成，下载前就能确认顺序。' },
+      { qEn: 'Does stitching reduce image quality?', qZh: '拼接会降低画质吗？', aEn: 'Images are drawn once at full resolution, not repeatedly re-compressed. To line up different widths, smaller images are scaled to the widest one — use images of similar size for the crispest result. Export as PNG for pixel-exact output, or JPG/WebP for a smaller file.', aZh: '图片只按原始分辨率绘制一次，不会反复压缩。为了对齐不同宽度，较小的图会缩放到最宽图片的宽度——尺寸接近的图片效果最好。PNG 导出像素完全一致，JPG/WebP 体积更小。' },
+      { qEn: 'Can I stitch chat screenshots into one long image?', qZh: '可以把聊天截图拼成一张长图吗？', aEn: 'Yes — that is the most common use. Choose the vertical layout, set the gap to 0, and add screenshots in order. For WeChat or browser captures, use the same width for every screenshot so nothing gets scaled.', aZh: '可以，这是最常见的用法。选择纵向拼接、间距设为 0，按顺序添加截图即可。微信或浏览器截图尽量保持相同宽度，这样不会发生缩放。' },
+      { qEn: 'Can I make a grid or collage?', qZh: '可以做成网格拼图吗？', aEn: 'Yes. Switch to Grid and choose 2, 3 or 4 columns. Each cell is square and images are center-cropped to fill it, which is ideal for product grids, mood boards and social posts. Adjust the gap and background color for the look you want.', aZh: '可以。切换到网格模式，选择 2、3 或 4 列。每个单元格为正方形，图片居中裁切铺满，适合商品图、灵感板和社交贴文。间距和背景色可自由调整。' },
+      { qEn: 'Does it work on my phone?', qZh: '手机上能用吗？', aEn: 'Yes. Tap the upload area to pick images from your photo library, reorder with the arrow buttons, and download directly to your device. The layout is responsive in mobile Safari, Chrome and most in-app browsers.', aZh: '可以。点击上传区从相册选择图片，用箭头按钮调整顺序，直接下载到手机。移动版 Safari、Chrome 和大多数内置浏览器都能正常使用。' },
+      { qEn: 'Is the stitched image watermarked or paid?', qZh: '拼接结果有水印或收费吗？', aEn: 'No. The stitcher is free and unlimited, with no account, no watermark and no upload. You can use it offline after the page loads.', aZh: '没有。拼接工具完全免费、次数不限，不需要账号，没有水印，也不上传。页面加载完成后断网也能用。' },
+    ],
+    detailedGuideEn: `There are dozens of everyday reasons to combine images into one file: a conversation spread across scrolling screenshots, a before/after comparison for a client, a product grid for a marketplace listing, or a set of receipts that needs to become one document. A stitcher should be fast, private and not turn a simple job into an account signup.
+
+CompressFast's image stitcher runs entirely in your browser. Each file is decoded locally, drawn onto a canvas, and exported on your device. No image is uploaded, so it is safe for private chats, identity documents, medical records and unreleased design work. Once the page has loaded, you can even disconnect from the internet and keep working.
+
+Three layouts cover most jobs:
+
+1. Vertical long image — the default for screenshots. Choose gap 0 for a seamless chat capture, or a small gap and a background color to separate each screenshot visually. All images are aligned to the widest one and stacked in the order you choose.
+
+2. Horizontal join — place photos or charts side by side for before/after comparisons, timelines and wide banners. Aligned to the tallest image, with the same gap and background controls.
+
+3. Grid collage — pick 2, 3 or 4 columns. Cells are square and each image is center-cropped to fill its cell, producing a clean product grid or mood board. Change the gap and background color to match your brand.
+
+Ordering matters, so every thumbnail has move-forward and move-back buttons. The preview updates automatically after each change, which makes it easy to fix a misplaced screenshot before downloading. You can also remove a single image or clear the whole set.
+
+Export options: PNG is lossless and the right choice for text-heavy screenshots; JPG produces the smallest file for photo-heavy collages; WebP is a good middle ground for the web. A quality slider is available for JPG and WebP. Transparent gaps are supported in PNG and WebP; JPG uses a solid background.
+
+A practical workflow: stitch first, then compress. A long image made from ten screenshots can easily reach 5–10MB, which is slow to send in a chat app. After stitching, run the result through the main image compressor or export it directly as WebP at 80–85% quality — the difference is usually invisible and the file becomes several times smaller. If you need a PDF instead, the Images to PDF tool can turn the stitched image into a single-page document.
+
+Limits and safeguards: up to 30 images, 30MB each. When a collage would exceed the browser's canvas memory, the tool automatically scales the output down and tells you in the preview; reducing the number of images restores full resolution. Everything stays on your device.`,
+    detailedGuideZh: `日常有太多理由需要把多张图片合成一张：散落在十几张截图里的聊天记录、给客户看的前后对比图、电商详情页的商品九宫格、需要归档成一页的票据。拼接工具应该快速、私密，而不是先让你注册账号。
+
+极速压图的图片拼接完全在浏览器里运行：每张图在本地解码、绘制到 canvas、在你的设备上导出。没有上传，私人聊天、证件、病历和未发布的设计稿都能放心处理。页面加载完成后，断网也能继续拼接。
+
+三种拼接方式覆盖大多数场景：
+
+1. 纵向长图——拼接截图的首选。间距设为 0 可以得到无缝的聊天长图；留一点间距并选个背景色，则能把每张截图清晰分开。所有图片按最宽的一张对齐，按你设定的顺序从上往下排列。
+
+2. 横向拼接——把照片或图表并排放置，适合前后对比、时间线和宽幅横幅。按最高的一张对齐，间距和背景色同样可调。
+
+3. 网格拼图——可选 2、3、4 列，单元格为正方形，图片居中裁切铺满，适合商品图、灵感板和社交贴文。调整间距和背景色即可匹配品牌风格。
+
+顺序很重要，所以每张缩略图都有前移/后移按钮，修改后预览立即更新，下载前就能发现放错的截图。也可以单独移除某张或一键清空。
+
+导出方面：PNG 无损，适合文字密集的截图；JPG 体积最小，适合照片较多的拼图；WebP 是网页使用的均衡选择。JPG 和 WebP 可调质量。PNG/WebP 支持透明间距，JPG 会用纯色背景。
+
+推荐流程：先拼接，再压缩。十张截图拼成的长图很容易达到 5–10MB，在聊天软件里发送很慢。拼完后可以用主压缩工具处理，或直接导出为 80–85% 质量的 WebP——画质差别通常看不出来，体积却能小好几倍。如果最终需要 PDF，可以用「图片转 PDF」工具把拼接结果变成单页文档。
+
+限制与保护：最多 30 张，单张不超过 30MB。当拼图超过浏览器画布内存时，工具会自动等比缩小并在预览中提示；减少图片数量即可恢复最高分辨率。所有处理都留在你的设备上。`,
+    relatedTools: ['image-to-pdf', 'crop-image', 'resize-image', 'compress-images'],
+  },
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)
