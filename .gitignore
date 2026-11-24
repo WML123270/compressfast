@@ -63,3 +63,10 @@ public/ort/*.wasm
 
 # local python tooling
 .venv-onnx/
+
+# 目标大小落地页 E2E 生成的产物
+test-results/target-size/
+test-results/target-large.jpg
+test-results/target-large.png
+test-results/dev-target.log
+test-results/start-target.log

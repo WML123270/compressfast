@@ -15,6 +15,7 @@ interface Props {
     resizeWidth?: number
     lossless?: boolean
     stripMetadata?: boolean
+    targetKB?: number
   }
 }
 
@@ -29,6 +30,7 @@ export default function ToolClient({ defaultSettings }: Props) {
       if (defaultSettings.speed !== undefined) updates.speed = defaultSettings.speed
       if (defaultSettings.lossless !== undefined) updates.lossless = defaultSettings.lossless
       if (defaultSettings.stripMetadata !== undefined) updates.stripMetadata = defaultSettings.stripMetadata
+      if (defaultSettings.targetKB !== undefined) updates.targetKB = defaultSettings.targetKB
       if (Object.keys(updates).length > 0) {
         setOptions(updates as Parameters<typeof setOptions>[0])
       }

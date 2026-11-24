@@ -93,6 +93,16 @@ https://jisuyatu.com/zh/tools/crop-image
 https://jisuyatu.com/en/tools/crop-image
 https://jisuyatu.com/zh/tools/stitch-images
 https://jisuyatu.com/en/tools/stitch-images
+https://jisuyatu.com/zh/tools/compress-to-20kb
+https://jisuyatu.com/en/tools/compress-to-20kb
+https://jisuyatu.com/zh/tools/compress-to-50kb
+https://jisuyatu.com/en/tools/compress-to-50kb
+https://jisuyatu.com/zh/tools/compress-to-100kb
+https://jisuyatu.com/en/tools/compress-to-100kb
+https://jisuyatu.com/zh/tools/compress-to-200kb
+https://jisuyatu.com/en/tools/compress-to-200kb
+https://jisuyatu.com/zh/tools/compress-to-500kb
+https://jisuyatu.com/en/tools/compress-to-500kb
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

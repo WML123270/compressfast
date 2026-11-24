@@ -247,7 +247,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-            {Object.values(TOOLS).map(tool => (
+            {Object.values(TOOLS).filter(tool => !tool.hidden).map(tool => (
               <Link
                 key={tool.slug}
                 href={`/${locale}/tools/${tool.slug}`}

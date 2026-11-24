@@ -85,6 +85,8 @@ export default function ToolPage({ params }: Props) {
   const SpecialClient = SPECIAL_CLIENTS[params.tool]
   const isPdfTool = Boolean(PDF_CLIENTS[params.tool])
   const isStitchTool = params.tool === 'stitch-images'
+  const targetKB = tool.defaultSettings?.targetKB
+  const isTargetSizeTool = Boolean(targetKB && params.tool.startsWith('compress-to-'))
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -112,7 +114,11 @@ export default function ToolPage({ params }: Props) {
           {isZh ? tool.descriptionZh : tool.descriptionEn}
         </p>
         <p>
-          {isPdfTool
+          {isTargetSizeTool
+            ? (isZh
+                ? `这个页面已经把 ${targetKB}KB 预设为目标大小，其余复用极速压图的本地压缩器：文件在浏览器内解码，按目标反复搜索画质与缩放，再编码导出，全程不上传。能否达标通常取决于尺寸——如果压缩后仍超过 ${targetKB}KB，用「调整尺寸」降低宽高，或把输出格式改为 WebP/JPEG，是最有效的办法。`
+                : `This page presets ${targetKB}KB as the target and reuses the CompressFast local compressor: the file is decoded in your browser, quality and scale are searched against the target, and the result is encoded locally — no upload at any point. Dimensions usually decide success: if the result still exceeds ${targetKB}KB, lower the width/height in Resize or switch the output to WebP/JPEG.`)
+            : isPdfTool
             ? (isZh
                 ? '极速压图的 PDF 工具（合并、拆分、压缩、PDF 转图片、图片转 PDF）全部在浏览器本地运行——文件不会上传到任何服务器，敏感文档更安全，也省去上传下载的等待。'
                 : 'Every CompressFast PDF tool — merge, split, compress, PDF-to-image and image-to-PDF — runs in your browser. Files are never uploaded to a server, so sensitive documents stay safe and there is no upload/download wait.')
@@ -223,7 +229,9 @@ export default function ToolPage({ params }: Props) {
             ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
             : isStitchTool
               ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
-              : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
+              : isTargetSizeTool
+                ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
+                : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
         </Link>
       </div>
     </div>

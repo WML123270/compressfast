@@ -20,7 +20,7 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   {
     key: 'compress',
     label: { en: 'Compress', zh: '压缩' },
-    slugs: ['compress-png', 'compress-jpeg', 'compress-gif', 'compress-svg', 'compress-images'],
+    slugs: ['compress-png', 'compress-jpeg', 'compress-gif', 'compress-svg', 'compress-images', 'compress-to-100kb'],
   },
   {
     key: 'to-webp',

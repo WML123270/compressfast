@@ -2,6 +2,8 @@
  * SEO Landing Pages — tool definitions
  * Each tool targets a specific search keyword with unique content.
  */
+import { TARGET_SIZE_TOOLS } from './target-size-pages'
+
 export interface ToolPageData {
   slug: string
   titleEn: string
@@ -14,6 +16,8 @@ export interface ToolPageData {
   heroSubEn: string
   heroSubZh: string
   targetFormat: string  // 'png' | 'jpeg' | 'webp' | 'original'
+  /** 目标大小落地页等：不在首页工具网格重复占位，但仍生成页面并进入 sitemap */
+  hidden?: boolean
   defaultSettings?: {
     quality?: number
     outputFormat?: string
@@ -22,6 +26,8 @@ export interface ToolPageData {
     resizeHeight?: number
     lossless?: boolean
     stripMetadata?: boolean
+    /** 预设目标大小（KB），> 0 时进入目标大小模式 */
+    targetKB?: number
   }
   benefits: { icon: string; titleEn: string; titleZh: string; descEn: string; descZh: string }[]
   howTo: { step: number; titleEn: string; titleZh: string; descEn: string; descZh: string }[]
@@ -88,7 +94,7 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
 结合内置的尺寸调整工具，你可以将一张1920×1080、2.5MB的截图，变成1280×720、400KB的优化PNG——体积减少84%，整个过程无需上传任何文件到任何服务器。
 
 隐私是内建特性：每一次压缩、每一次尺寸调整、每一次水印渲染都在浏览器的Web Worker中完成。加载页面后你可以断网，一切仍然正常工作。任何服务器都无法接触到你的文件。`,
-    relatedTools: ['compress-jpeg', 'convert-to-webp', 'compress-images'],
+    relatedTools: ['compress-jpeg', 'convert-to-webp', 'compress-images', 'compress-to-100kb'],
   },
 
   'compress-jpeg': {
@@ -151,7 +157,7 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
     将压缩与内置尺寸调整结合，你可以将一张4000×3000、4.5MB的手机照片变成1200×900、150KB的网页级JPEG——体积减小97%。特别是对于网页用途、几乎不需要原始分辨率的场景，尺寸调整往往比单纯压缩效果更显著。
 
     隐私说明：你拖入极速压图的每一张JPEG都不会离开你的设备。压缩在Web Worker（浏览器独立线程）中运行，主页面保持流畅响应。你可以同时压缩20张照片而没有任何卡顿。加载页面后断开网络，一切仍然正常工作。我们永远看不到你的照片，我们也永远不想看到。`,
-    relatedTools: ['compress-png', 'convert-to-webp', 'compress-images'],
+    relatedTools: ['compress-png', 'convert-to-webp', 'compress-images', 'compress-to-50kb'],
   },
 
   'convert-to-webp': {
@@ -250,7 +256,7 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
       { qEn: 'Will my image quality be affected?', qZh: '会影响画质吗？', aEn: 'You control the quality setting (0-100%). At 85%+, the difference is invisible to the naked eye. Lossless mode is also available for PNG compression.', aZh: '画质由你控制（0-100%）。85%以上肉眼几乎看不出差异。PNG还支持无损压缩模式。' },
       { qEn: 'What image formats can CompressFast compress?', qZh: '极速压图支持压缩哪些图片格式？', aEn: 'Input: PNG, JPEG, WebP, AVIF, GIF, BMP, SVG, HEIC (8 formats). Output: PNG, JPEG, WebP, AVIF (4 formats). Each format uses a different compression engine optimized for that specific type — oxipng WASM for PNG, browser-native codecs for others.', aZh: '输入：PNG、JPEG、WebP、AVIF、GIF、BMP、SVG、HEIC（8种格式）。输出：PNG、JPEG、WebP、AVIF（4种格式）。每种格式使用针对该类型优化的不同压缩引擎——PNG用oxipng WASM，其他格式用浏览器原生编解码器。' },
       { qEn: 'How does browser-based compression work?', qZh: '浏览器压缩是怎么实现的？', aEn: 'CompressFast uses Web Workers (background threads) and WebAssembly to run compression engines directly in your browser. Images are decoded with the browser\'s built-in codecs, processed in a worker thread (so the UI stays responsive), and re-encoded at your chosen quality. No data ever leaves your device — you can disconnect from the internet and everything still works.', aZh: '极速压图使用Web Worker（后台线程）和WebAssembly直接在浏览器中运行压缩引擎。图片通过浏览器内置编解码器解码，在Worker线程中处理（UI保持流畅），再以你选择的画质重新编码。所有数据不离开你的设备——断网后一切功能照常使用。' },
-      { qEn: 'Can I compress images to a specific file size?', qZh: '能压缩到指定的文件大小吗？', aEn: 'Not directly — compression results depend on image content, so a fixed target size isn\'t always achievable. However, you can use the quality slider with live size estimation to dial in your desired balance. The before/after comparison shows exact byte savings for each image.', aZh: '不能直接指定——压缩结果取决于图片内容，固定目标大小不一定总能实现。但你可以通过画质滑块的实时大小估算来找到理想的平衡点。前后对比会显示每张图片精确的字节节省量。' },
+      { qEn: 'Can I compress images to a specific file size?', qZh: '能压缩到指定的文件大小吗？', aEn: 'Yes — switch the mode toggle to "Target Size" and enter a KB value. The compressor tries multiple quality and scale combinations and keeps the result closest to your target (usually within 10–15%). If an image is already smaller than the target it is left untouched. Dedicated presets are also available for 20KB, 50KB, 100KB, 200KB and 500KB.', aZh: '可以——把模式切换为「目标大小」并输入 KB 数。压缩器会尝试多档画质与缩放组合，保留最接近目标的结果（通常误差 10%–15% 以内）；原图本来更小则保持不变。也有 20KB、50KB、100KB、200KB、500KB 的专属预设页。' },
       { qEn: 'Is there a limit on how many images I can compress?', qZh: '压缩图片有数量限制吗？', aEn: 'Free users can compress up to 30 images per batch (20 for single-format modes) and 400 total compressions per month (resets on the 1st). Pro users get 500 per batch with no monthly limits — $24.99 once, lifetime access.', aZh: '免费用户每批最多30张（单格式模式20张），每月400次压缩（月初重置）。Pro用户每批500张且无月度限制——$24.99一次性买断，终身使用。' },
       { qEn: 'How does CompressFast compare to other online compressors?', qZh: '极速压图和其他在线压缩工具有什么区别？', aEn: 'Three key differences: (1) Privacy — your files are never uploaded to a server. Most competitors process images in the cloud, meaning they have access to your files. (2) Format coverage — 8 input and 4 output formats, more than most free tools. (3) Pricing — free tier is generous (30/batch, 400/month), Pro is a one-time $24.99, not a subscription like TinyPNG ($25/year).', aZh: '三个关键区别：(1) 隐私——你的文件从不上传服务器。大多数竞品在云端处理图片，意味着它们能访问你的文件。(2) 格式覆盖——8种输入4种输出，比多数免费工具多。(3) 定价——免费版很大方（30张/批，400次/月），Pro版$24.99一次性买断，不像TinyPNG那样$25/年订阅。' },
     ],
@@ -285,7 +291,7 @@ Privacy is baked in: every compression, every resize, every watermark runs insid
     当你的文件夹里图片格式五花八门——产品照片、截图、Logo、社交媒体素材混杂在一起——只想让它们全部变小而不用操心格式，通用工具就是最佳选择。如果需要针对特定格式的深度优化，请使用专属工具页（compress-png、compress-jpeg 等）。
 
     隐私始终如铁：无论压缩 1 张还是 500 张，没有任何数据离开你的浏览器。Web Worker 在后台线程默默工作，你可以继续浏览或切换标签页。没有上传、没有排队、不用等服务器响应。`,
-    relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp'],
+    relatedTools: ['compress-png', 'compress-jpeg', 'convert-to-webp', 'compress-to-100kb'],
   },
 
   'compress-gif': {
@@ -1918,6 +1924,9 @@ Limits and safeguards: up to 30 images, 30MB each. When a collage would exceed t
 限制与保护：最多 30 张，单张不超过 30MB。当拼图超过浏览器画布内存时，工具会自动等比缩小并在预览中提示；减少图片数量即可恢复最高分辨率。所有处理都留在你的设备上。`,
     relatedTools: ['image-to-pdf', 'crop-image', 'resize-image', 'compress-images'],
   },
+
+  // 目标大小落地页（hidden，不在首页网格重复占位）
+  ...TARGET_SIZE_TOOLS,
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

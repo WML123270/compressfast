@@ -359,7 +359,7 @@ function getKBQualityLevels(speed: number): number[] {
 function getKBScales(speed: number): number[] {
   const level = sp2level(speed)
   if (level >= 4) return [1, 0.75, 0.5, 0.25]   // 最佳 — 4 档缩放
-  if (level >= 2) return [1, 0.5]                // 均衡 — 2 档
+  if (level >= 2) return [1, 0.5, 0.25]          // 均衡 — 3 档（0.25 兜底小目标）
   return [1]                                      // 极速 — 不缩放
 }
 
@@ -420,14 +420,29 @@ async function compressToTarget(
 ): Promise<{ buf: ArrayBuffer; size: number; currentKB: number }> {
   const scales = getKBScales(speed)
 
-  let bestBuf: ArrayBuffer = new ArrayBuffer(0)
-  let bestSize = Infinity
+  // 语义：上传场景要的是「不超过目标」。因此优先选 ≤ 目标里体积最大的（画质最好），
+  // 只有所有候选都超标时，才退而选超标最少的那一个。
+  // 用对象字段保存，避免 TS 对闭包内赋值的收窄误判。
+  const pick = {
+    under: null as { buf: ArrayBuffer; size: number } | null,
+    over: null as { buf: ArrayBuffer; size: number } | null,
+  }
+
+  /** 记录候选；返回 true 表示已命中达标结果，可停止搜索 */
+  function consider(buf: ArrayBuffer, size: number): boolean {
+    if (size <= targetBytes) {
+      if (!pick.under || size > pick.under.size) pick.under = { buf, size }
+      return true
+    }
+    if (!pick.over || size < pick.over.size) pick.over = { buf, size }
+    return false
+  }
 
   // PNG 输出：Canvas 忽略 quality 参数，改用缩放 + 颜色缩减 + oxipng 策略
   // 非 PNG 输出：迭代 quality + scale
   const isPngOut = isPNG(outMime)
 
-  for (const scale of scales) {
+  outer: for (const scale of scales) {
     const src = scale === 1 ? img : scaleImageFast(img, scale)
 
     if (isPngOut && !lossless) {
@@ -451,10 +466,7 @@ async function compressToTarget(
           currentKB: Math.round(size / 1024), targetKB: Math.round(targetBytes / 1024),
         } as WRes)
 
-        if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
-          bestBuf = buf; bestSize = size
-        }
-        if (size <= targetBytes * 1.1 && size >= targetBytes * 0.9) break
+        if (consider(buf, size)) break outer
       }
     } else {
       // JPEG / WebP / AVIF / lossless-PNG: quality-based iteration works
@@ -486,18 +498,15 @@ async function compressToTarget(
           triedQuality: q, currentKB: Math.round(size / 1024), targetKB: Math.round(targetBytes / 1024),
         } as WRes)
 
-        if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
-          bestBuf = buf; bestSize = size
-        }
-        // 误差 10% 以内，满意
-        if (size <= targetBytes * 1.1 && size >= targetBytes * 0.9) break
+        if (consider(buf, size)) break outer
       }
     }
 
-    if (bestSize <= targetBytes * 1.15) break
   }
 
-  return { buf: bestBuf, size: bestSize, currentKB: Math.round(bestSize / 1024) }
+  const chosen = pick.under || pick.over
+  if (!chosen) throw new Error('目标大小压缩失败')
+  return { buf: chosen.buf, size: chosen.size, currentKB: Math.round(chosen.size / 1024) }
 }
 
 /** SVG 文本级优化（浏览器安全，不使用 Canvas 光栅化，保持矢量格式）
@@ -714,17 +723,34 @@ self.onmessage = async (e: MessageEvent<WMsg>) => {
     let resultBuf: ArrayBuffer
     let resultSize: number
     let currentKB = 0
+    let metadataStripped = false
 
     if (!targetBytes) {
       const r = await compressRegular(img, outMime, quality, speed, lossless)
       resultBuf = r.buf; resultSize = r.size
+      metadataStripped = shouldStrip
     } else {
       const r = await compressToTarget(id, img, targetBytes, speed, lossless, outMime)
       resultBuf = r.buf; resultSize = r.size; currentKB = r.currentKB
+      metadataStripped = shouldStrip
+
+      // 目标大小模式绝不能把原图撑大：原图本身已达标、且没有尺寸/格式/水印改动时，
+      // 直接返回原始字节（例如 140KB 的图设 500KB 目标，不应被重编码成 400KB）。
+      const sameFormat = outMime === fileType || (isJPEG(outMime) && isJPEG(fileType))
+      const transformed = Boolean(
+        resizeWidth || resizeHeight || rotation || flipH || flipV ||
+        (wm && wm.enabled && wm.type !== 'none'),
+      )
+      if (sameFormat && !transformed && resultSize >= fileBuffer.byteLength) {
+        resultBuf = fileBuffer
+        resultSize = fileBuffer.byteLength
+        currentKB = Math.round(resultSize / 1024)
+        metadataStripped = false // 原样返回，未重编码，元数据仍然保留
+      }
     }
 
     // 回注 EXIF
-    if (exifData && isJPEG(outMime)) {
+    if (exifData && isJPEG(outMime) && resultBuf !== fileBuffer) {
       resultBuf = injectExifIntoJPEG(resultBuf, exifData)
     }
 
@@ -736,7 +762,7 @@ self.onmessage = async (e: MessageEvent<WMsg>) => {
       compressedSize: resultSize,
       outputMime: outMime,
       qualityTier,
-      metadataStripped: shouldStrip,
+      metadataStripped,
       currentKB,
     } as WRes)
   } catch (err) {
