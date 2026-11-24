@@ -1,25 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { buildId, dev, isServer, nextRuntime }) => {
+  webpack: (config) => {
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,
     }
-
-    // 修复：webpack runtime chunk（名字形如 webpack-<hash>.js）的 chunkhash 不会随
-    // worker 子编译产物变化，导致不同构建生成「同名不同内容」的 runtime。
-    // Cloudflare 以 immutable/1年 缓存它，部署后仍返回旧 runtime，旧的 worker chunk
-    // 哈希已不存在 → 压缩 Worker 404、海外站压缩失效（2026-11-24 实锤）。
-    // 给 runtime 文件名注入 buildId，使每次构建 URL 唯一，彻底绕开 CDN 旧缓存。
-    if (!dev && !isServer && !nextRuntime && typeof config.output.filename === 'string') {
-      const buildTag = String(buildId || 'build').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 12)
-      config.output.filename = (pathData) => {
-        const name = pathData.chunk?.name || 'chunk'
-        const base = name === 'webpack' ? `webpack-${buildTag}` : name
-        return `static/chunks/${base}-[contenthash].js`
-      }
-    }
-
+    // 注意：不要在这里改 output.filename 给 webpack runtime chunk 加 buildId。
+    // Vercel 构建管线会因此漏掉压缩 Worker 的 chunk（2026-11-24 实测）。
+    // runtime 文件名由 postbuild 脚本 lib/build/version-runtime-chunk.mjs 处理。
     return config
   },
 

@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "sync:pdfjs": "node scripts/copy-pdfjs.mjs",
-    "check:pdfjs": "node scripts/copy-pdfjs.mjs --check"
+    "check:pdfjs": "node scripts/copy-pdfjs.mjs --check",
+    "postbuild": "node lib/build/version-runtime-chunk.mjs"
   },
   "dependencies": {
     "@btheegg-kimth/gif2webp": "^0.0.6",

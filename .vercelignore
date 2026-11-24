@@ -14,3 +14,7 @@ scripts/
 dp.tar.gz
 verify-*.png
 verify-*.jpg
+.venv-onnx/
+.venv-*/
+__pycache__/
+*.pyc
