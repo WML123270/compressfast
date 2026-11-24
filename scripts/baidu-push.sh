@@ -103,6 +103,12 @@ https://jisuyatu.com/zh/tools/compress-to-200kb
 https://jisuyatu.com/en/tools/compress-to-200kb
 https://jisuyatu.com/zh/tools/compress-to-500kb
 https://jisuyatu.com/en/tools/compress-to-500kb
+https://jisuyatu.com/zh/tools/blur-image
+https://jisuyatu.com/en/tools/blur-image
+https://jisuyatu.com/zh/tools/png-to-ico
+https://jisuyatu.com/en/tools/png-to-ico
+https://jisuyatu.com/zh/tools/image-to-base64
+https://jisuyatu.com/en/tools/image-to-base64
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

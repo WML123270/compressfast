@@ -16,6 +16,9 @@ const CompressPdfClient = dynamic(() => import('./CompressPdfClient'), { ssr: fa
 const PdfToImageClient = dynamic(() => import('./PdfToImageClient'), { ssr: false })
 const CropImageClient = dynamic(() => import('./CropImageClient'), { ssr: false })
 const StitchImagesClient = dynamic(() => import('./StitchImagesClient'), { ssr: false })
+const BlurImageClient = dynamic(() => import('./BlurImageClient'), { ssr: false })
+const PngToIcoClient = dynamic(() => import('./PngToIcoClient'), { ssr: false })
+const ImageToBase64Client = dynamic(() => import('./ImageToBase64Client'), { ssr: false })
 
 const PDF_CLIENTS: Record<string, ComponentType> = {
   'image-to-pdf': ImageToPdfClient,
@@ -30,6 +33,9 @@ const SPECIAL_CLIENTS: Record<string, ComponentType> = {
   ...PDF_CLIENTS,
   'crop-image': CropImageClient,
   'stitch-images': StitchImagesClient,
+  'blur-image': BlurImageClient,
+  'png-to-ico': PngToIcoClient,
+  'image-to-base64': ImageToBase64Client,
 }
 
 interface Props { params: { tool: string; lang: string } }
@@ -87,6 +93,10 @@ export default function ToolPage({ params }: Props) {
   const isStitchTool = params.tool === 'stitch-images'
   const targetKB = tool.defaultSettings?.targetKB
   const isTargetSizeTool = Boolean(targetKB && params.tool.startsWith('compress-to-'))
+  const isBlurTool = params.tool === 'blur-image'
+  const isIcoTool = params.tool === 'png-to-ico'
+  const isBase64Tool = params.tool === 'image-to-base64'
+  const isUtilityTool = isBlurTool || isIcoTool || isBase64Tool
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -114,7 +124,19 @@ export default function ToolPage({ params }: Props) {
           {isZh ? tool.descriptionZh : tool.descriptionEn}
         </p>
         <p>
-          {isTargetSizeTool
+          {isUtilityTool
+            ? (isZh
+                ? isBlurTool
+                  ? '图片模糊/马赛克完全在浏览器本地运行：解码、像素处理、导出都在你的设备上完成，不上传、无水印。整图处理适合隐藏背景或敏感文字；只遮挡局部区域时，先用「裁剪图片」截出区域再打码。'
+                  : isIcoTool
+                    ? 'PNG 转 ICO 在浏览器本地完成：图片被缩放到多个尺寸并打包成真正的多尺寸 .ico，全程不上传。建议上传正方形图片（≥256×256），非正方形会按中心裁切。'
+                    : '图片转 Base64 在浏览器本地编码：文件不会上传，直接生成 Data URI、HTML 或 CSS 片段，可一键复制。Base64 体积通常比原文件大 33%，更适合小图标而不是大图。'
+                : isBlurTool
+                  ? 'The blur and mosaic tool runs entirely in your browser: decoding, pixel processing and export all happen on your device — no upload, no watermark. Whole-image treatment works well for hiding backgrounds and text; to mask only a small area, crop it first and then blur it.'
+                  : isIcoTool
+                    ? 'PNG to ICO runs locally in your browser: the image is resized to several sizes and packed into a real multi-size .ico — nothing is uploaded. A square image (≥256×256) works best; non-square images are center-cropped.'
+                    : 'Image to Base64 encodes locally in your browser: the file is never uploaded, and you get a Data URI, HTML or CSS snippet ready to copy. Base64 is about 33% larger than the original, so it suits small icons rather than large photos.')
+            : isTargetSizeTool
             ? (isZh
                 ? `这个页面已经把 ${targetKB}KB 预设为目标大小，其余复用极速压图的本地压缩器：文件在浏览器内解码，按目标反复搜索画质与缩放，再编码导出，全程不上传。能否达标通常取决于尺寸——如果压缩后仍超过 ${targetKB}KB，用「调整尺寸」降低宽高，或把输出格式改为 WebP/JPEG，是最有效的办法。`
                 : `This page presets ${targetKB}KB as the target and reuses the CompressFast local compressor: the file is decoded in your browser, quality and scale are searched against the target, and the result is encoded locally — no upload at any point. Dimensions usually decide success: if the result still exceeds ${targetKB}KB, lower the width/height in Resize or switch the output to WebP/JPEG.`)
@@ -231,7 +253,9 @@ export default function ToolPage({ params }: Props) {
               ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
               : isTargetSizeTool
                 ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
-                : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
+                : isUtilityTool
+                  ? (isZh ? '← 返回首页，浏览更多工具' : '← Back to homepage — explore more tools')
+                  : (isZh ? '← 返回首页，压缩更多图片' : '← Back to homepage — compress more images')}
         </Link>
       </div>
     </div>

@@ -3,6 +3,7 @@
  * Each tool targets a specific search keyword with unique content.
  */
 import { TARGET_SIZE_TOOLS } from './target-size-pages'
+import { UTILITY_TOOLS } from './utility-pages'
 
 export interface ToolPageData {
   slug: string
@@ -1927,6 +1928,9 @@ Limits and safeguards: up to 30 images, 30MB each. When a collage would exceed t
 
   // 目标大小落地页（hidden，不在首页网格重复占位）
   ...TARGET_SIZE_TOOLS,
+
+  // 轻量本地工具：模糊/马赛克、PNG→ICO、图片→Base64
+  ...UTILITY_TOOLS,
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

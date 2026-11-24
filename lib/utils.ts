@@ -52,3 +52,16 @@ export function isCnDeploy(): boolean {
     process.env?.NEXT_PUBLIC_DEPLOY_TARGET === 'cn'
   )
 }
+
+/** 浏览器端触发文件下载（仅客户端调用） */
+export function downloadBlob(blob: Blob, filename: string): void {
+  if (typeof document === 'undefined') return
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}

@@ -38,7 +38,7 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   {
     key: 'adjust',
     label: { en: 'Adjust & Export', zh: '调整与导出' },
-    slugs: ['stitch-images', 'crop-image', 'resize-image', 'remove-metadata', 'tinypng-alternative'],
+    slugs: ['stitch-images', 'blur-image', 'crop-image', 'resize-image', 'png-to-ico', 'image-to-base64', 'remove-metadata', 'tinypng-alternative'],
   },
 ]
 

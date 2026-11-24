@@ -74,3 +74,6 @@ test-results/start-target2.log
 test-results/os-e2e.log
 test-results/os-smoke.log
 test-results/all-tools-smoke/
+test-results/new-tools/
+test-results/dev-utils.log
+test-results/start-utils.log
