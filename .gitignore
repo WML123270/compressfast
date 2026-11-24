@@ -70,3 +70,7 @@ test-results/target-large.jpg
 test-results/target-large.png
 test-results/dev-target.log
 test-results/start-target.log
+test-results/start-target2.log
+test-results/os-e2e.log
+test-results/os-smoke.log
+test-results/all-tools-smoke/

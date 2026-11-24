@@ -24,6 +24,9 @@ const ORIG = fs.statSync(FIXTURE).size
 
 const browser = await chromium.launch({ headless: true })
 const ctx = await browser.newContext({ acceptDownloads: true })
+if (process.env.BLOCK_TRACK === '1') {
+  await ctx.route('**/api/admin/track', (route) => route.abort())
+}
 let fail = 0
 
 for (const kb of SIZES) {

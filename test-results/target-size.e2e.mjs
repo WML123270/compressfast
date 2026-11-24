@@ -16,6 +16,7 @@ fs.rmSync(OUT, { recursive: true, force: true })
 fs.mkdirSync(OUT, { recursive: true })
 
 const SIZES = [20, 50, 100, 200, 500]
+const LANGS = (process.env.LANGS || 'zh,en').split(',')
 const FIXTURE = path.join(ROOT, 'public/demo-photo.jpg')
 const ORIGINAL_BYTES = fs.statSync(FIXTURE).size
 
@@ -36,9 +37,13 @@ function bad(name, detail) {
 
 const browser = await chromium.launch({ headless: true })
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 1000 }, acceptDownloads: true })
+// 线上跑时拦截埋点，避免测试流量污染生产统计
+if (process.env.BLOCK_TRACK === '1') {
+  await ctx.route('**/api/admin/track', (route) => route.abort())
+}
 
 try {
-  for (const lang of ['zh', 'en']) {
+  for (const lang of LANGS) {
     for (const kb of SIZES) {
       const slug = `compress-to-${kb}kb`
       const page = await ctx.newPage()
