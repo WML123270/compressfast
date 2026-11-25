@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Download, Loader2, Lock, RotateCcw, ScanFace, ImagePlus, Trash2, ShieldCheck, SlidersHorizontal,
 } from 'lucide-react'
@@ -14,8 +14,9 @@ import { AiError, aiErrorCopy, formatAiErrorDetail, isRetryableAiError, type AiE
 import { detectAiSupportIssue } from '@/lib/ai/support'
 import { composeOnBackground, composePrintSheet, type PrintSheetResult } from '@/lib/id-photo/compose'
 import {
-  BG_COLORS, DEFAULT_PRESET_KEY, ID_PHOTO_PRESETS, MAX_FILE_BYTES, MODEL_SIZE_MB,
-  getPreset, type IdPhotoFormat, type IdPhotoPreset,
+  BG_COLORS, CUSTOM_DPIS, CUSTOM_MAX_H_MM, CUSTOM_MAX_W_MM, CUSTOM_MIN_MM, DEFAULT_PRESET_KEY,
+  ID_PHOTO_PRESETS, MAX_FILE_BYTES, MODEL_SIZE_MB,
+  clampMm, getPreset, makeCustomPreset, mmToPx, type IdPhotoFormat, type IdPhotoPreset,
 } from '@/lib/id-photo/presets'
 import { trackIdPhotoEvent } from '@/lib/id-photo/analytics'
 import { downloadBlob } from '@/lib/utils'
@@ -115,6 +116,7 @@ export default function IdPhotoClient() {
 
   const [source, setSource] = useState<Source | null>(null)
   const [presetKey, setPresetKey] = useState(DEFAULT_PRESET_KEY)
+  const [custom, setCustom] = useState({ widthMm: 35, heightMm: 45, dpi: 300 })
   const [bgColor, setBgColor] = useState<string>(BG_COLORS[0].color)
   const [format, setFormat] = useState<IdPhotoFormat>('jpeg')
   const [showGuides, setShowGuides] = useState(true)
@@ -137,8 +139,24 @@ export default function IdPhotoClient() {
   const [sheet, setSheet] = useState<(PrintSheetResult & { url: string }) | null>(null)
   const [sheetBusy, setSheetBusy] = useState(false)
 
-  const preset = getPreset(presetKey)
+  const customPreset = useMemo(
+    () => makeCustomPreset(custom.widthMm, custom.heightMm, custom.dpi),
+    [custom.widthMm, custom.heightMm, custom.dpi],
+  )
+  const preset = presetKey === 'custom' ? customPreset : getPreset(presetKey)
   const aspect = preset.width / preset.height
+
+  // 6 寸相纸按 300DPI 网格排版：600DPI 原图要按物理尺寸折回 300DPI 像素
+  const sheetCell = useMemo(() => {
+    if (presetKey === 'custom') {
+      const k = 300 / customPreset.dpi
+      return {
+        w: Math.max(1, Math.round(customPreset.width * k)),
+        h: Math.max(1, Math.round(customPreset.height * k)),
+      }
+    }
+    return { w: preset.width, h: preset.height }
+  }, [presetKey, customPreset, preset.width, preset.height])
 
   const previewRef = useRef<HTMLCanvasElement>(null)
   const dragRef = useRef<{
@@ -319,6 +337,12 @@ export default function IdPhotoClient() {
     invalidate()
   }, [presetKey, invalidate])
 
+  // 自定义尺寸改动后旧结果作废；输入框允许暂时为空/0，生成时由 makeCustomPreset clamp
+  const updateCustom = useCallback((patch: Partial<{ widthMm: number; heightMm: number; dpi: number }>) => {
+    setCustom((c) => ({ ...c, ...patch }))
+    invalidate()
+  }, [invalidate])
+
   // 模型输出 → 合成最终照片；换底色/格式只重新合成，不重跑模型
   useEffect(() => {
     if (!cutout) return
@@ -411,14 +435,14 @@ export default function IdPhotoClient() {
     try {
       setSheetBusy(true)
       setErrorInfo(null)
-      const s = await composePrintSheet(result.blob)
+      const s = await composePrintSheet(result.blob, sheetCell.w, sheetCell.h)
       setSheet({ ...s, url: URL.createObjectURL(s.blob) })
     } catch (e) {
       setErrorInfo({ code: 'internal', detail: formatAiErrorDetail(e) })
     } finally {
       setSheetBusy(false)
     }
-  }, [result, sheetBusy])
+  }, [result, sheetBusy, sheetCell])
 
   const downloadSheet = useCallback(() => {
     if (!sheet) return
@@ -491,7 +515,7 @@ export default function IdPhotoClient() {
                   />
                 </div>
                 <p className="text-[11px] text-center text-neutral-400 tabular-nums">
-                  {preset.width}×{preset.height}px · 300DPI · {presetLabel(preset)} {presetSize(preset)}
+                  {preset.width}×{preset.height}px · {preset.dpi}DPI · {presetLabel(preset)} {presetSize(preset)}
                 </p>
               </div>
             ) : (
@@ -636,7 +660,7 @@ export default function IdPhotoClient() {
                 {isZh ? '证件照尺寸' : 'Photo size'}
               </p>
               <div className="grid grid-cols-3 gap-1.5">
-                {ID_PHOTO_PRESETS.map((p) => (
+                {[...ID_PHOTO_PRESETS, customPreset].map((p) => (
                   <button
                     key={p.key}
                     type="button"
@@ -644,7 +668,9 @@ export default function IdPhotoClient() {
                     className={`px-1 py-2 rounded-lg border text-center transition-all ${
                       p.key === presetKey
                         ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
-                        : 'border-gray-200 text-neutral-600 hover:border-cyan-300'
+                        : p.key === 'custom'
+                          ? 'border-dashed border-gray-300 text-neutral-600 hover:border-cyan-300'
+                          : 'border-gray-200 text-neutral-600 hover:border-cyan-300'
                     }`}
                   >
                     <span className="block text-xs font-semibold">{presetLabel(p)}</span>
@@ -652,6 +678,67 @@ export default function IdPhotoClient() {
                   </button>
                 ))}
               </div>
+
+              {presetKey === 'custom' && (
+                <div className="mt-2 space-y-2 rounded-xl border border-cyan-100 bg-cyan-50/50 p-2.5">
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-neutral-500">{isZh ? '宽度 (mm)' : 'Width (mm)'}</span>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={CUSTOM_MIN_MM}
+                        max={CUSTOM_MAX_W_MM}
+                        step={1}
+                        value={custom.widthMm}
+                        aria-label={isZh ? '宽度 mm' : 'Width mm'}
+                        onChange={(e) => updateCustom({ widthMm: Number(e.target.value) })}
+                        onBlur={() => setCustom((c) => ({ ...c, widthMm: clampMm(c.widthMm, CUSTOM_MAX_W_MM) }))}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm tabular-nums focus:border-cyan-400 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-neutral-500">{isZh ? '高度 (mm)' : 'Height (mm)'}</span>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={CUSTOM_MIN_MM}
+                        max={CUSTOM_MAX_H_MM}
+                        step={1}
+                        value={custom.heightMm}
+                        aria-label={isZh ? '高度 mm' : 'Height mm'}
+                        onChange={(e) => updateCustom({ heightMm: Number(e.target.value) })}
+                        onBlur={() => setCustom((c) => ({ ...c, heightMm: clampMm(c.heightMm, CUSTOM_MAX_H_MM) }))}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm tabular-nums focus:border-cyan-400 focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-medium text-neutral-500">DPI</span>
+                    <div className="flex gap-1.5">
+                      {CUSTOM_DPIS.map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          aria-label={`${d} DPI`}
+                          onClick={() => updateCustom({ dpi: d })}
+                          className={`px-3 py-1 rounded-lg border text-xs font-semibold transition-all ${
+                            custom.dpi === d
+                              ? 'border-cyan-500 bg-white text-cyan-700'
+                              : 'border-gray-200 text-neutral-500 hover:border-cyan-300'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-neutral-500 tabular-nums">
+                    {preset.width}×{preset.height}px ·{' '}
+                    {isZh ? '自定义尺寸使用通用参考线，请以官方要求为准。' : 'Custom sizes use generic guides — check the official requirements.'}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>

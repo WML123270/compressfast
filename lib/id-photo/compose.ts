@@ -40,13 +40,14 @@ export interface PrintSheetResult {
 
 /**
  * 把已经合成好的单张证件照排到 6 寸相纸上，带淡灰色裁切线。
+ * cellW/cellH 是照片在 300DPI 相纸上的像素尺寸（600DPI 原图会按物理尺寸缩到 300DPI 网格）。
  * 自动按纸张计算能放几列几行。
  */
-export async function composePrintSheet(photo: Blob): Promise<PrintSheetResult> {
+export async function composePrintSheet(photo: Blob, cellW: number, cellH: number): Promise<PrintSheetResult> {
   const bitmap = await createImageBitmap(photo)
   try {
-    const pw = bitmap.width
-    const ph = bitmap.height
+    const pw = Math.max(1, Math.round(cellW))
+    const ph = Math.max(1, Math.round(cellH))
     const cols = Math.max(1, Math.floor((SHEET_WIDTH - SHEET_MARGIN * 2 + SHEET_GAP) / (pw + SHEET_GAP)))
     const rows = Math.max(1, Math.floor((SHEET_HEIGHT - SHEET_MARGIN * 2 + SHEET_GAP) / (ph + SHEET_GAP)))
     const copies = cols * rows
@@ -70,7 +71,7 @@ export async function composePrintSheet(photo: Blob): Promise<PrintSheetResult> 
       for (let c = 0; c < cols; c++) {
         const x = startX + c * (pw + SHEET_GAP)
         const y = startY + r * (ph + SHEET_GAP)
-        ctx.drawImage(bitmap, x, y)
+        ctx.drawImage(bitmap, x, y, pw, ph)
 
         // 裁切线画在照片外侧半像素处，避免直接压在人物上
         ctx.strokeRect(x - 0.5, y - 0.5, pw + 1, ph + 1)

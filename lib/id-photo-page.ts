@@ -36,8 +36,8 @@ export const ID_PHOTO_TOOL: ToolPageData = {
       icon: '📐',
       titleEn: 'Exact Print Sizes',
       titleZh: '标准打印尺寸',
-      descEn: 'One-inch, two-inch, US passport and Japan visa presets rendered at 300 DPI — the resolution photo labs expect.',
-      descZh: '一寸、二寸、美国护照、日本签证等预设，按冲洗店常用的 300DPI 输出。',
+      descEn: 'One-inch, two-inch, US passport, Japan visa and custom sizes (10–60 × 10–80mm) rendered at 300 or 600 DPI — the resolution photo labs expect.',
+      descZh: '一寸、二寸、美国护照、日本签证等预设，也支持自定义尺寸（10–60 × 10–80mm），按 300/600DPI 输出。',
     },
     {
       icon: '🖨️',
@@ -80,8 +80,8 @@ export const ID_PHOTO_TOOL: ToolPageData = {
     {
       qEn: 'Which ID photo sizes are supported?',
       qZh: '支持哪些证件照尺寸？',
-      aEn: 'One-inch 25×35mm (295×413px), two-inch 35×49mm (413×579px), small two-inch 35×45mm (413×531px), large one-inch 33×48mm (390×567px), US passport 2×2in (600×600px) and Japan visa 45×45mm (531×531px), all at 300 DPI.',
-      aZh: '一寸 25×35mm（295×413px）、二寸 35×49mm（413×579px）、小二寸 35×45mm（413×531px）、大一寸 33×48mm（390×567px）、美国护照 2×2 英寸（600×600px）、日本签证 45×45mm（531×531px），均为 300DPI。',
+      aEn: 'One-inch 25×35mm (295×413px), two-inch 35×49mm (413×579px), small two-inch 35×45mm (413×531px), large one-inch 33×48mm (390×567px), US passport 2×2in (600×600px) and Japan visa 45×45mm (531×531px), all at 300 DPI. You can also enter a custom size from 10–60mm wide and 10–80mm tall at 300 or 600 DPI.',
+      aZh: '一寸 25×35mm（295×413px）、二寸 35×49mm（413×579px）、小二寸 35×45mm（413×531px）、大一寸 33×48mm（390×567px）、美国护照 2×2 英寸（600×600px）、日本签证 45×45mm（531×531px），均为 300DPI。也可以自定义 10–60mm 宽、10–80mm 高，选择 300 或 600DPI。',
     },
     {
       qEn: 'Is it free?',
@@ -128,7 +128,7 @@ export const ID_PHOTO_TOOL: ToolPageData = {
   ],
   detailedGuideEn: `An ID photo looks simple until you need one: the size must be exact, the background must be the right color, and the head has to sit within a narrow band of the frame. Most online services solve this by asking you to upload the photo to their server. This tool takes the opposite approach — the portrait is cut out and composited on your own device.
 
-The workflow is three steps. Upload a front-facing photo. A small face detector runs locally and frames the crop automatically: it finds the largest face and zooms so the head sits between the dashed guides. Choose a size preset — one-inch (25×35mm), two-inch (35×49mm), small two-inch, large one-inch, US passport 2×2in or Japan visa 45×45mm — and a background color. If the detection misses the face, or you want a different crop, drag and zoom manually; the guides show where the head top and chin should sit. Then press Generate.
+The workflow is three steps. Upload a front-facing photo. A small face detector runs locally and frames the crop automatically: it finds the largest face and zooms so the head sits between the dashed guides. Choose a size preset — one-inch (25×35mm), two-inch (35×49mm), small two-inch, large one-inch, US passport 2×2in or Japan visa 45×45mm — or enter a custom size and DPI (300/600). Then pick a background color. If the detection misses the face, or you want a different crop, drag and zoom manually; the guides show where the head top and chin should sit. Then press Generate.
 
 On the first run, the browser downloads a 1.3MB face model and a 4.4MB portrait segmentation model (u2netp), then caches both. The model produces a soft alpha mask around the person, which is used to composite the subject onto a solid white, blue, red or custom background. The output is rendered at 300 DPI in the exact pixel size of the preset: for example, a one-inch photo is 295×413 pixels. You can download JPG or PNG and change the background color without re-running the model.
 
@@ -139,7 +139,7 @@ For printing, Pro users can lay multiple copies onto a 6-inch sheet with cut gui
 Privacy and speed are the reason this runs locally. The photo is never uploaded, there is no account, no queue and no watermark. Once the model is cached, generating another size or background takes only a couple of seconds. If you need a transparent PNG instead of a solid background, the AI background remover is the companion tool; if you need to shrink the final file for an upload form, run it through the compressor afterward.`,
   detailedGuideZh: `证件照看起来简单，真正要做的时候却处处是坑：尺寸必须精确、底色必须符合要求、头部还要落在规定的比例范围内。多数在线服务的做法是把照片上传到服务器处理；这个工具反过来，抠图和换底全部在你的设备上完成。
 
-流程只有三步。先上传一张正脸照片，本地的人脸检测模型会自动找到最大的一张脸并完成取景，让头部落在参考线之间；再选择尺寸预设——一寸（25×35mm）、二寸（35×49mm）、小二寸、大一寸、美国护照 2×2 英寸或日本签证 45×45mm——以及底色。如果没检测到人脸，或想要不同的构图，仍可手动拖动、缩放，参考线会提示头顶和下巴的位置。最后点「生成证件照」。
+流程只有三步。先上传一张正脸照片，本地的人脸检测模型会自动找到最大的一张脸并完成取景，让头部落在参考线之间；再选择尺寸预设——一寸（25×35mm）、二寸（35×49mm）、小二寸、大一寸、美国护照 2×2 英寸或日本签证 45×45mm——也可以自定义尺寸和 300/600DPI，然后选底色。如果没检测到人脸，或想要不同的构图，仍可手动拖动、缩放，参考线会提示头顶和下巴的位置。最后点「生成证件照」。
 
 首次使用时，浏览器会下载约 1.3MB 的人脸检测模型和约 4.4MB 的人像分割模型（u2netp），并缓存。模型输出人像周围的柔和蒙版，用它把人物合成到白、蓝、红或自定义纯色背景上。输出按 300DPI 和预设的精确像素尺寸渲染：例如一寸照就是 295×413 像素。可以下载 JPG 或 PNG；生成后换底色不需要重新跑模型，几乎瞬间完成。
 
