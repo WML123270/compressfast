@@ -4,6 +4,7 @@
  */
 import { TARGET_SIZE_TOOLS } from './target-size-pages'
 import { UTILITY_TOOLS } from './utility-pages'
+import { ID_PHOTO_TOOL } from './id-photo-page'
 
 export interface ToolPageData {
   slug: string
@@ -1931,6 +1932,9 @@ Limits and safeguards: up to 30 images, 30MB each. When a collage would exceed t
 
   // 轻量本地工具：模糊/马赛克、PNG→ICO、图片→Base64
   ...UTILITY_TOOLS,
+
+  // 证件照：轻量人像分割 + 换底色 + 标准尺寸
+  'id-photo': ID_PHOTO_TOOL,
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

@@ -10,7 +10,7 @@ const GROUPS: { key: string; label: { en: string; zh: string }; slugs: string[] 
   {
     key: 'ai',
     label: { en: 'AI Tools', zh: 'AI 工具' },
-    slugs: ['remove-bg', 'upscale'],
+    slugs: ['remove-bg', 'upscale', 'id-photo'],
   },
   {
     key: 'pdf',

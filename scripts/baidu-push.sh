@@ -109,6 +109,8 @@ https://jisuyatu.com/zh/tools/png-to-ico
 https://jisuyatu.com/en/tools/png-to-ico
 https://jisuyatu.com/zh/tools/image-to-base64
 https://jisuyatu.com/en/tools/image-to-base64
+https://jisuyatu.com/zh/tools/id-photo
+https://jisuyatu.com/en/tools/id-photo
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

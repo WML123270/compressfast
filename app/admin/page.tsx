@@ -251,17 +251,40 @@ function renderStats(data: any, ov: any, cn: any): string {
     </tr>`
   }
 
-  // ---- 图片拼接 ----
-  const stitch = data.stitch || {}
-  const stitchGen = stitch.generate || 0
-  const stitchErr = stitch.error || 0
-  const stitchDl = stitch.download || 0
-  const stitchDlRate = stitchGen > 0 ? Math.round((stitchDl / stitchGen) * 100) : 0
-  const stitchDaily = stitch.daily || []
+  // ---- 图片拼接 / 证件照 ----
+  const buildToolCard = (tool: any) => {
+    const gen = tool?.generate || 0
+    const err = tool?.error || 0
+    const dl = tool?.download || 0
+    return {
+      gen,
+      err,
+      dl,
+      dlRate: gen > 0 ? Math.round((dl / gen) * 100) : 0,
+      daily: tool?.daily || [],
+    }
+  }
+  const stitchCard = buildToolCard(data.stitch)
+  const idPhotoCard = buildToolCard(data.idPhoto)
+  const stitchGen = stitchCard.gen
+  const stitchErr = stitchCard.err
+  const stitchDl = stitchCard.dl
+  const stitchDlRate = stitchCard.dlRate
+  const stitchDaily = stitchCard.daily
   let stitchRows = ''
   for (let i = 0; i < stitchDaily.length; i++) {
     const d = stitchDaily[i] || {}
     stitchRows += `<tr>
+      <td class="date">${(d.date || '').slice(5)}</td>
+      <td class="num">${d.generate || 0}</td>
+      <td class="num">${d.error || 0}</td>
+      <td class="num">${d.download || 0}</td>
+    </tr>`
+  }
+  let idPhotoRows = ''
+  for (let i = 0; i < idPhotoCard.daily.length; i++) {
+    const d = idPhotoCard.daily[i] || {}
+    idPhotoRows += `<tr>
       <td class="date">${(d.date || '').slice(5)}</td>
       <td class="num">${d.generate || 0}</td>
       <td class="num">${d.error || 0}</td>
@@ -384,6 +407,19 @@ function renderStats(data: any, ov: any, cn: any): string {
     <table>
       <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
       ${stitchRows}
+    </table>
+    <h2>🪪 证件照（累计）</h2>
+    <div class="split">
+      <div class="box">
+        <h3>🪪 生成 / 下载</h3>
+        <div class="s">生成 ${idPhotoCard.gen} · 失败 ${idPhotoCard.err} · 下载 ${idPhotoCard.dl} · 下载/生成 ${idPhotoCard.dlRate}%</div>
+        <div class="s">generate 仅在每次页面会话首次成功生成时记一次，download 按点击次数累计。</div>
+      </div>
+    </div>
+    <h2>📅 证件照近 7 天（生成 / 失败 / 下载）</h2>
+    <table>
+      <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
+      ${idPhotoRows}
     </table>
     <h2>📅 近7天明细</h2>
     <table>

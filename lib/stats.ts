@@ -397,12 +397,15 @@ export interface ToolDailyPoint {
   download: number
 }
 
-export interface StitchStats {
+export interface ToolStats {
   generate: number
   error: number
   download: number
   daily: ToolDailyPoint[]
 }
+
+/** 走 stats:tool:* 埋点的普通工具（track API 白名单） */
+export const TRACKED_TOOLS = ['stitch-images', 'id-photo'] as const
 
 export interface ProSourceStats {
   source: string
@@ -448,7 +451,8 @@ export interface DashboardStats {
   china: SiteStats
   ai: AiStats
   pdf: PdfStats
-  stitch: StitchStats
+  stitch: ToolStats
+  idPhoto: ToolStats
   proFunnel: ProFunnelStats
 }
 
@@ -515,12 +519,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china, ai, pdf, stitch, proFunnel] = await Promise.all([
+  const [overseas, china, ai, pdf, stitch, idPhoto, proFunnel] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
     getAiStats(),
     getPdfStats(),
-    getStitchStats(),
+    getToolStats('stitch-images'),
+    getToolStats('id-photo'),
     getProFunnelStats(),
   ])
 
@@ -539,12 +544,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     ai,
     pdf,
     stitch,
+    idPhoto,
     proFunnel,
   }
 }
 
-/** 图片拼接工具累计 + 近 7 天数据（一次 pipeline） */
-async function getStitchStats(): Promise<StitchStats> {
+/** 普通工具（拼接 / 证件照）累计 + 近 7 天数据（一次 pipeline） */
+async function getToolStats(tool: string): Promise<ToolStats> {
   const days: string[] = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date()
@@ -552,7 +558,7 @@ async function getStitchStats(): Promise<StitchStats> {
     days.push(formatDate(d))
   }
 
-  const empty = (): StitchStats => ({
+  const empty = (): ToolStats => ({
     generate: 0,
     error: 0,
     download: 0,
@@ -562,7 +568,7 @@ async function getStitchStats(): Promise<StitchStats> {
   const r = getRedis()
   if (!r) return empty()
 
-  const prefix = 'stats:tool:stitch-images'
+  const prefix = `stats:tool:${tool}`
   try {
     const keys: string[] = []
     for (const ev of TOOL_EVENTS) keys.push(`${prefix}:${ev}:total`)

@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, recordAiError, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName, incrementProEvent, PRO_STAGES, type ProStage, incrementToolEvent, TOOL_EVENTS, type ToolEventName } from '@/lib/stats'
+import { incrementPageView, incrementCompression, trackUniqueVisitor, recordFileSizes, checkCompressionRateLimit, markVisitorActive, isVisitorActive, incrementAiEvent, recordAiDuration, recordAiError, AI_TOOLS, AI_EVENTS, type AiTool, type AiEventName, incrementPdfEvent, recordPdfOutput, PDF_EVENTS, type PdfEventName, incrementProEvent, PRO_STAGES, type ProStage, incrementToolEvent, TOOL_EVENTS, TRACKED_TOOLS, type ToolEventName } from '@/lib/stats'
 import { AI_ERROR_CODES, type AiErrorCode } from '@/lib/ai/ai-error'
 import { isLikelyBot } from '@/lib/bot-detection'
 import {
@@ -160,10 +160,10 @@ export async function POST(request: NextRequest) {
         break
       }
       case 'tool': {
-        // 普通工具埋点（目前只有图片拼接）
+        // 普通工具埋点（图片拼接 / 证件照）
         const toolSlug = String(tool || '')
         const toolEv = String(toolEvent || '')
-        if (toolSlug !== 'stitch-images' || !TOOL_EVENTS.includes(toolEv as ToolEventName)) {
+        if (!(TRACKED_TOOLS as readonly string[]).includes(toolSlug) || !TOOL_EVENTS.includes(toolEv as ToolEventName)) {
           return NextResponse.json({ error: '未知工具事件' }, { status: 400 })
         }
         // 要求先有 pageview 会话，防脚本直连刷量
