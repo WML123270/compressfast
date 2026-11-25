@@ -32,8 +32,27 @@ const INPUT_SIZE = 320
 const MEAN = [0.485, 0.456, 0.406]
 const STD = [0.229, 0.224, 0.225]
 
+// ─── 人脸检测（UltraFace RFB-320，1.27MB，MIT）───
+// 只用来给证件照做自动构图；检测失败不影响手动取景。
+const FACE_MODEL_URL = '/models/ultraface-rfb-320.onnx'
+const FACE_MODEL_BYTES = 1_270_727
+const FACE_W = 320
+const FACE_H = 240
+const FACE_CONF = 0.65
+const FACE_NMS = 0.3
+const FACE_STRIDES = [8, 16, 32, 64]
+const FACE_MIN_BOXES = [
+  [10, 16, 24],
+  [32, 48],
+  [64, 96],
+  [128, 192, 256],
+]
+
 let session: any = null
 let loading: Promise<any> | null = null
+
+let faceSession: any = null
+let faceLoading: Promise<any> | null = null
 
 async function createSession(): Promise<any> {
   const o = await getOrt()
@@ -62,9 +81,152 @@ async function getSession(onProgress?: (p: ModelLoadProgress) => void): Promise<
   }
 }
 
+// ─── 人脸检测实现 ───
+
+async function createFaceSession(): Promise<any> {
+  const o = await getOrt()
+  const data = await loadModelData(FACE_MODEL_URL, FACE_MODEL_BYTES)
+  return o.InferenceSession.create(data, { executionProviders: ['wasm'] })
+}
+
+async function getFaceSession(onProgress?: (p: ModelLoadProgress) => void): Promise<any> {
+  if (faceSession) return faceSession
+  const off = onProgress ? onModelProgress(FACE_MODEL_URL, onProgress) : undefined
+  try {
+    if (!faceLoading) {
+      faceLoading = (async () => {
+        try {
+          faceSession = await createFaceSession()
+          return faceSession
+        } catch (err) {
+          faceLoading = null
+          throw err
+        }
+      })()
+    }
+    return await faceLoading
+  } finally {
+    off?.()
+  }
+}
+
+// 4400+ 先验框只算一次（中心点/宽高均为归一化坐标）
+let facePriors: Float32Array | null = null
+function getFacePriors(): Float32Array {
+  if (facePriors) return facePriors
+  const out: number[] = []
+  for (let s = 0; s < FACE_STRIDES.length; s++) {
+    const stride = FACE_STRIDES[s]
+    const fw = Math.ceil(FACE_W / stride)
+    const fh = Math.ceil(FACE_H / stride)
+    for (let i = 0; i < fh; i++) {
+      for (let j = 0; j < fw; j++) {
+        for (const mb of FACE_MIN_BOXES[s]) {
+          out.push(((j + 0.5) * stride) / FACE_W, ((i + 0.5) * stride) / FACE_H, mb / FACE_W, mb / FACE_H)
+        }
+      }
+    }
+  }
+  facePriors = new Float32Array(out)
+  return facePriors
+}
+
+interface FaceBox {
+  x: number
+  y: number
+  w: number
+  h: number
+  score: number
+}
+
+function nmsBoxes(boxes: FaceBox[], iouThreshold: number): FaceBox[] {
+  const sorted = [...boxes].sort((a, b) => b.score - a.score)
+  const keep: FaceBox[] = []
+  while (sorted.length) {
+    const a = sorted.shift()!
+    keep.push(a)
+    for (let k = sorted.length - 1; k >= 0; k--) {
+      const b = sorted[k]
+      const x1 = Math.max(a.x, b.x)
+      const y1 = Math.max(a.y, b.y)
+      const x2 = Math.min(a.x + a.w, b.x + b.w)
+      const y2 = Math.min(a.y + a.h, b.y + b.h)
+      const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1)
+      const iou = inter / (a.w * a.h + b.w * b.h - inter || 1)
+      if (iou > iouThreshold) sorted.splice(k, 1)
+    }
+  }
+  return keep
+}
+
+/** 原图 → 320×240 检测，返回原图像素坐标的人脸框（按面积从大到小） */
+async function detectFaces(s: any, bitmap: ImageBitmap): Promise<FaceBox[]> {
+  const canvas = new OffscreenCanvas(FACE_W, FACE_H)
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!
+  ctx.drawImage(bitmap, 0, 0, FACE_W, FACE_H)
+  const { data } = ctx.getImageData(0, 0, FACE_W, FACE_H)
+
+  const n = FACE_W * FACE_H
+  const f = new Float32Array(3 * n)
+  for (let i = 0; i < n; i++) {
+    f[i] = (data[i * 4] - 127) / 128
+    f[n + i] = (data[i * 4 + 1] - 127) / 128
+    f[2 * n + i] = (data[i * 4 + 2] - 127) / 128
+  }
+  const tensor = new (await getOrt()).Tensor('float32', f, [1, 3, FACE_H, FACE_W])
+  const feeds: Record<string, any> = {}
+  feeds[s.inputNames[0]] = tensor
+  const results = await s.run(feeds)
+
+  // 不写死输出顺序：按最后一维识别 scores(2) / boxes(4)
+  let scores: any = null
+  let boxes: any = null
+  for (const name of s.outputNames) {
+    const t = results[name]
+    const dims = t.dims as number[]
+    if (dims[dims.length - 1] === 2) scores = t
+    if (dims[dims.length - 1] === 4) boxes = t
+  }
+  if (!scores || !boxes) throw new Error('Face model outputs not recognized')
+
+  const priors = getFacePriors()
+  const sc = scores.data as Float32Array
+  const bx = boxes.data as Float32Array
+  const count = Math.min(scores.dims[1], priors.length / 4)
+  const dets: FaceBox[] = []
+
+  for (let i = 0; i < count; i++) {
+    // softmax[1] = sigmoid(fg - bg)
+    const p = 1 / (1 + Math.exp(sc[i * 2] - sc[i * 2 + 1]))
+    if (p < FACE_CONF) continue
+    const p4 = i * 4
+    const cx0 = priors[p4]
+    const cy0 = priors[p4 + 1]
+    const w0 = priors[p4 + 2]
+    const h0 = priors[p4 + 3]
+    const cx = cx0 + bx[p4] * 0.1 * w0
+    const cy = cy0 + bx[p4 + 1] * 0.1 * h0
+    const w = w0 * Math.exp(bx[p4 + 2] * 0.2)
+    const h = h0 * Math.exp(bx[p4 + 3] * 0.2)
+    const x = (cx - w / 2) * FACE_W
+    const y = (cy - h / 2) * FACE_H
+    const bw = w * FACE_W
+    const bh = h * FACE_H
+    if (bw < 14 || bh < 14) continue
+    dets.push({ x, y, w: bw, h: bh, score: p })
+  }
+
+  const kept = nmsBoxes(dets, FACE_NMS)
+  const sx = bitmap.width / FACE_W
+  const sy = bitmap.height / FACE_H
+  return kept
+    .map((d) => ({ x: d.x * sx, y: d.y * sy, w: d.w * sx, h: d.h * sy, score: d.score }))
+    .sort((a, b) => b.w * b.h - a.w * a.h)
+}
+
 interface IdPhotoMsg {
   id: string
-  type?: 'warmup'
+  type?: 'warmup' | 'face'
   imageBuffer?: ArrayBuffer
 }
 
@@ -164,6 +326,62 @@ self.onmessage = async (e: MessageEvent<IdPhotoMsg>) => {
       await getSession()
     } catch {
       /* ignore */
+    }
+    return
+  }
+
+  // 人脸检测：只返回框，不做抠图
+  if (type === 'face') {
+    if (!imageBuffer) {
+      postFailure(id, 'internal', 'Missing image data')
+      return
+    }
+    let phase: 'model' | 'run' = 'model'
+    const heartbeat = setInterval(() => post(id, { type: 'phase', phase }), 3000)
+    try {
+      let bitmap: ImageBitmap
+      try {
+        bitmap = await createImageBitmap(new Blob([imageBuffer]))
+      } catch (err) {
+        postFailure(id, 'decode', err)
+        return
+      }
+      try {
+        try {
+          await getOrt()
+        } catch (err) {
+          postFailure(id, 'model_load', err)
+          return
+        }
+        post(id, { type: 'phase', phase: 'model' })
+        let s: any
+        try {
+          s = await getFaceSession((p) =>
+            post(id, {
+              type: 'progress',
+              phase: 'model',
+              done: p.loaded,
+              total: p.total,
+              cached: p.cached,
+            }),
+          )
+        } catch (err) {
+          postFailure(id, 'model_load', err)
+          return
+        }
+        phase = 'run'
+        post(id, { type: 'phase', phase })
+        try {
+          const faces = await detectFaces(s, bitmap)
+          post(id, { type: 'done', result: { faces, imgW: bitmap.width, imgH: bitmap.height } })
+        } catch (err) {
+          postFailure(id, 'run', err)
+        }
+      } finally {
+        bitmap.close()
+      }
+    } finally {
+      clearInterval(heartbeat)
     }
     return
   }

@@ -9,7 +9,7 @@ import { useCompressionStore } from '@/lib/store/compression-store'
 import { useIsCn } from '@/lib/use-is-cn'
 import { ImageDrop } from '@/components/tools/ImageDrop'
 import ModelDownloadBar from '@/components/ai/ModelDownloadBar'
-import { cutoutPortrait } from '@/lib/ai/id-photo'
+import { cutoutPortrait, detectFace, type DetectedFace } from '@/lib/ai/id-photo'
 import { AiError, aiErrorCopy, formatAiErrorDetail, isRetryableAiError, type AiErrorCode } from '@/lib/ai/ai-error'
 import { detectAiSupportIssue } from '@/lib/ai/support'
 import { composeOnBackground, composePrintSheet, type PrintSheetResult } from '@/lib/id-photo/compose'
@@ -49,6 +49,34 @@ interface ResultImage {
   url: string
   w: number
   h: number
+}
+
+type DetectStatus = 'idle' | 'detecting' | 'done' | 'none' | 'error'
+
+/**
+ * 用检测到的人脸估算自动取景：
+ *  - UltraFace 的框大致从眉毛/额头到下巴，头顶约再高 0.45 个框高
+ *  - 头部高度 ≈ 1.6 个框高（按正面照校准）
+ *  - 优先满足头部高度参考线；同时限制脸宽不超过画面 85%，避免侧脸/大脸被裁得过紧
+ */
+function autoCropFromFace(face: DetectedFace, imgW: number, imgH: number, preset: IdPhotoPreset): Crop {
+  const aspect = preset.width / preset.height
+  const base = baseRect(imgW, imgH, aspect)
+  const headHeight = face.h * 1.6
+  const headCenterY = face.y + face.h * 0.35
+  const guideFrac = preset.guideBottom - preset.guideTop
+
+  const zHeight = (base.h * guideFrac) / headHeight
+  const zWidthCap = (base.w * 0.85) / face.w
+  let zoom = Math.min(zHeight, zWidthCap)
+  zoom = Math.min(3, Math.max(1, zoom))
+
+  const sh = base.h / zoom
+  const guideCenter = (preset.guideTop + preset.guideBottom) / 2
+  const cy = (headCenterY + (0.5 - guideCenter) * sh) / imgH
+  const cx = (face.x + face.w / 2) / imgW
+
+  return { zoom, cx, cy }
 }
 
 /** 目标比例下、能放进原图的最大矩形（zoom=1 时的取景框） */
@@ -92,6 +120,13 @@ export default function IdPhotoClient() {
   const [showGuides, setShowGuides] = useState(true)
   const [crop, setCrop] = useState<Crop>({ zoom: 1, cx: 0.5, cy: 0.5 })
 
+  const [face, setFace] = useState<DetectedFace | null>(null)
+  const [faceCount, setFaceCount] = useState(0)
+  const [faceDims, setFaceDims] = useState<{ w: number; h: number } | null>(null)
+  const [detectStatus, setDetectStatus] = useState<DetectStatus>('idle')
+  const [detectProgress, setDetectProgress] = useState<{ done: number; total: number; cached: boolean } | null>(null)
+  const detectToken = useRef(0)
+
   const [status, setStatus] = useState<Status>('idle')
   const [errorInfo, setErrorInfo] = useState<UiError | null>(null)
   const [phase, setPhase] = useState<'model' | 'run' | null>(null)
@@ -133,6 +168,54 @@ export default function IdPhotoClient() {
     setModelProgress(null)
   }, [])
 
+  // 上传后自动检测人脸；失败/无人脸都不影响手动取景
+  const startDetect = useCallback(async (file: File) => {
+    const token = ++detectToken.current
+    setFace(null)
+    setFaceCount(0)
+    setFaceDims(null)
+    setDetectStatus('detecting')
+    setDetectProgress(null)
+
+    const onProgress = (p: { phase: 'model' | 'run'; done?: number; total?: number; cached?: boolean }) => {
+      if (detectToken.current !== token) return
+      if (p.phase === 'model' && (p.total ?? 0) > 0) {
+        setDetectProgress({ done: p.done ?? 0, total: p.total ?? 0, cached: !!p.cached })
+      }
+    }
+
+    try {
+      const buffer = await file.arrayBuffer()
+      let res
+      // 同一 Worker 可能还在跑上一次检测/生成：busy 时短暂重试
+      for (let attempt = 0; ; attempt++) {
+        try {
+          res = await detectFace(buffer, onProgress)
+          break
+        } catch (e) {
+          if (e instanceof AiError && e.code === 'busy' && attempt < 6 && detectToken.current === token) {
+            await new Promise((r) => setTimeout(r, 500))
+            continue
+          }
+          throw e
+        }
+      }
+      if (detectToken.current !== token) return
+      setFaceDims({ w: res.imgW, h: res.imgH })
+      setFaceCount(res.faces.length)
+      if (res.faces.length > 0) {
+        setFace(res.faces[0])
+        setDetectStatus('done')
+      } else {
+        setDetectStatus('none')
+      }
+    } catch {
+      if (detectToken.current === token) setDetectStatus('error')
+    } finally {
+      if (detectToken.current === token) setDetectProgress(null)
+    }
+  }, [])
+
   const handleFile = useCallback((file: File) => {
     setErrorInfo(null)
     invalidate()
@@ -141,21 +224,38 @@ export default function IdPhotoClient() {
     img.onload = () => {
       setSource({ file, url, img })
       setCrop({ zoom: 1, cx: 0.5, cy: 0.5 })
+      void startDetect(file)
     }
     img.onerror = () => {
       URL.revokeObjectURL(url)
       setErrorInfo({ code: 'file', detail: isZh ? '图片无法解码，请换一张 JPG/PNG/WebP' : 'Could not decode this image — try a JPG/PNG/WebP' })
     }
     img.src = url
-  }, [invalidate, isZh])
+  }, [invalidate, isZh, startDetect])
 
   const resetAll = useCallback(() => {
+    detectToken.current++
     if (source) URL.revokeObjectURL(source.url)
     setSource(null)
     setCrop({ zoom: 1, cx: 0.5, cy: 0.5 })
+    setFace(null)
+    setFaceCount(0)
+    setFaceDims(null)
+    setDetectStatus('idle')
+    setDetectProgress(null)
     setErrorInfo(null)
     invalidate()
   }, [source, invalidate])
+
+  const applyAutoCrop = useCallback(() => {
+    if (!face || !faceDims) return
+    setCrop(autoCropFromFace(face, faceDims.w, faceDims.h, preset))
+  }, [face, faceDims, preset])
+
+  // 检测到人脸 / 切换尺寸时，自动重新构图（手动拖动后不会被覆盖）
+  useEffect(() => {
+    if (face && faceDims) applyAutoCrop()
+  }, [face, faceDims, applyAutoCrop])
 
   // 预览画布：按当前取景框绘制
   useEffect(() => {
@@ -327,6 +427,11 @@ export default function IdPhotoClient() {
   }, [sheet, preset.key])
 
   const busy = status === 'processing'
+  const detecting = detectStatus === 'detecting'
+  const detectPct =
+    detectProgress && detectProgress.total > 0
+      ? Math.min(100, Math.round((detectProgress.done / detectProgress.total) * 100))
+      : 0
   const modelPct =
     modelProgress && modelProgress.total > 0
       ? Math.min(100, Math.round((modelProgress.done / modelProgress.total) * 100))
@@ -362,8 +467,8 @@ export default function IdPhotoClient() {
         />
         <p className="text-[11px] text-center text-neutral-400 leading-relaxed">
           {isZh
-            ? '提示：正脸、光线均匀、背景简单的照片效果最好。上传后可以拖动和缩放取景。'
-            : 'Tip: a front-facing photo with even light and a simple background works best. You can pan and zoom after uploading.'}
+            ? '提示：正脸、光线均匀、背景简单的照片效果最好。上传后会自动识别人脸并构图，可再手动微调。'
+            : 'Tip: a front-facing photo with even light and a simple background works best. The face is detected and framed automatically; you can still adjust it.'}
         </p>
       </div>
     )
@@ -478,6 +583,47 @@ export default function IdPhotoClient() {
                   ? '拖动照片调整位置，让头顶贴近上方虚线、下巴靠近下方虚线。正脸居中效果最好。'
                   : 'Drag the photo so the head top sits near the upper line and the chin near the lower line. Centered, front-facing photos work best.'}
               </p>
+
+              {detectStatus === 'detecting' && (
+                <p className="flex items-center gap-1.5 text-[11px] text-cyan-700">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" />
+                  {isZh
+                    ? `正在识别人脸并自动构图${detectPct > 0 && detectPct < 100 ? ` ${detectPct}%` : detectProgress?.cached ? '（模型已缓存）' : '…'}`
+                    : `Detecting the face to frame the photo${detectPct > 0 && detectPct < 100 ? ` ${detectPct}%` : detectProgress?.cached ? ' (model cached)' : '…'}`}
+                </p>
+              )}
+              {detectStatus === 'done' && face && (
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[11px] leading-relaxed text-emerald-700">
+                    ✓ {isZh ? '已自动构图，可拖动/缩放微调' : 'Auto-framed — drag or zoom to fine-tune'}
+                    {faceCount > 1 && (isZh ? '（检测到多张人脸，已选最大一张）' : ' (multiple faces found; using the largest)')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={applyAutoCrop}
+                    className="flex-shrink-0 text-[11px] text-cyan-700 underline underline-offset-2 hover:text-cyan-800"
+                  >
+                    {isZh ? '重新自动构图' : 'Re-frame'}
+                  </button>
+                </div>
+              )}
+              {detectStatus === 'none' && (
+                <p className="text-[11px] leading-relaxed text-amber-700">
+                  {isZh ? '未检测到正面人脸，请手动拖动/缩放取景。' : 'No front-facing face detected — drag or zoom manually.'}
+                </p>
+              )}
+              {detectStatus === 'error' && (
+                <p className="text-[11px] leading-relaxed text-neutral-400">
+                  {isZh ? '人脸识别不可用，不影响生成，请手动取景。' : 'Face detection is unavailable — frame manually; generation still works.'}
+                </p>
+              )}
+              {face && faceDims && (face.w < 90 || face.w / faceDims.w < 0.08) && (
+                <p className="text-[11px] leading-relaxed text-amber-700">
+                  {isZh
+                    ? '原图人脸较小，输出可能不够清晰，建议换一张更大、更清晰的照片。'
+                    : 'The face is small in this photo, so the output may be soft. A larger, sharper source works better.'}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -565,11 +711,15 @@ export default function IdPhotoClient() {
               <button
                 type="button"
                 onClick={generate}
-                disabled={busy}
+                disabled={busy || detecting}
                 className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:opacity-90 disabled:opacity-60"
               >
-                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <ScanFace className="w-4 h-4" />}
-                {busy ? busyLabel : (isZh ? '生成证件照' : 'Generate ID photo')}
+                {busy || detecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ScanFace className="w-4 h-4" />}
+                {busy
+                  ? busyLabel
+                  : detecting
+                    ? (isZh ? '识别人脸中…' : 'Detecting face…')
+                    : (isZh ? '生成证件照' : 'Generate ID photo')}
               </button>
             )}
 

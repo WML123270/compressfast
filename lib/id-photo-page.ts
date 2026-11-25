@@ -29,8 +29,8 @@ export const ID_PHOTO_TOOL: ToolPageData = {
       icon: '🔒',
       titleEn: 'Stays on Your Device',
       titleZh: '照片不上传',
-      descEn: 'Portrait segmentation runs in your browser with a 4.4MB on-device model. Your photo is never sent to a server.',
-      descZh: '人像分割用 4.4MB 模型在浏览器本地完成，照片不会上传到任何服务器。',
+      descEn: 'Face detection and portrait segmentation run in your browser with two small on-device models (1.3MB + 4.4MB). Your photo is never sent to a server.',
+      descZh: '人脸检测和人像分割用两个小模型（1.3MB + 4.4MB）在浏览器本地完成，照片不会上传到任何服务器。',
     },
     {
       icon: '📐',
@@ -59,8 +59,8 @@ export const ID_PHOTO_TOOL: ToolPageData = {
       step: 2,
       titleEn: 'Choose size and background',
       titleZh: '选尺寸和底色',
-      descEn: 'Pick a size preset and a background color, then drag and zoom so the head fits the guides.',
-      descZh: '选择尺寸预设和底色，拖动、缩放照片，让头部贴合参考线。',
+      descEn: 'The face is detected automatically and the crop is framed for you. Pick a size and background, then drag or zoom if you want to fine-tune.',
+      descZh: '上传后自动识别人脸并完成构图；选择尺寸和底色，需要时再拖动、缩放微调。',
     },
     {
       step: 3,
@@ -90,10 +90,16 @@ export const ID_PHOTO_TOOL: ToolPageData = {
       aZh: '免费。生成和下载单张证件照完全免费，无水印。6 寸相纸排版（多张 + 裁切线）是可选 Pro 功能。极速压图的所有免费工具都不需要注册账号。',
     },
     {
+      qEn: 'Does it center the face automatically?',
+      qZh: '上传后会自动识别人脸构图吗？',
+      aEn: 'Yes. On upload, a small face detector (about 1.3MB, also running locally) finds the largest front-facing face and frames the crop automatically. If it cannot find a face — or the photo is angled — you can drag and zoom manually. In group photos the largest face is used.',
+      aZh: '会。上传后，本地运行的人脸检测模型（约 1.3MB）会找到最大的一张正脸并自动完成取景；找不到人脸或照片角度不理想时，仍可手动拖动、缩放。多人合影会选用最大的一张脸。',
+    },
+    {
       qEn: 'Why does it download a model?',
       qZh: '为什么要下载模型？',
-      aEn: 'Removing the background requires a portrait segmentation model. We use u2netp (about 4.4MB) so the first run is quick even on mobile. It is stored in the browser cache, so later photos start almost instantly.',
-      aZh: '换底色需要人像分割模型。我们选用约 4.4MB 的 u2netp，手机上首次下载也很快；模型会存入浏览器缓存，之后再用几乎秒开。',
+      aEn: 'Removing the background requires a portrait segmentation model. We use u2netp (about 4.4MB) so the first run is quick even on mobile. A separate 1.3MB face model runs at upload time. Both are stored in the browser cache, so later photos start almost instantly.',
+      aZh: '换底色需要人像分割模型。我们选用约 4.4MB 的 u2netp，手机上首次下载也很快；上传时还会下载约 1.3MB 的人脸检测模型。两个模型都会存入浏览器缓存，之后再用几乎秒开。',
     },
     {
       qEn: 'What makes a good source photo?',
@@ -122,9 +128,9 @@ export const ID_PHOTO_TOOL: ToolPageData = {
   ],
   detailedGuideEn: `An ID photo looks simple until you need one: the size must be exact, the background must be the right color, and the head has to sit within a narrow band of the frame. Most online services solve this by asking you to upload the photo to their server. This tool takes the opposite approach — the portrait is cut out and composited on your own device.
 
-The workflow is three steps. Upload a front-facing photo. Choose a size preset — one-inch (25×35mm), two-inch (35×49mm), small two-inch, large one-inch, US passport 2×2in or Japan visa 45×45mm — and a background color. Drag and zoom the photo until the head fits the dashed guides: head top near the upper line, chin near the lower line. Then press Generate.
+The workflow is three steps. Upload a front-facing photo. A small face detector runs locally and frames the crop automatically: it finds the largest face and zooms so the head sits between the dashed guides. Choose a size preset — one-inch (25×35mm), two-inch (35×49mm), small two-inch, large one-inch, US passport 2×2in or Japan visa 45×45mm — and a background color. If the detection misses the face, or you want a different crop, drag and zoom manually; the guides show where the head top and chin should sit. Then press Generate.
 
-On the first run, the browser downloads a 4.4MB portrait segmentation model (u2netp) and caches it. The model produces a soft alpha mask around the person, which is used to composite the subject onto a solid white, blue, red or custom background. The output is rendered at 300 DPI in the exact pixel size of the preset: for example, a one-inch photo is 295×413 pixels. You can download JPG or PNG and change the background color without re-running the model.
+On the first run, the browser downloads a 1.3MB face model and a 4.4MB portrait segmentation model (u2netp), then caches both. The model produces a soft alpha mask around the person, which is used to composite the subject onto a solid white, blue, red or custom background. The output is rendered at 300 DPI in the exact pixel size of the preset: for example, a one-inch photo is 295×413 pixels. You can download JPG or PNG and change the background color without re-running the model.
 
 A few practical notes. Official rules differ: some agencies require a white background, others blue or red; head height and margins also vary. The guides are a general starting point, not a guarantee of acceptance. Use a photo with even lighting and no strong colored light, keep the face centered and look straight at the camera. Avoid heavy filters — they can alter skin tone and are often rejected. If the source photo has a busy background, the model still works, but hair edges will look cleaner when the background contrasts with the hair.
 
@@ -133,9 +139,9 @@ For printing, Pro users can lay multiple copies onto a 6-inch sheet with cut gui
 Privacy and speed are the reason this runs locally. The photo is never uploaded, there is no account, no queue and no watermark. Once the model is cached, generating another size or background takes only a couple of seconds. If you need a transparent PNG instead of a solid background, the AI background remover is the companion tool; if you need to shrink the final file for an upload form, run it through the compressor afterward.`,
   detailedGuideZh: `证件照看起来简单，真正要做的时候却处处是坑：尺寸必须精确、底色必须符合要求、头部还要落在规定的比例范围内。多数在线服务的做法是把照片上传到服务器处理；这个工具反过来，抠图和换底全部在你的设备上完成。
 
-流程只有三步。先上传一张正脸照片；再选择尺寸预设——一寸（25×35mm）、二寸（35×49mm）、小二寸、大一寸、美国护照 2×2 英寸或日本签证 45×45mm——以及底色；拖动、缩放照片，让头顶贴近上方虚线、下巴靠近下方虚线，然后点「生成证件照」。
+流程只有三步。先上传一张正脸照片，本地的人脸检测模型会自动找到最大的一张脸并完成取景，让头部落在参考线之间；再选择尺寸预设——一寸（25×35mm）、二寸（35×49mm）、小二寸、大一寸、美国护照 2×2 英寸或日本签证 45×45mm——以及底色。如果没检测到人脸，或想要不同的构图，仍可手动拖动、缩放，参考线会提示头顶和下巴的位置。最后点「生成证件照」。
 
-首次使用时，浏览器会下载约 4.4MB 的人像分割模型（u2netp）并缓存。模型输出人像周围的柔和蒙版，用它把人物合成到白、蓝、红或自定义纯色背景上。输出按 300DPI 和预设的精确像素尺寸渲染：例如一寸照就是 295×413 像素。可以下载 JPG 或 PNG；生成后换底色不需要重新跑模型，几乎瞬间完成。
+首次使用时，浏览器会下载约 1.3MB 的人脸检测模型和约 4.4MB 的人像分割模型（u2netp），并缓存。模型输出人像周围的柔和蒙版，用它把人物合成到白、蓝、红或自定义纯色背景上。输出按 300DPI 和预设的精确像素尺寸渲染：例如一寸照就是 295×413 像素。可以下载 JPG 或 PNG；生成后换底色不需要重新跑模型，几乎瞬间完成。
 
 几点实用建议。各地要求并不统一：有的机构要白底，有的要蓝底或红底，头部高度和留白比例也各不相同。参考线只是通用起点，不保证一定通过审核。原图尽量光线均匀、不要有强烈色光，人脸居中、正视镜头；不要用重滤镜，滤镜会改变肤色，容易被退回。原图背景杂乱也能处理，但头发与背景颜色反差大时，发丝边缘会更干净。
 

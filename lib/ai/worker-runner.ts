@@ -70,8 +70,11 @@ export class AiWorkerRunner {
     }
   }
 
-  /** 把任务交给 Worker，返回结果 Blob */
-  run(payload: Record<string, unknown>, opts: AiWorkerRunOptions = {}): Promise<Blob> {
+  /**
+   * 把任务交给 Worker，返回结果。
+   * 默认 resultBlob（Blob）；人脸检测等任务可返回普通对象（传泛型 T）。
+   */
+  run<T = Blob>(payload: Record<string, unknown>, opts: AiWorkerRunOptions = {}): Promise<T> {
     if (this.busy) {
       return Promise.reject(new AiError('busy', 'Another AI task is still running'))
     }
@@ -86,7 +89,7 @@ export class AiWorkerRunner {
     this.busy = true
     const idleTimeoutMs = opts.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS
 
-    return new Promise<Blob>((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const id = `ai_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
       let settled = false
       let timer: ReturnType<typeof setTimeout> | null = null
@@ -122,10 +125,10 @@ export class AiWorkerRunner {
         reject(new AiError(code, detail))
       }
 
-      const succeed = (blob: Blob) => {
+      const succeed = (result: unknown) => {
         if (settled) return
         cleanup()
-        resolve(blob)
+        resolve(result as T)
       }
 
       // 看门狗：每收到一条消息就重置。Worker 正常工作时至少每 3 秒有一次心跳。
@@ -155,7 +158,9 @@ export class AiWorkerRunner {
           return
         }
         if (d.type === 'done') {
+          // 普通 AI 任务回 resultBlob；人脸检测等回 result 对象
           if (d.resultBlob) succeed(d.resultBlob as Blob)
+          else if (d.result !== undefined) succeed(d.result)
           else fail('internal', 'AI worker returned an empty result')
           return
         }
