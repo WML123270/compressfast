@@ -22,8 +22,10 @@ const PATHS = [
 ]
 
 const dry = process.env.INDEXNOW_DRY === '1'
+// 可选：只推某个域名（例如海外站还没部署新页面时）
+const domains = process.env.INDEXNOW_DOMAIN ? [process.env.INDEXNOW_DOMAIN] : DOMAINS
 
-for (const domain of DOMAINS) {
+for (const domain of domains) {
   const keyLocation = `https://${domain}/${KEY}.txt`
   const urlList = PATHS.map((p) => `https://${domain}${p}`)
   const body = { host: domain, key: KEY, keyLocation, urlList }
