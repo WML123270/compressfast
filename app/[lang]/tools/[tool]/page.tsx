@@ -20,6 +20,7 @@ const BlurImageClient = dynamic(() => import('./BlurImageClient'), { ssr: false 
 const PngToIcoClient = dynamic(() => import('./PngToIcoClient'), { ssr: false })
 const ImageToBase64Client = dynamic(() => import('./ImageToBase64Client'), { ssr: false })
 const IdPhotoClient = dynamic(() => import('./IdPhotoClient'), { ssr: false })
+const SplitImageClient = dynamic(() => import('./SplitImageClient'), { ssr: false })
 
 const PDF_CLIENTS: Record<string, ComponentType> = {
   'image-to-pdf': ImageToPdfClient,
@@ -38,6 +39,7 @@ const SPECIAL_CLIENTS: Record<string, ComponentType> = {
   'png-to-ico': PngToIcoClient,
   'image-to-base64': ImageToBase64Client,
   'id-photo': IdPhotoClient,
+  'split-image': SplitImageClient,
 }
 
 interface Props { params: { tool: string; lang: string } }
@@ -99,7 +101,8 @@ export default function ToolPage({ params }: Props) {
   const isIcoTool = params.tool === 'png-to-ico'
   const isBase64Tool = params.tool === 'image-to-base64'
   const isIdPhotoTool = params.tool === 'id-photo'
-  const isUtilityTool = isBlurTool || isIcoTool || isBase64Tool || isIdPhotoTool
+  const isSplitTool = params.tool === 'split-image'
+  const isUtilityTool = isBlurTool || isIcoTool || isBase64Tool || isIdPhotoTool || isSplitTool
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
@@ -134,15 +137,19 @@ export default function ToolPage({ params }: Props) {
                   : isIcoTool
                     ? 'PNG 转 ICO 在浏览器本地完成：图片被缩放到多个尺寸并打包成真正的多尺寸 .ico，全程不上传。建议上传正方形图片（≥256×256），非正方形会按中心裁切。'
                     : isIdPhotoTool
-                      ? '证件照制作同样在浏览器本地完成：约 4.4MB 的人像分割模型负责抠出人物，再按所选底色合成，并按 300DPI 的精确像素尺寸输出。照片不上传、无水印。注意各地受理机构对尺寸、底色和头部比例的要求不同，提交前请核对官方规定。'
-                      : '图片转 Base64 在浏览器本地编码：文件不会上传，直接生成 Data URI、HTML 或 CSS 片段，可一键复制。Base64 体积通常比原文件大 33%，更适合小图标而不是大图。'
+                      ? '证件照制作同样在浏览器本地完成：约 1.3MB 的人脸模型自动构图，约 4.4MB 的人像分割模型抠出人物，再按所选底色合成，并按 300/600DPI 的精确像素尺寸输出（支持自定义尺寸）。照片不上传、无水印。注意各地受理机构对尺寸、底色和头部比例的要求不同，提交前请核对官方规定。'
+                      : isSplitTool
+                        ? '图片切割完全在浏览器本地完成：图片解码后按所选行列逐块绘制、编码并打包成 ZIP，全程不上传。九宫格发朋友圈/小红书时建议选 3×3 + 正方形裁剪，按文件名 1-1 到 3-3 的顺序上传。'
+                        : '图片转 Base64 在浏览器本地编码：文件不会上传，直接生成 Data URI、HTML 或 CSS 片段，可一键复制。Base64 体积通常比原文件大 33%，更适合小图标而不是大图。'
                 : isBlurTool
                   ? 'The blur and mosaic tool runs entirely in your browser: decoding, pixel processing and export all happen on your device — no upload, no watermark. Whole-image treatment works well for hiding backgrounds and text; to mask only a small area, crop it first and then blur it.'
                   : isIcoTool
                     ? 'PNG to ICO runs locally in your browser: the image is resized to several sizes and packed into a real multi-size .ico — nothing is uploaded. A square image (≥256×256) works best; non-square images are center-cropped.'
                     : isIdPhotoTool
-                      ? 'The ID photo maker runs locally: the portrait is cut out by a 4.4MB segmentation model inside your browser, then composited onto the background you choose and rendered at the exact 300 DPI pixel size. Your photo is never uploaded, and there is no watermark. Check the official requirements of the office receiving the photo — size, background color and head ratio rules vary.'
-                      : 'Image to Base64 encodes locally in your browser: the file is never uploaded, and you get a Data URI, HTML or CSS snippet ready to copy. Base64 is about 33% larger than the original, so it suits small icons rather than large photos.')
+                      ? 'The ID photo maker runs locally: a 1.3MB face model frames the crop, a 4.4MB segmentation model cuts out the portrait, and the result is composited onto the background you choose and rendered at the exact 300 or 600 DPI pixel size, including custom sizes. Your photo is never uploaded, and there is no watermark. Check the official requirements of the office receiving the photo — size, background color and head ratio rules vary.'
+                      : isSplitTool
+                        ? 'The splitter runs entirely in your browser: the image is decoded, sliced into the grid you choose, encoded and packed into a ZIP locally — nothing is uploaded. For a nine-grid post on WeChat Moments or Instagram, use 3×3 with square crop and upload the tiles in filename order 1-1 … 3-3.'
+                        : 'Image to Base64 encodes locally in your browser: the file is never uploaded, and you get a Data URI, HTML or CSS snippet ready to copy. Base64 is about 33% larger than the original, so it suits small icons rather than large photos.')
             : isTargetSizeTool
             ? (isZh
                 ? `这个页面已经把 ${targetKB}KB 预设为目标大小，其余复用极速压图的本地压缩器：文件在浏览器内解码，按目标反复搜索画质与缩放，再编码导出，全程不上传。能否达标通常取决于尺寸——如果压缩后仍超过 ${targetKB}KB，用「调整尺寸」降低宽高，或把输出格式改为 WebP/JPEG，是最有效的办法。`

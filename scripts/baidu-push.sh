@@ -111,6 +111,8 @@ https://jisuyatu.com/zh/tools/image-to-base64
 https://jisuyatu.com/en/tools/image-to-base64
 https://jisuyatu.com/zh/tools/id-photo
 https://jisuyatu.com/en/tools/id-photo
+https://jisuyatu.com/zh/tools/split-image
+https://jisuyatu.com/en/tools/split-image
 
 # === 其他页面 ===
 https://jisuyatu.com/zh/about

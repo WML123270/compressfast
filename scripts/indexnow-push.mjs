@@ -18,6 +18,7 @@ const PATHS = [
   '/zh/tools/png-to-ico', '/en/tools/png-to-ico',
   '/zh/tools/image-to-base64', '/en/tools/image-to-base64',
   '/zh/tools/id-photo', '/en/tools/id-photo',
+  '/zh/tools/split-image', '/en/tools/split-image',
 ]
 
 const dry = process.env.INDEXNOW_DRY === '1'

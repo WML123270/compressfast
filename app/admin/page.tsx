@@ -266,6 +266,7 @@ function renderStats(data: any, ov: any, cn: any): string {
   }
   const stitchCard = buildToolCard(data.stitch)
   const idPhotoCard = buildToolCard(data.idPhoto)
+  const splitCard = buildToolCard(data.splitImage)
   const stitchGen = stitchCard.gen
   const stitchErr = stitchCard.err
   const stitchDl = stitchCard.dl
@@ -285,6 +286,16 @@ function renderStats(data: any, ov: any, cn: any): string {
   for (let i = 0; i < idPhotoCard.daily.length; i++) {
     const d = idPhotoCard.daily[i] || {}
     idPhotoRows += `<tr>
+      <td class="date">${(d.date || '').slice(5)}</td>
+      <td class="num">${d.generate || 0}</td>
+      <td class="num">${d.error || 0}</td>
+      <td class="num">${d.download || 0}</td>
+    </tr>`
+  }
+  let splitRows = ''
+  for (let i = 0; i < splitCard.daily.length; i++) {
+    const d = splitCard.daily[i] || {}
+    splitRows += `<tr>
       <td class="date">${(d.date || '').slice(5)}</td>
       <td class="num">${d.generate || 0}</td>
       <td class="num">${d.error || 0}</td>
@@ -420,6 +431,19 @@ function renderStats(data: any, ov: any, cn: any): string {
     <table>
       <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
       ${idPhotoRows}
+    </table>
+    <h2>🔳 图片切割（累计）</h2>
+    <div class="split">
+      <div class="box">
+        <h3>🔳 生成 / 下载</h3>
+        <div class="s">生成 ${splitCard.gen} · 失败 ${splitCard.err} · 下载 ${splitCard.dl} · 下载/生成 ${splitCard.dlRate}%</div>
+        <div class="s">generate 仅在每次页面会话首次成功打包时记一次，download 按点击次数累计。</div>
+      </div>
+    </div>
+    <h2>📅 图片切割近 7 天（生成 / 失败 / 下载）</h2>
+    <table>
+      <tr><th>日期</th><th class="num">生成</th><th class="num">失败</th><th class="num">下载</th></tr>
+      ${splitRows}
     </table>
     <h2>📅 近7天明细</h2>
     <table>

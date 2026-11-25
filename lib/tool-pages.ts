@@ -5,6 +5,7 @@
 import { TARGET_SIZE_TOOLS } from './target-size-pages'
 import { UTILITY_TOOLS } from './utility-pages'
 import { ID_PHOTO_TOOL } from './id-photo-page'
+import { SPLIT_IMAGE_TOOL } from './split-image-page'
 
 export interface ToolPageData {
   slug: string
@@ -1935,6 +1936,9 @@ Limits and safeguards: up to 30 images, 30MB each. When a collage would exceed t
 
   // 证件照：轻量人像分割 + 换底色 + 标准尺寸
   'id-photo': ID_PHOTO_TOOL,
+
+  // 图片切割 / 九宫格切图
+  'split-image': SPLIT_IMAGE_TOOL,
 }
 
 export const TOOL_SLUGS = Object.keys(TOOLS)

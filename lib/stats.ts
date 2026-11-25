@@ -405,7 +405,7 @@ export interface ToolStats {
 }
 
 /** 走 stats:tool:* 埋点的普通工具（track API 白名单） */
-export const TRACKED_TOOLS = ['stitch-images', 'id-photo'] as const
+export const TRACKED_TOOLS = ['stitch-images', 'id-photo', 'split-image'] as const
 
 export interface ProSourceStats {
   source: string
@@ -453,6 +453,7 @@ export interface DashboardStats {
   pdf: PdfStats
   stitch: ToolStats
   idPhoto: ToolStats
+  splitImage: ToolStats
   proFunnel: ProFunnelStats
 }
 
@@ -519,13 +520,14 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return { totalPV, totalUV, totalCompressions, dailyPV, dailyUV, dailyCompressions }
   }
 
-  const [overseas, china, ai, pdf, stitch, idPhoto, proFunnel] = await Promise.all([
+  const [overseas, china, ai, pdf, stitch, idPhoto, splitImage, proFunnel] = await Promise.all([
     buildSiteStats('os'),
     buildSiteStats('cn'),
     getAiStats(),
     getPdfStats(),
     getToolStats('stitch-images'),
     getToolStats('id-photo'),
+    getToolStats('split-image'),
     getProFunnelStats(),
   ])
 
@@ -545,6 +547,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     pdf,
     stitch,
     idPhoto,
+    splitImage,
     proFunnel,
   }
 }
