@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { GUIDES, GUIDE_SLUGS } from '@/lib/guide-pages'
+import { GUIDES, GUIDE_SLUGS, type GuideTable } from '@/lib/guide-pages'
 import { TOOLS } from '@/lib/tool-pages'
 import type { Metadata } from 'next'
 import { ChevronDown, ArrowRight } from 'lucide-react'
@@ -63,6 +63,54 @@ function Body({ text }: { text: string }) {
   )
 }
 
+/** Responsive data table: scrolls horizontally inside its own card on narrow screens */
+function GuideTableBlock({ table, isZh }: { table: GuideTable; isZh: boolean }) {
+  const headers = isZh ? table.headersZh : table.headersEn
+  const rows = isZh ? table.rowsZh : table.rowsEn
+  const caption = isZh ? table.captionZh : table.captionEn
+  const note = isZh ? table.noteZh : table.noteEn
+
+  return (
+    <div className="mt-4">
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full min-w-[540px] border-collapse text-left text-xs sm:text-sm">
+          {caption && (
+            <caption className="px-3 pt-3 pb-2 text-left text-xs font-medium text-gray-500">{caption}</caption>
+          )}
+          <thead className="bg-gray-50">
+            <tr>
+              {headers.map((header, i) => (
+                <th
+                  key={i}
+                  scope="col"
+                  className="px-3 py-2 font-semibold text-gray-900 whitespace-nowrap border-b border-gray-200"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, r) => (
+              <tr key={r} className="border-b border-gray-100 last:border-0">
+                {row.map((cell, c) => (
+                  <td
+                    key={c}
+                    className={`px-3 py-2 align-top text-gray-700 ${c === 0 ? 'font-medium text-gray-900 whitespace-nowrap' : ''}`}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {note && <p className="mt-2 text-xs text-gray-500 leading-relaxed">{note}</p>}
+    </div>
+  )
+}
+
 export default function GuidePage({ params }: Props) {
   const guide = GUIDES[params.slug]
   if (!guide) notFound()
@@ -97,26 +145,30 @@ export default function GuidePage({ params }: Props) {
               {isZh ? section.headingZh : section.headingEn}
             </h2>
             <Body text={isZh ? section.bodyZh : section.bodyEn} />
+            {section.table && <GuideTableBlock table={section.table} isZh={isZh} />}
           </section>
         ))}
       </div>
 
-      {/* CTA */}
+      {/* CTA — guide-specific when provided, otherwise the compressor */}
       <section className="p-6 rounded-2xl bg-gradient-to-r from-cyan-50 to-blue-50 border border-blue-100 text-center space-y-3">
         <h2 className="font-bold text-gray-900 text-lg">
-          {isZh ? '开始压缩你的图片' : 'Start compressing your images'}
+          {isZh
+            ? guide.cta?.titleZh ?? '开始压缩你的图片'
+            : guide.cta?.titleEn ?? 'Start compressing your images'}
         </h2>
         <p className="text-sm text-gray-700 max-w-lg mx-auto">
           {isZh
-            ? '免费、纯本地处理、文件不上传。一次拖入最多 30 张，几秒出结果。'
-            : 'Free, 100% local, no upload. Drop up to 30 images at once and get results in seconds.'}
+            ? guide.cta?.descZh ?? '免费、纯本地处理、文件不上传。一次拖入最多 30 张，几秒出结果。'
+            : guide.cta?.descEn ?? 'Free, 100% local, no upload. Drop up to 30 images at once and get results in seconds.'}
         </p>
         <div className="flex flex-wrap justify-center gap-2 pt-1">
           <Link
-            href={`/${params.lang}/tools/compress-images`}
+            href={`/${params.lang}/tools/${guide.cta?.toolSlug ?? 'compress-images'}`}
             className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-sm font-semibold text-white transition-all"
           >
-            {isZh ? '开始压缩' : 'Compress Now'} <ArrowRight className="w-4 h-4" />
+            {isZh ? guide.cta?.buttonZh ?? '开始压缩' : guide.cta?.buttonEn ?? 'Compress Now'}{' '}
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

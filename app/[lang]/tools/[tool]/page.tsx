@@ -168,6 +168,22 @@ export default function ToolPage({ params }: Props) {
         </p>
       </section>
 
+      {/* Size-chart guide link (ID photo) */}
+      {isIdPhotoTool && (
+        <section className="p-4 rounded-xl bg-cyan-50/70 border border-cyan-100 text-sm text-gray-700 leading-relaxed">
+          {isZh ? '不确定该选哪个尺寸？看' : 'Not sure which size to choose? Read the'}{' '}
+          <Link
+            href={`/${params.lang}/guides/id-photo-sizes`}
+            className="font-medium text-blue-600 hover:underline"
+          >
+            {isZh ? '证件照尺寸大全' : 'ID photo size chart'}
+          </Link>
+          {isZh
+            ? '（一寸/二寸/护照/签证对照表，含毫米、像素、底色和头部比例）。'
+            : ' — 1-inch, 2-inch, passport and visa sizes in mm and pixels, with background and head-ratio rules.'}
+        </section>
+      )}
+
       {/* Detailed Usage Guide */}
       {((isZh && tool.detailedGuideZh) || (!isZh && tool.detailedGuideEn)) && (
         <section className="pt-4">

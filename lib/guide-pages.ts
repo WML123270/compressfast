@@ -6,11 +6,24 @@
  *
  * Guides are server-rendered (no interactive compressor) so crawlers see full content.
  */
+/** 指南内的数据表格（中英各一份表头/数据行，保持列数一致） */
+export interface GuideTable {
+  captionEn?: string
+  captionZh?: string
+  headersEn: string[]
+  headersZh: string[]
+  rowsEn: string[][]
+  rowsZh: string[][]
+  noteEn?: string
+  noteZh?: string
+}
+
 export interface GuideSection {
   headingEn: string
   headingZh: string
   bodyEn: string   // multi-paragraph, split on \n\n
   bodyZh: string
+  table?: GuideTable
 }
 
 export interface GuidePageData {
@@ -29,6 +42,18 @@ export interface GuidePageData {
   sections: GuideSection[]
   faqs: { qEn: string; qZh: string; aEn: string; aZh: string }[]
   relatedTools: string[]
+  /** 自定义行动按钮；缺省引导到图片压缩器 */
+  cta?: {
+    toolSlug: string
+    titleEn: string
+    titleZh: string
+    descEn: string
+    descZh: string
+    buttonEn: string
+    buttonZh: string
+  }
+  /** 内容更新时间（ISO 日期），用于 JSON-LD dateModified */
+  updatedAt?: string
 }
 
 export const GUIDES: Record<string, GuidePageData> = {
@@ -390,6 +415,215 @@ export const GUIDES: Record<string, GuidePageData> = {
       { qEn: 'Which is the smallest image format?', qZh: '最小的图片格式是哪个？', aEn: 'Among the common lossy web formats, AVIF is the smallest — typically 30–50% smaller than JPEG and 20–30% smaller than WebP. For lossless images, WebP lossless and AVIF lossless are both smaller than PNG.', aZh: '在常见的有损网页格式里，AVIF 最小——通常比 JPEG 小 30–50%，比 WebP 再小 20–30%。无损图片方面，无损 WebP 和无损 AVIF 都比 PNG 小。' },
     ],
     relatedTools: ['convert-to-webp', 'avif-to-webp', 'jpg-to-webp', 'compress-images'],
+  },
+
+  'id-photo-sizes': {
+    slug: 'id-photo-sizes',
+    titleEn: 'ID Photo Size Chart: 1-inch, 2-inch, Passport & Visa Sizes | CompressFast',
+    titleZh: '证件照尺寸大全：一寸/二寸/护照/签证对照表 | 极速压图',
+    descriptionEn: 'Complete ID photo size chart: 1-inch 295×413px, 2-inch 413×579px, US passport 600×600px, plus UK, Schengen and Japan visa sizes — millimetres, 300 DPI pixels, background colors and head-ratio rules.',
+    descriptionZh: '常用证件照尺寸对照表：一寸 295×413、二寸 413×579、小二寸 413×531，以及美国护照 600×600、英国/申根/日本签证等国际规格，含毫米、300DPI 像素、底色与头部比例要求。',
+    keywords: [
+      '证件照尺寸', '证件照尺寸标准', '证件照尺寸对照表', '一寸照片尺寸', '二寸照片尺寸',
+      '小二寸照片尺寸', '大一寸照片尺寸', '护照照片尺寸', '签证照片尺寸', '证件照像素',
+      '美国护照照片尺寸', '证件照多大',
+      'id photo size', 'passport photo size', 'passport photo size chart', '2x2 passport photo',
+      '35x45 photo', 'visa photo size', '1 inch photo size', '2 inch photo size',
+      'id photo dimensions', 'passport photo requirements',
+    ],
+    heroTitleEn: 'ID Photo Size Chart',
+    heroTitleZh: '证件照尺寸大全',
+    heroSubEn: 'Every common ID, passport and visa photo size — millimetres, 300 DPI pixels, background colors and head ratios in one place.',
+    heroSubZh: '一寸、二寸、护照、签证常用尺寸对照表——毫米、300DPI 像素、底色和头部比例一次看全。',
+    introEn: 'A rejected ID photo is rarely a bad photo — it is usually the wrong size, background or head ratio. Requirements differ sharply: a Chinese 1-inch photo is 25×35mm, a US passport photo is a 2×2-inch square, and a Schengen visa photo is 35×45mm with the head filling 70–80% of the frame.\n\nThis chart groups the common sizes into domestic, passport/visa and head-ratio tables, with pixel dimensions at 300 DPI. Rules are updated from time to time, so double-check the receiving office\'s official requirements before submitting.',
+    introZh: '证件照被退回，很多时候不是照片拍得不好，而是尺寸、底色或头部比例不对。不同证件的要求差异很大：国内一寸是 25×35mm，美国护照是 51×51mm 的正方形，申根签证又要求 35×45mm 且头部占画面 70–80%。\n\n下面把常用尺寸按「国内」「护照/签证」「头部比例」整理成对照表，像素值默认按 300DPI 计算。各家受理机构的规定会更新，提交前请再核对一次官方要求。',
+    sections: [
+      {
+        headingEn: 'Common Chinese ID photo sizes',
+        headingZh: '国内常用证件照尺寸',
+        bodyEn: 'These are the six sizes most often requested in China. When a photo studio says "1-inch" or "2-inch", it means these physical dimensions; online application systems often list pixel requirements directly, which match the 300 DPI column below.\n\nThe same name can vary by 1–2mm between agencies. When the registration page specifies pixels or millimetres, always follow that page.',
+        bodyZh: '这是国内最常被要求的六种规格。照相馆说的「一寸」「二寸」指的就是这些物理尺寸；网上报名系统通常直接给像素要求，按 300DPI 换算后与下表一致。\n\n同一名称在不同机构之间可能有 1–2mm 的差异。报名页面写了像素或毫米时，一律以报名页面为准。',
+        table: {
+          captionEn: 'Chinese ID photo sizes at 300 DPI',
+          captionZh: '国内常用证件照尺寸（300DPI）',
+          headersEn: ['Name', 'Print size', 'Pixels at 300 DPI', 'Typical use'],
+          headersZh: ['名称', '物理尺寸', '300DPI 像素', '常见用途'],
+          rowsEn: [
+            ['1-inch', '25×35mm', '295×413', 'Résumés, student IDs, exam registration'],
+            ['Small 1-inch', '22×32mm', '260×378', 'Medical forms, some visas'],
+            ['Large 1-inch', '33×48mm', '390×567', 'Chinese passport, HK/Macau permit'],
+            ['2-inch', '35×49mm', '413×579', 'Certificates, social security, personnel files'],
+            ['Small 2-inch', '35×45mm', '413×531', 'Some visas, immigration paperwork'],
+            ['Large 2-inch', '35×53mm', '413×626', 'Some exams, professional title review'],
+          ],
+          rowsZh: [
+            ['一寸', '25×35mm', '295×413', '简历、学生证、普通考试报名'],
+            ['小一寸', '22×32mm', '260×378', '体检表、部分签证与证件'],
+            ['大一寸', '33×48mm', '390×567', '中国护照、港澳通行证'],
+            ['二寸', '35×49mm', '413×579', '资格证、社保、人事档案'],
+            ['小二寸', '35×45mm', '413×531', '部分签证、出入境材料'],
+            ['大二寸', '35×53mm', '413×626', '部分考试、职称评审'],
+          ],
+          noteEn: 'Pixels are converted at 300 DPI. If an agency states its own pixel requirements, those override the table.',
+          noteZh: '像素按 300DPI 换算。机构另有像素要求时，以机构要求为准。',
+        },
+      },
+      {
+        headingEn: 'Passport and visa photo sizes',
+        headingZh: '护照与签证照片尺寸',
+        bodyEn: 'Cross-border documents are stricter: they usually specify not only the print size but also the head ratio and background color. These are the standard print sizes, with 300 DPI pixels.\n\nThe square sizes used by the US and India do not work for Chinese rectangular specifications, and although UK, Schengen and Japanese passports all use 35×45mm, their head-ratio rules differ.',
+        bodyZh: '跨国证件对尺寸更严格：除了打印尺寸，通常还同时规定头部比例和底色。下表是常见国家的标准打印尺寸，右侧为 300DPI 像素。\n\n美国和印度的正方形照片与国内的长方形规格不通用；英国、申根、日本护照虽然都是 35×45mm，但头部比例要求并不相同。',
+        table: {
+          captionEn: 'Passport and visa photo sizes at 300 DPI',
+          captionZh: '护照与签证照片尺寸（300DPI）',
+          headersEn: ['Document', 'Print size', 'Pixels at 300 DPI', 'Key requirement'],
+          headersZh: ['证件', '物理尺寸', '300DPI 像素', '关键要求'],
+          rowsEn: [
+            ['US passport / visa', '2×2 in (51×51mm)', '600×600', 'Head 50–69%, white or off-white background'],
+            ['Chinese passport', '33×48mm', '390×567', 'Head 28–33mm, white background'],
+            ['UK passport', '35×45mm', '413×531', 'Head 29–34mm, plain light-grey or white'],
+            ['Schengen visa', '35×45mm', '413×531', 'Head 70–80%, plain light background'],
+            ['Japan passport', '35×45mm', '413×531', 'White background'],
+            ['Japan visa', '45×45mm', '531×531', 'Head about 70%, white background'],
+            ['Canada passport', '50×70mm', '591×827', 'Guarantor signature on the back'],
+            ['Australia passport', '35×45mm', '413×531', 'White background, head about 70–80%'],
+            ['India passport / visa', '2×2 in (51×51mm)', '600×600', 'White background'],
+          ],
+          rowsZh: [
+            ['美国护照/签证', '2×2 英寸（51×51mm）', '600×600', '头部 50–69%，白底或米白底'],
+            ['中国护照', '33×48mm', '390×567', '头部 28–33mm，白底'],
+            ['英国护照', '35×45mm', '413×531', '头部 29–34mm，浅灰或白底'],
+            ['申根签证', '35×45mm', '413×531', '头部占 70–80%，浅色纯色底'],
+            ['日本护照', '35×45mm', '413×531', '白底'],
+            ['日本签证', '45×45mm', '531×531', '头部约占 70%，白底'],
+            ['加拿大护照', '50×70mm', '591×827', '照片背面需担保人签名'],
+            ['澳大利亚护照', '35×45mm', '413×531', '白底，头部约占 70–80%'],
+            ['印度护照/签证', '2×2 英寸（51×51mm）', '600×600', '白底'],
+          ],
+          noteEn: 'These are print sizes; online systems may ask only for pixels (the US accepts 600×600 to 1200×1200). Rules on glasses, head coverings, ears and expression vary — follow the official photo specification.',
+          noteZh: '上表为打印尺寸；在线申请系统可能只要求像素（如美国接受 600×600–1200×1200）。各国对眼镜、头饰、露耳和表情的规定不同，请以官方照片规范为准。',
+        },
+      },
+      {
+        headingEn: 'Pixels, millimetres and DPI',
+        headingZh: '像素、毫米与 DPI 怎么换算',
+        bodyEn: 'DPI (dots per inch) is what links millimetres to pixels:\n\n• At 300 DPI: pixels = mm ÷ 25.4 × 300\n• At 600 DPI: pixels = mm ÷ 25.4 × 600\n\nFor example, a 25×35mm photo is 295×413px at 300 DPI and 591×827px at 600 DPI. Both print at the same physical size; the 600 DPI file simply has more pixels and a larger file size.\n\nWhich to choose: 300 DPI is enough for normal printing and online applications, and it is what most photo labs expect. Use 600 DPI only when an agency explicitly asks for higher resolution, or when you plan to enlarge the photo for print. Export JPEG at quality 90 or above so compression does not smear facial detail.',
+        bodyZh: 'DPI（每英寸点数）决定「毫米」和「像素」的换算关系：\n\n• 300DPI：像素 = 毫米 ÷ 25.4 × 300\n• 600DPI：像素 = 毫米 ÷ 25.4 × 600\n\n例如一寸 25×35mm：300DPI 是 295×413 像素；600DPI 是 591×827 像素。两者打印出来一样大，只是 600DPI 的像素更多、文件更大。\n\n怎么选：普通打印和网上报名用 300DPI 就够了，这也是多数照相馆的标准；只有当受理机构明确要求更高分辨率、或你要把照片放大冲印时才用 600DPI。JPEG 质量建议 90 以上，避免压缩痕迹糊掉人脸细节。',
+      },
+      {
+        headingEn: 'Head size and framing rules',
+        headingZh: '头部比例与取景要求',
+        bodyEn: 'Correct dimensions are not enough — the head must also fill the right portion of the frame. The most common requirements are below.\n\nWhen cropping manually, fix the top-of-head and chin lines first, then adjust the zoom. A head that sits too high or too low is one of the most common reasons an application photo is rejected.',
+        bodyZh: '尺寸对了，头部比例不对照样可能被退回。最常见的几组要求如下。\n\n自己裁切时，先把「头顶」和「下巴」两条线定好，再微调缩放。构图偏上或偏下，是报名照片被退回最常见的原因之一。',
+        table: {
+          captionEn: 'Head height as a share of the photo height',
+          captionZh: '头部高度占画面比例',
+          headersEn: ['Document', 'Head ratio', 'Notes'],
+          headersZh: ['证件', '头部占比', '说明'],
+          rowsEn: [
+            ['Common Chinese ID photos', 'About 2/3 to 4/5', 'Leave a little space above the head; some documents require visible ears and forehead'],
+            ['US passport', '50–69%', 'Eyes roughly 56–69% from the bottom edge'],
+            ['UK passport', '64–76%', 'Head height 29–34mm on a 45mm photo'],
+            ['Schengen visa', '70–80%', 'Head centred, neutral expression'],
+            ['Japan visa', 'About 70%', 'Head centred on a 45×45mm frame'],
+          ],
+          rowsZh: [
+            ['国内常用证件照', '约 2/3–4/5', '头顶留少量空白；部分证件要求露出双耳和额头'],
+            ['美国护照', '50–69%', '眼睛距画面底部约 56–69%'],
+            ['英国护照', '64–76%', '45mm 高的照片上，头部高 29–34mm'],
+            ['申根签证', '70–80%', '头部居中，表情自然'],
+            ['日本签证', '约 70%', '45×45mm 画面内头部居中'],
+          ],
+          noteEn: 'The guides inside a photo tool are only a starting point. Agencies may measure the face automatically — check their sample image.',
+          noteZh: '工具里的参考线只是通用起点。部分机构会用系统自动检测人脸位置，务必对照官方示例图。',
+        },
+      },
+      {
+        headingEn: 'Which background color?',
+        headingZh: '底色怎么选',
+        bodyEn: 'There is no single global background color. The common conventions:\n\n• China: white for ID cards, passports and driving licences; blue or red for résumés, social-security records, some exams and personnel files.\n• United States: white or off-white, with no shadows or texture.\n• United Kingdom and Schengen: plain light grey or white, with no pattern.\n• Japan: mostly white.\n• India: white.\n\nWhatever the color, it must be solid, even and free of gradients or shadows. When replacing a background with a cut-out tool, check the hair edges for grey fringes or leftover original color — this is most visible when switching between high-contrast backgrounds, such as red to white.',
+        bodyZh: '底色没有全球统一标准，按证件类型记：\n\n• 中国：身份证、护照、驾驶证等多为白底；蓝底、红底常见于简历、社保、部分考试和单位档案。\n• 美国：白底或米白底（off-white），不能有阴影或纹理。\n• 英国/申根：浅灰或白色纯色背景，不能有图案。\n• 日本：以白底为主。\n• 印度：白底。\n\n不管哪种底色，都要求纯色、均匀、无渐变、无阴影。用抠图换底色时，注意发丝边缘不要出现灰边或原底色残留——在高对比背景之间切换（比如红底换白底）时最明显。',
+      },
+      {
+        headingEn: 'Seven tips for shooting your own ID photo',
+        headingZh: '自己拍证件照的 7 个要点',
+        bodyEn: '1. Light: face a window or use even indoor light so both sides of the face are similarly lit. Avoid overhead or backlight.\n2. Background: a plain wall, with the person 0.5–1m away so no shadow falls on it.\n3. Camera height: hold the phone at eye level, lens vertical — no looking up or down.\n4. Posture: head straight, shoulders level, natural expression; follow the document rules on smiling with teeth.\n5. Clothing: contrast with the background, avoid the same color; no sleeveless tops or collars that hide the neck.\n6. Editing: no beauty filters, face slimming or face swaps. Small brightness and white-balance corrections are fine.\n7. Export: crop to the target size, JPEG at 300 DPI and quality 90+, usually 50–300KB.\n\nAfter exporting, run the file through a compressor if the application system has a size limit — reducing quality slightly is safer than shrinking the pixel dimensions below the requirement.',
+        bodyZh: '1. 光线：正对窗户或用均匀的室内光，脸两侧亮度接近，不要顶光或逆光。\n2. 背景：纯色墙，人离墙 0.5–1 米，避免墙上出现投影。\n3. 机位：手机与眼睛同高，镜头垂直，别仰拍或俯拍。\n4. 姿态：头正、肩平、表情自然，按证件要求决定是否露齿。\n5. 着装：与背景有反差，避免和底色同色；不要穿无袖或高领遮住脖子。\n6. 后期：不要用美颜、瘦脸、换脸；轻微调整亮度和白平衡可以。\n7. 导出：按目标尺寸裁切，300DPI 的 JPEG（质量 90+），文件通常 50–300KB。\n\n导出后如果报名系统有体积上限，用压缩工具处理文件——略微降低画质，比把像素压到低于要求更安全。',
+      },
+      {
+        headingEn: 'Make a correctly sized photo in your browser',
+        headingZh: '在浏览器里直接生成标准证件照',
+        bodyEn: 'If the chart feels overwhelming: the CompressFast ID photo tool turns these specifications into presets. After you upload a front-facing portrait, a 1.3MB face model frames the crop automatically, a 4.4MB portrait-segmentation model cuts out the person, and the result is composited onto the background you choose at the exact 300 or 600 DPI pixel size.\n\nIt supports 1-inch, 2-inch, small 2-inch, large 1-inch, US passport and Japan visa presets, plus custom sizes from 10–60mm wide and 10–80mm tall — enough to cover the UK, Schengen, Canadian and Australian sizes above. Generating and downloading a single photo is free and watermark-free, and the photo never leaves your browser.',
+        bodyZh: '尺寸表看得头大也没关系：极速压图的证件照工具把这些规格做成了预设。上传一张正脸照后，约 1.3MB 的人脸模型会自动构图，约 4.4MB 的人像分割模型抠出人物，再按所选底色合成，并按 300/600DPI 的精确像素输出。\n\n支持一寸、二寸、小二寸、大一寸、美国护照、日本签证等预设，也可以输入 10–60mm 宽、10–80mm 高的自定义尺寸——足以覆盖上面的英国、申根、加拿大、澳大利亚规格。单张生成和下载免费、无水印，照片全程在浏览器本地处理，不上传服务器。',
+      },
+    ],
+    faqs: [
+      {
+        qEn: 'How many pixels is a 1-inch photo?',
+        qZh: '一寸照片是多少像素？',
+        aEn: 'A 1-inch photo is 25×35mm. At 300 DPI that is 295×413 pixels; at 600 DPI it is 591×827 pixels. If an application form lists 295×413, export exactly those dimensions.',
+        aZh: '一寸是 25×35mm。300DPI 下为 295×413 像素，600DPI 下为 591×827 像素。报名表写 295×413 时，就按这个像素导出。',
+      },
+      {
+        qEn: 'What is the difference between 2-inch and small 2-inch?',
+        qZh: '二寸和小二寸有什么区别？',
+        aEn: 'A 2-inch photo is 35×49mm (413×579px); a small 2-inch photo is 35×45mm (413×531px). The small 2-inch is shorter and is often used for passports and visa paperwork. Use whichever the form specifies.',
+        aZh: '二寸是 35×49mm（413×579px），小二寸是 35×45mm（413×531px）。小二寸更矮，常用于护照和签证材料。报名页写哪个就用哪个。',
+      },
+      {
+        qEn: 'What size is a US passport photo?',
+        qZh: '美国护照照片多大？',
+        aEn: '2×2 inches (51×51mm). At 300 DPI that is 600×600 pixels. The head, from chin to top, must be 50–69% of the photo height, and the background must be white or off-white. Glasses are not allowed except for medical reasons.',
+        aZh: '2×2 英寸（51×51mm）。300DPI 下为 600×600 像素。下巴到头顶的头部高度须占画面 50–69%，底色为白或米白。除医疗原因外不能戴眼镜。',
+      },
+      {
+        qEn: 'Do ID photos always need a white background?',
+        qZh: '证件照必须白底吗？',
+        aEn: 'No. Chinese passports and ID cards usually require white, while blue or red is common for résumés, personnel files and some exams. The US requires white or off-white; the UK and Schengen countries accept plain light grey or white. Always follow the receiving office.',
+        aZh: '不一定。中国护照、身份证多为白底，蓝底/红底常见于简历、人事档案和部分考试；美国要求白底或米白底；英国和申根接受浅灰或白底。以受理机构要求为准。',
+      },
+      {
+        qEn: 'Can I use a phone photo as an ID photo?',
+        qZh: '手机拍的照片能用来做证件照吗？',
+        aEn: 'Yes. Use the rear camera, even lighting, a plain background and a straight-on face. Keep the long edge of the source at least 1000px. Do not use beauty mode or filters — they alter skin tone and facial features.',
+        aZh: '可以。用后置摄像头、光线均匀、纯色背景、正脸平视，原图长边建议不低于 1000 像素。不要开美颜或滤镜——会改变肤色和面部特征。',
+      },
+      {
+        qEn: 'Should I choose 300 DPI or 600 DPI?',
+        qZh: '300DPI 和 600DPI 怎么选？',
+        aEn: '300 DPI is enough for normal printing and online applications. Choose 600 DPI only when an agency explicitly asks for higher resolution or you plan to enlarge the photo. Pixels and DPI are different: if a system validates pixels, satisfy the pixel requirement first.',
+        aZh: '普通打印和在线报名 300DPI 足够。只有机构明确要求更高分辨率，或你要放大冲印时才选 600DPI。像素和 DPI 是两回事：系统校验像素时，先满足像素要求。',
+      },
+      {
+        qEn: 'Will a photo be rejected if the head ratio is wrong?',
+        qZh: '头部比例不对会被拒吗？',
+        aEn: 'Yes. Many online systems detect the face position and size automatically. Place the top of the head and the chin according to the reference lines and keep the eyes level — that matters more than retouching.',
+        aZh: '会。很多在线系统会自动检测人脸位置和大小。按参考线放好头顶和下巴、保持眼睛水平，比后期修图更重要。',
+      },
+      {
+        qEn: 'Can I wear glasses or jewelry in an ID photo?',
+        qZh: '可以戴眼镜或首饰吗？',
+        aEn: 'Most documents require no glasses, or at least no glare and no frames covering the eyes. Large earrings and necklaces should be removed. Exceptions for religious or medical reasons depend on the specific rules.',
+        aZh: '多数证件要求不戴眼镜，或至少保证镜片不反光、镜框不遮眼；大件耳环和项链建议取下。宗教或医疗原因的例外，要看具体规定。',
+      },
+      {
+        qEn: 'What file size should an ID photo be?',
+        qZh: '证件照文件多大合适？',
+        aEn: 'A 1-inch JPEG at 300 DPI is usually 50–150KB and a 2-inch one 80–250KB. If the application system has a limit, compress toward the target size (for example 100KB or 200KB) instead of reducing the pixel dimensions below the requirement.',
+        aZh: '300DPI 的一寸 JPEG 通常 50–150KB，二寸 80–250KB。报名系统有上限时，用压缩工具降到 100KB/200KB 等目标大小，不要靠降低像素硬压。',
+      },
+    ],
+    relatedTools: ['id-photo', 'resize-image', 'crop-image', 'compress-images'],
+    cta: {
+      toolSlug: 'id-photo',
+      titleEn: 'Make a correctly sized ID photo',
+      titleZh: '直接生成标准证件照',
+      descEn: 'Upload a portrait, frame it automatically, replace the background and export at 300 or 600 DPI — in your browser, no upload.',
+      descZh: '上传正脸照，自动构图换底色，按一寸/二寸/护照/签证尺寸导出 300/600DPI 的 JPG/PNG，照片不上传。',
+      buttonEn: 'Make an ID Photo',
+      buttonZh: '制作证件照',
+    },
+    updatedAt: '2026-11-27',
   },
 }
 

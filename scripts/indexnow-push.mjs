@@ -19,6 +19,8 @@ const PATHS = [
   '/zh/tools/image-to-base64', '/en/tools/image-to-base64',
   '/zh/tools/id-photo', '/en/tools/id-photo',
   '/zh/tools/split-image', '/en/tools/split-image',
+  // 2026-11-27 新增：证件照尺寸大全指南
+  '/zh/guides/id-photo-sizes', '/en/guides/id-photo-sizes',
 ]
 
 const dry = process.env.INDEXNOW_DRY === '1'

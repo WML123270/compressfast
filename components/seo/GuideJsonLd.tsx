@@ -25,7 +25,7 @@ export function GuideJsonLd({ guide, lang, siteUrl }: Props) {
     description: isZh ? guide.descriptionZh : guide.descriptionEn,
     inLanguage: isZh ? 'zh-CN' : 'en-US',
     datePublished: '2026-08-17',
-    dateModified: '2026-08-17',
+    dateModified: guide.updatedAt || '2026-08-17',
     author: {
       '@type': 'Organization',
       name: 'CompressFast',
