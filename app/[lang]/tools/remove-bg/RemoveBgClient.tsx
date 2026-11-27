@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Upload, Scissors, Download, Loader2, Lock, Trash2, ImagePlus, Palette, Image, RotateCw } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { removeBackground } from '@/lib/ai/remove-bg'
 import ModelDownloadBar from '@/components/ai/ModelDownloadBar'
@@ -28,6 +29,8 @@ const PRESET_COLORS = ['#ffffff', '#000000', '#ff0000', '#3b82f6', '#22c55e', '#
 export default function RemoveBgClient() {
   const { locale } = useT()
   const isZh = locale === 'zh'
+  const isCn = useIsCn()
+  const proPrice = isCn ? '¥9.9' : '$24.99'
   const { isPro, proLoading, checkProStatus } = useCompressionStore()
 
   useEffect(() => {
@@ -375,11 +378,16 @@ export default function RemoveBgClient() {
             {isZh ? 'AI 抠图是 Pro 专属功能' : 'AI background removal is a Pro feature'}
           </p>
           <p className="mt-1 text-sm text-amber-700">
-            {isZh ? '升级 Pro 解锁本地 AI 抠图，永久买断。' : 'Upgrade to Pro to unlock local AI background removal.'}
+            {isZh
+              ? `${proPrice} 永久解锁本地 AI 抠图，另含 500 张批量、AVIF 输出、水印，5 台设备通用。`
+              : `${proPrice} lifetime unlocks on-device AI cutout plus 500-image batches, AVIF output and watermarks for 5 devices.`}
           </p>
           <a href={`/${locale}/pro`} onClick={() => trackPro('click', 'ai_gate')} className="inline-block mt-3 px-5 py-2 rounded-lg bg-amber-500 text-white font-semibold hover:opacity-90">
-            {isZh ? '升级 Pro →' : 'Upgrade to Pro →'}
+            {isZh ? `${proPrice} 解锁 Pro →` : `Unlock Pro · ${proPrice} →`}
           </a>
+          <p className="mt-2 text-[11px] text-amber-600">
+            {isZh ? '图片不上传 · 7 天未激活可退款' : 'No upload · 7-day refund if unused'}
+          </p>
         </div>
       )}
 

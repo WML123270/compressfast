@@ -112,7 +112,7 @@ await paidPage.getByRole('button', { name: '查询并激活' }).click()
 await paidPage.waitForTimeout(900)
 const lookupText = await paidPage.locator('body').textContent()
 check('查询后展示激活码', lookupText?.includes('E2ETEST-CODE-1234'))
-check('查询后有一键激活', await paidPage.getByRole('button', { name: '一键激活' }).isVisible())
+check('查询后有一键激活', await paidPage.getByRole('button', { name: '一键激活' }).first().isVisible())
 await paidCtx.close()
 
 // 国内支付返回 /pro?paid=1 时自动查码
@@ -173,6 +173,7 @@ const statsRes = await desktop.request.get(`${BASE}/api/admin/stats`)
 const stats = await statsRes.json()
 check('stats 返回 proFunnel', !!stats.proFunnel)
 check('proFunnel 含 intent/buy 字段', typeof stats.proFunnel?.intent === 'number' && typeof stats.proFunnel?.buy === 'number')
+check('proFunnel 含 pay/activated 字段', typeof stats.proFunnel?.pay === 'number' && typeof stats.proFunnel?.activated === 'number')
 check('proFunnel 来源含 dropzone', (stats.proFunnel?.bySource || []).some(s => s.source === 'dropzone'))
 
 await browser.close()

@@ -29,6 +29,10 @@ function maskEmail(email: string): string {
   return `${name.slice(0, 2)}***@${domain}`
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+}
+
 export default function ProPage() {
   const { t, locale } = useT()
   const isCn = useIsCn()
@@ -52,17 +56,25 @@ export default function ProPage() {
 
   // 购买流程
   const [buyEmail, setBuyEmail] = useState('')
+  const [buyEmailTouched, setBuyEmailTouched] = useState(false)
   const [buyLoading, setBuyLoading] = useState(false)
   const [buyError, setBuyError] = useState('')
 
   // 国内购买流程（虎皮椒 API 全自动）
   const [cnEmail, setCnEmail] = useState('')
+  const [cnEmailTouched, setCnEmailTouched] = useState(false)
   const [cnLoading, setCnLoading] = useState(false)
   const [cnQrcode, setCnQrcode] = useState('')
+  const [cnOrderEmail, setCnOrderEmail] = useState('')
   const [cnError, setCnError] = useState('')
+  // 二维码展示后短轮询支付结果（只查状态，不发邮件）
+  const [cnPolling, setCnPolling] = useState(false)
+  const [cnPollAttempts, setCnPollAttempts] = useState(0)
+  const [cnPollExhausted, setCnPollExhausted] = useState(false)
 
   // 支付返回后的找回激活码提示
   const [paidBannerEmail, setPaidBannerEmail] = useState('')
+  const [paidReturnNoEmail, setPaidReturnNoEmail] = useState(false)
 
   /** 凭邮箱查激活码；pending 时自动重试（支付回调写入有延迟） */
   const lookupCode = useCallback(async (email: string, retriesLeft = 5) => {
@@ -132,11 +144,66 @@ export default function ProPage() {
 
     // 国内支付返回 /pro?paid=1：自动查码（最多重试 6 次）
     const params = new URLSearchParams(window.location.search)
-    if (params.get('paid') === '1' && pendingFresh) {
-      setTimeout(() => { lookupCode(pending, 6) }, 800)
+    if (params.get('paid') === '1') {
+      if (pendingFresh) {
+        setTimeout(() => { lookupCode(pending, 6) }, 800)
+      } else {
+        // 换了设备 / 清了浏览器存储：提示手动输入付款邮箱
+        setPaidReturnNoEmail(true)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 二维码展示后短轮询支付结果：查不到就继续等，查到后置顶显示激活码。
+  // 4 秒一次、最多 3 分钟（15 次/分钟，低于状态接口 20 次/分钟限流）。
+  useEffect(() => {
+    if (!cnQrcode || !cnOrderEmail || foundCode || isPro) return
+
+    let cancelled = false
+    let attempts = 0
+    let timer: ReturnType<typeof setTimeout> | undefined
+    setCnPolling(true)
+    setCnPollExhausted(false)
+    setCnPollAttempts(0)
+
+    const tick = async () => {
+      if (cancelled) return
+      attempts += 1
+      setCnPollAttempts(attempts)
+      try {
+        const res = await fetch('/api/check-license-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cnOrderEmail }),
+        })
+        const data = await res.json()
+        if (cancelled) return
+        if (data.code) {
+          setFoundCode(data.code)
+          setResendResult('success')
+          setPaidBannerEmail(cnOrderEmail)
+          setCnPolling(false)
+          return
+        }
+      } catch {}
+
+      if (cancelled) return
+      if (attempts >= 45) {
+        setCnPolling(false)
+        setCnPollExhausted(true)
+        return
+      }
+      timer = setTimeout(tick, 4000)
+    }
+
+    timer = setTimeout(tick, 4000)
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+      setCnPolling(false)
+    }
+  }, [cnQrcode, cnOrderEmail, foundCode, isPro])
 
   const rememberEmail = (email: string) => {
     try { localStorage.setItem(LAST_EMAIL_KEY, email) } catch {}
@@ -150,11 +217,20 @@ export default function ProPage() {
     setPaidBannerEmail(email)
   }
 
+  const localizePayError = (message: string): string => {
+    if (!isZh) return message
+    if (/too many attempts/i.test(message)) return '操作太频繁，请稍后再试'
+    if (/invalid email/i.test(message)) return '邮箱格式不正确'
+    if (/not configured|未配置/i.test(message)) return '支付通道暂不可用，请稍后重试或邮件联系客服'
+    return message
+  }
+
   const handleBuy = async () => {
     trackPro('buy', 'pro_buy')
     const email = buyEmail.trim()
-    if (!email || !email.includes('@')) {
-      setBuyError(isZh ? '请输入有效邮箱' : 'Please enter a valid email')
+    setBuyEmailTouched(true)
+    if (!isValidEmail(email)) {
+      setBuyError(isZh ? '请输入完整邮箱，例如 you@example.com' : 'Please enter a complete email, e.g. you@example.com')
       document.getElementById('buy-email')?.focus()
       return
     }
@@ -170,11 +246,12 @@ export default function ProPage() {
       const data = await res.json()
       if (data.checkoutUrl) {
         trackPro('checkout', 'creem')
+        trackPro('pay', 'creem')
         markPending(email)
         window.location.href = data.checkoutUrl
       } else {
         trackPro('fail', 'creem')
-        setBuyError(data.error || 'Server error')
+        setBuyError(localizePayError(data.error || 'Server error'))
         setBuyLoading(false)
       }
     } catch {
@@ -187,8 +264,9 @@ export default function ProPage() {
   const handleCnPay = async () => {
     trackPro('buy', 'pro_cn_buy')
     const email = cnEmail.trim()
-    if (!email || !email.includes('@')) {
-      setCnError(isZh ? '请输入有效邮箱' : 'Please enter a valid email')
+    setCnEmailTouched(true)
+    if (!isValidEmail(email)) {
+      setCnError(isZh ? '请输入完整邮箱，例如 you@example.com' : 'Please enter a complete email, e.g. you@example.com')
       document.getElementById('buy-email')?.focus()
       return
     }
@@ -196,6 +274,7 @@ export default function ProPage() {
     setCnLoading(true)
     setCnError('')
     setCnQrcode('')
+    setCnPollExhausted(false)
     try {
       const res = await fetch('/api/cn-create-order', {
         method: 'POST',
@@ -206,17 +285,20 @@ export default function ProPage() {
       if (data.success) {
         trackPro('checkout', 'hupijiao')
         markPending(email)
+        setCnOrderEmail(email)
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
         if (isMobile && data.url) {
+          trackPro('pay', 'hupijiao')
           window.location.href = data.url
         } else if (data.qrcode) {
           setCnQrcode(data.qrcode)
+          trackPro('pay', 'hupijiao')
         } else {
           setCnError(isZh ? '支付链接生成失败，请重试' : 'Failed to create payment, please retry')
         }
       } else {
         trackPro('fail', 'hupijiao')
-        setCnError(data.error || 'Server error')
+        setCnError(localizePayError(data.error || 'Server error'))
       }
     } catch {
       trackPro('fail', 'hupijiao')
@@ -245,6 +327,7 @@ export default function ProPage() {
         } catch {}
         setPaidBannerEmail('')
         await checkProStatus()
+        trackPro('activated')
         setActivateResult('success')
       } else if (data.reason === 'device_limit') {
         setActivateResult('limit')
@@ -370,7 +453,7 @@ export default function ProPage() {
       {!isPro && (
         <section id="buy" className="max-w-xl mx-auto scroll-mt-24 space-y-3">
           {/* 支付返回后的找回激活码提示 */}
-          {paidBannerEmail && (
+          {paidBannerEmail && !foundCode && (
             <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm">
               <div className="flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
@@ -393,6 +476,34 @@ export default function ProPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* 从支付页返回但本地没有待处理邮箱：提示手动查询 */}
+          {paidReturnNoEmail && !paidBannerEmail && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm">
+              <p className="font-semibold text-blue-800">
+                {isZh ? '已从支付页返回' : 'Back from payment'}
+              </p>
+              <p className="text-blue-700 mt-0.5 leading-relaxed">
+                {isZh
+                  ? '请输入付款时填写的邮箱，再点「查询激活码」。'
+                  : 'Enter the email you paid with, then tap “Find code”.'}
+              </p>
+              <button
+                onClick={() => {
+                  const email = cnEmail.trim() || buyEmail.trim()
+                  if (!isValidEmail(email)) {
+                    document.getElementById('buy-email')?.focus()
+                    return
+                  }
+                  setForgotEmail(email)
+                  lookupCode(email, 6)
+                }}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> {isZh ? '查询激活码' : 'Find my code'}
+              </button>
             </div>
           )}
 
@@ -428,6 +539,44 @@ export default function ProPage() {
               ))}
             </div>
 
+            {/* 支付轮询 / 手动查询找到激活码后，直接显示在购买区顶部 */}
+            {foundCode && (
+              <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4 text-center">
+                <p className="text-sm font-semibold text-green-800">
+                  {isZh ? '已找到你的激活码' : 'Your activation code'}
+                </p>
+                <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
+                  <code className="px-3 py-1.5 bg-white rounded-lg font-bold tracking-widest text-neutral-900 border border-gray-200 select-all text-sm">
+                    {foundCode}
+                  </code>
+                  <button
+                    onClick={handleCopyCode}
+                    className="px-3 py-1.5 bg-white hover:bg-gray-50 text-neutral-800 border border-gray-300 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    {codeCopied ? (isZh ? '已复制' : 'Copied!') : (isZh ? '复制' : 'Copy')}
+                  </button>
+                </div>
+                {isPro ? (
+                  <p className="mt-2 inline-flex items-center gap-1 text-green-700 font-medium text-sm">
+                    <Check className="w-4 h-4" /> {isZh ? '已激活 Pro' : 'Pro activated'}
+                  </p>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      setActivatingFound(true)
+                      await activateWithCode(foundCode)
+                      setActivatingFound(false)
+                    }}
+                    disabled={activating || activatingFound}
+                    className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold text-sm transition-colors"
+                  >
+                    {activatingFound ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                    {isZh ? '一键激活' : 'Activate now'}
+                  </button>
+                )}
+              </div>
+            )}
+
             {isCn ? (
               <div className="mt-4 space-y-2.5 text-left">
                 <label htmlFor="buy-email" className="block text-xs font-medium text-neutral-700">
@@ -440,23 +589,111 @@ export default function ProPage() {
                   autoComplete="email"
                   value={cnEmail}
                   onChange={(e) => { setCnEmail(e.target.value); setCnError('') }}
-                  onBlur={() => rememberEmail(cnEmail.trim())}
+                  onBlur={() => { rememberEmail(cnEmail.trim()); setCnEmailTouched(true) }}
                   placeholder={isZh ? 'you@example.com' : 'you@example.com'}
+                  aria-invalid={cnEmailTouched && !!cnEmail.trim() && !isValidEmail(cnEmail)}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
                 />
+                {isValidEmail(cnEmail) ? (
+                  <p className="text-[11px] text-green-600 flex items-center justify-center gap-1">
+                    <Check className="w-3 h-3" />
+                    {isZh ? '格式正确 · 激活码发到这个邮箱，不发营销邮件' : 'Valid · code goes here, no marketing emails'}
+                  </p>
+                ) : cnEmailTouched && cnEmail.trim() ? (
+                  <p className="text-[11px] text-amber-600 text-center">
+                    {isZh ? '邮箱格式不完整，例如 you@example.com' : 'Incomplete email, e.g. you@example.com'}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-neutral-500 text-center">
+                    {isZh ? '仅用于接收激活码；没收到请查垃圾箱。' : 'Only for your activation code; check spam if it does not arrive.'}
+                  </p>
+                )}
                 {cnError && <p className="text-red-500 text-sm text-center">{cnError}</p>}
 
-                {cnQrcode ? (
+                {foundCode ? (
+                  <div className="text-center py-2 space-y-2">
+                    <p className="text-sm font-medium text-green-700">
+                      {isZh ? '激活码已在上方显示，无需重复支付。' : 'Your code is shown above — no need to pay again.'}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setFoundCode('')
+                        setCnQrcode('')
+                        setCnOrderEmail('')
+                        setCnPollExhausted(false)
+                        setCnPollAttempts(0)
+                      }}
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      {isZh ? '再买一个激活码' : 'Buy another code'}
+                    </button>
+                  </div>
+                ) : cnQrcode ? (
                   <div className="text-center space-y-2 py-2">
                     <p className="text-sm font-medium text-neutral-800">
                       {isZh ? `用微信 / 支付宝扫码支付 ${price}` : `Scan with WeChat / Alipay to pay ${price}`}
                     </p>
                     <img src={cnQrcode} alt="支付二维码" className="w-48 h-48 mx-auto rounded-lg border border-gray-200" />
+                    {cnOrderEmail && (
+                      <p className="text-xs text-neutral-600">
+                        {isZh ? `激活码将发送到 ${maskEmail(cnOrderEmail)}` : `Code goes to ${maskEmail(cnOrderEmail)}`}
+                      </p>
+                    )}
                     <p className="text-xs text-neutral-600">
-                      {isZh ? '支付完成后回到本页，激活码会自动发到邮箱' : 'After paying, come back to this page — your code is emailed automatically'}
+                      {isZh
+                        ? '支付完成后留在本页，系统会自动检测并显示激活码；也可以查看邮箱（没收到请查垃圾箱）。'
+                        : 'Stay on this page — the code is detected automatically. Also emailed (check spam if needed).'}
                     </p>
+                    {cnPolling && !foundCode && (
+                      <p className="text-xs text-blue-600 inline-flex items-center justify-center gap-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        {isZh ? `正在等待支付结果…（已查询 ${cnPollAttempts} 次）` : `Waiting for payment… (${cnPollAttempts} checks)`}
+                      </p>
+                    )}
+                    {cnPollExhausted && !foundCode && (
+                      <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 leading-relaxed">
+                        {isZh ? (
+                          <>
+                            超过 3 分钟仍未检测到支付。若已付款，请
+                            <button
+                              onClick={() => {
+                                const email = cnOrderEmail || cnEmail.trim()
+                                if (!isValidEmail(email)) return
+                                setForgotEmail(email)
+                                lookupCode(email, 6)
+                              }}
+                              className="mx-1 font-medium underline"
+                            >
+                              查询激活码
+                            </button>
+                            ；仍未解决请邮件 {supportEmail}。
+                          </>
+                        ) : (
+                          <>
+                            No payment detected after 3 minutes. If you have paid,
+                            <button
+                              onClick={() => {
+                                const email = cnOrderEmail || cnEmail.trim()
+                                if (!isValidEmail(email)) return
+                                setForgotEmail(email)
+                                lookupCode(email, 6)
+                              }}
+                              className="mx-1 font-medium underline"
+                            >
+                              look up your code
+                            </button>
+                            or email {supportEmail}.
+                          </>
+                        )}
+                      </div>
+                    )}
                     <button
-                      onClick={() => setCnQrcode('')}
+                      onClick={() => {
+                        setCnQrcode('')
+                        setCnOrderEmail('')
+                        setCnPollExhausted(false)
+                        setCnPollAttempts(0)
+                      }}
                       className="text-xs text-blue-600 hover:underline"
                     >
                       {isZh ? '重新选择' : 'Start over'}
@@ -472,11 +709,36 @@ export default function ProPage() {
                   </button>
                 )}
 
-                <p className="text-xs text-neutral-600 text-center">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 text-[11px]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-green-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> {isZh ? '微信支付' : 'WeChat Pay'}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-blue-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> {isZh ? '支付宝' : 'Alipay'}
+                  </span>
+                  <span className="text-neutral-500">{isZh ? '付款后自动发码' : 'Code sent automatically'}</span>
+                </div>
+
+                <p className="text-xs text-neutral-500 text-center leading-relaxed">
                   {isZh
-                    ? '支付由虎皮椒（第三方平台）提供，付款成功后激活码自动发到你的邮箱。'
-                    : 'Payment is handled by HupiJiao (third party). Your code is emailed automatically after payment.'}
+                    ? '通过虎皮椒聚合支付，支持微信/支付宝；支付信息由支付平台处理，我们不存储。'
+                    : 'Payments are processed by HupiJiao (WeChat/Alipay). We never store your payment details.'}
                 </p>
+              </div>
+            ) : foundCode ? (
+              <div className="mt-4 text-center py-2 space-y-2">
+                <p className="text-sm font-medium text-green-700">
+                  {isZh ? '激活码已在上方显示，无需重复支付。' : 'Your code is shown above — no need to pay again.'}
+                </p>
+                <button
+                  onClick={() => {
+                    setFoundCode('')
+                    setPaidBannerEmail('')
+                  }}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  {isZh ? '再买一个激活码' : 'Buy another code'}
+                </button>
               </div>
             ) : (
               <div className="mt-4 space-y-2.5">
@@ -490,10 +752,25 @@ export default function ProPage() {
                   autoComplete="email"
                   value={buyEmail}
                   onChange={(e) => { setBuyEmail(e.target.value); setBuyError('') }}
-                  onBlur={() => rememberEmail(buyEmail.trim())}
+                  onBlur={() => { rememberEmail(buyEmail.trim()); setBuyEmailTouched(true) }}
                   placeholder="you@example.com"
+                  aria-invalid={buyEmailTouched && !!buyEmail.trim() && !isValidEmail(buyEmail)}
                   className="w-full px-4 py-2.5 text-center rounded-lg border border-gray-300 bg-white text-neutral-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 placeholder:text-neutral-400"
                 />
+                {isValidEmail(buyEmail) ? (
+                  <p className="text-[11px] text-green-600 flex items-center justify-center gap-1">
+                    <Check className="w-3 h-3" />
+                    {isZh ? '格式正确 · 激活码发到这个邮箱，不发营销邮件' : 'Valid · code goes here, no marketing emails'}
+                  </p>
+                ) : buyEmailTouched && buyEmail.trim() ? (
+                  <p className="text-[11px] text-amber-600 text-center">
+                    {isZh ? '邮箱格式不完整，例如 you@example.com' : 'Incomplete email, e.g. you@example.com'}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-neutral-500 text-center">
+                    {isZh ? '仅用于接收激活码；没收到请查垃圾箱。' : 'Only for your activation code; check spam if it does not arrive.'}
+                  </p>
+                )}
                 {buyError && <p className="text-red-500 text-sm text-center">{buyError}</p>}
                 <button
                   onClick={handleBuy}
@@ -508,8 +785,19 @@ export default function ProPage() {
                     </>
                   )}
                 </button>
-                <p className="text-neutral-600 text-xs text-center">
-                  {isZh ? '🔒 安全支付由 Creem 处理 · 支持 Visa / Mastercard，付款后自动发码' : '🔒 Secure payment via Creem · Visa/Mastercard · code emailed automatically'}
+                <div className="flex flex-wrap items-center justify-center gap-1.5 text-[11px]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-neutral-700">
+                    <ShieldCheck className="w-3 h-3 text-green-600" /> Visa
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-neutral-700">
+                    <ShieldCheck className="w-3 h-3 text-green-600" /> Mastercard
+                  </span>
+                  <span className="text-neutral-500">{isZh ? '付款后自动发码' : 'Code sent automatically'}</span>
+                </div>
+                <p className="text-neutral-500 text-xs text-center leading-relaxed">
+                  {isZh
+                    ? '通过 Creem 安全支付，我们不存储你的支付信息；没收到激活码请查垃圾箱。'
+                    : 'Secure checkout via Creem. We never store payment details; check spam if the code does not arrive.'}
                 </p>
               </div>
             )}

@@ -278,11 +278,11 @@ export async function recordPdfOutput(
 // buy=点击支付按钮 / checkout=成功创建支付订单 / fail=创建订单失败
 // source 记录入口或支付渠道，用于判断哪个入口真正带单
 
-export const PRO_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'fail'] as const
+export const PRO_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'pay', 'activated', 'fail'] as const
 export type ProStage = (typeof PRO_STAGES)[number]
 
 /** 参与近 7 天聚合的阶段（purchase 由支付回调单独累加） */
-const PRO_DAILY_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'purchase'] as const
+const PRO_DAILY_STAGES = ['view', 'click', 'intent', 'buy', 'checkout', 'pay', 'purchase', 'activated'] as const
 
 export const PRO_SOURCES = [
   'header',
@@ -422,7 +422,9 @@ export interface ProFunnelDailyPoint {
   buy: number
   click: number
   checkout: number
+  pay: number
   purchase: number
+  activated: number
 }
 
 export interface ProFunnelStats {
@@ -431,7 +433,9 @@ export interface ProFunnelStats {
   buy: number
   click: number
   checkout: number
+  pay: number
   purchase: number
+  activated: number
   fail: number
   bySource: ProSourceStats[]
   daily: ProFunnelDailyPoint[]
@@ -618,10 +622,12 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
     buy: 0,
     click: 0,
     checkout: 0,
+    pay: 0,
     purchase: 0,
+    activated: 0,
     fail: 0,
     bySource: PRO_SOURCES.map((source) => ({ source, intent: 0, buy: 0, click: 0, checkout: 0 })),
-    daily: days.map((date) => ({ date, view: 0, intent: 0, buy: 0, click: 0, checkout: 0, purchase: 0 })),
+    daily: days.map((date) => ({ date, view: 0, intent: 0, buy: 0, click: 0, checkout: 0, pay: 0, purchase: 0, activated: 0 })),
   })
 
   const r = getRedis()
@@ -656,7 +662,9 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
       buy: n('stats:pro_funnel:buy:total'),
       click: n('stats:pro_funnel:click:total'),
       checkout: n('stats:pro_funnel:checkout:total'),
+      pay: n('stats:pro_funnel:pay:total'),
       purchase: n('stats:pro_funnel:purchase:total'),
+      activated: n('stats:pro_funnel:activated:total'),
       fail: n('stats:pro_funnel:fail:total'),
       bySource: PRO_SOURCES.map((source) => ({
         source,
@@ -672,7 +680,9 @@ async function getProFunnelStats(): Promise<ProFunnelStats> {
         buy: n(`stats:pro_funnel:buy:daily:${date}`),
         click: n(`stats:pro_funnel:click:daily:${date}`),
         checkout: n(`stats:pro_funnel:checkout:daily:${date}`),
+        pay: n(`stats:pro_funnel:pay:daily:${date}`),
         purchase: n(`stats:pro_funnel:purchase:daily:${date}`),
+        activated: n(`stats:pro_funnel:activated:daily:${date}`),
       })),
     }
   } catch {

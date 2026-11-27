@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Upload, Sparkles, Download, Loader2, Lock, Trash2, ImagePlus, RotateCw } from 'lucide-react'
 import { useT } from '@/lib/i18n/context'
+import { useIsCn } from '@/lib/use-is-cn'
 import { useCompressionStore } from '@/lib/store/compression-store'
 import { upscaleImage, preloadUpscaleModel } from '@/lib/ai/upscale'
 import ModelDownloadBar from '@/components/ai/ModelDownloadBar'
@@ -20,6 +21,8 @@ const MAX_FILE_BYTES = 30 * 1024 * 1024
 export default function UpscaleClient() {
   const { locale } = useT()
   const isZh = locale === 'zh'
+  const isCn = useIsCn()
+  const proPrice = isCn ? '¥9.9' : '$24.99'
   const { isPro, proLoading, checkProStatus } = useCompressionStore()
 
   useEffect(() => {
@@ -360,11 +363,16 @@ export default function UpscaleClient() {
             {isZh ? 'AI 放大是 Pro 专属功能' : 'AI upscaling is a Pro feature'}
           </p>
           <p className="mt-1 text-sm text-amber-700">
-            {isZh ? '升级 Pro 解锁本地 AI 放大，永久买断。' : 'Upgrade to Pro to unlock local AI upscaling.'}
+            {isZh
+              ? `${proPrice} 永久解锁本地 AI 放大，另含 AI 抠图、500 张批量、AVIF 输出，5 台设备通用。`
+              : `${proPrice} lifetime unlocks on-device AI upscaling plus AI cutout, 500-image batches and AVIF output for 5 devices.`}
           </p>
           <a href={`/${locale}/pro`} onClick={() => trackPro('click', 'ai_gate')} className="inline-block mt-3 px-5 py-2 rounded-lg bg-amber-500 text-white font-semibold hover:opacity-90">
-            {isZh ? '升级 Pro →' : 'Upgrade to Pro →'}
+            {isZh ? `${proPrice} 解锁 Pro →` : `Unlock Pro · ${proPrice} →`}
           </a>
+          <p className="mt-2 text-[11px] text-amber-600">
+            {isZh ? '图片不上传 · 7 天未激活可退款' : 'No upload · 7-day refund if unused'}
+          </p>
         </div>
       )}
 

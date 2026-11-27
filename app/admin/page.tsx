@@ -134,7 +134,9 @@ function renderStats(data: any, ov: any, cn: any): string {
   const proBuy = pro.buy || 0
   const proClick = pro.click || 0
   const proCheckout = pro.checkout || 0
+  const proPay = pro.pay || 0
   const proPurchase = pro.purchase || 0
+  const proActivated = pro.activated || 0
   const proFail = pro.fail || 0
   const proPurchases = data.totalPurchases || 0
   const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0)
@@ -149,7 +151,9 @@ function renderStats(data: any, ov: any, cn: any): string {
       <td class="num">${d.intent || 0}</td>
       <td class="num">${d.buy || 0}</td>
       <td class="num">${d.checkout || 0}</td>
+      <td class="num">${d.pay || 0}</td>
       <td class="num">${d.purchase || 0}</td>
+      <td class="num">${d.activated || 0}</td>
     </tr>`
   }
   const proSourceNames: Record<string, string> = {
@@ -352,11 +356,11 @@ function renderStats(data: any, ov: any, cn: any): string {
       </div>
     </div>
     <h2>💳 Pro 转化漏斗（累计）</h2>
-    <p class="note">view=Pro 页曝光 · intent=Pro 页内点「立即升级」 · buy=点支付按钮 · checkout=支付订单创建成功 · purchase=支付成功（含联调测试单）· fail=创建失败 · click=其他页面升级入口点击（不参与漏斗，单独看来源）。2026-11-23 起拆分 intent/buy，之前的数据归在 click 里。</p>
+    <p class="note">view=Pro 页曝光 · intent=Pro 页内点「立即升级」 · buy=点支付按钮 · checkout=支付订单创建成功 · pay=已展示支付方式（国内二维码/手机跳转/Creem） · purchase=支付成功（含联调测试单） · activated=激活码在本机激活成功 · fail=创建失败 · click=其他页面升级入口点击（不参与漏斗，单独看来源）。2026-11-23 起拆分 intent/buy，之前的数据归在 click 里；2026-11-27 新增 pay/activated。</p>
     <div class="split">
       <div class="box">
         <h3>漏斗（点击支付后）</h3>
-        <div class="s">曝光 ${proView} → 购买意图 ${proIntent}（${pct(proIntent, proView)}%）→ 点支付 ${proBuy}（${pct(proBuy, proIntent)}%）→ 创建订单 ${proCheckout}（${pct(proCheckout, proBuy)}%）→ 支付成功 ${proPurchase}（${pct(proPurchase, proCheckout)}%）</div>
+        <div class="s">曝光 ${proView} → 购买意图 ${proIntent}（${pct(proIntent, proView)}%）→ 点支付 ${proBuy}（${pct(proBuy, proIntent)}%）→ 创建订单 ${proCheckout}（${pct(proCheckout, proBuy)}%）→ 支付方式展示 ${proPay}（${pct(proPay, proCheckout)}%）→ 支付成功 ${proPurchase} · 本机激活 ${proActivated}</div>
         <div class="s">站内入口点击 ${proClick} · 创建失败 ${proFail} · 历史订单 ${proPurchases}</div>
       </div>
       <div class="box">
@@ -369,7 +373,7 @@ function renderStats(data: any, ov: any, cn: any): string {
     </div>
     <h2>📅 Pro 漏斗近 7 天</h2>
     <table>
-      <tr><th>日期</th><th class="num">曝光</th><th class="num">入口点击</th><th class="num">购买意图</th><th class="num">点支付</th><th class="num">创建订单</th><th class="num">支付成功</th></tr>
+      <tr><th>日期</th><th class="num">曝光</th><th class="num">入口点击</th><th class="num">购买意图</th><th class="num">点支付</th><th class="num">创建订单</th><th class="num">支付方式</th><th class="num">支付成功</th><th class="num">本机激活</th></tr>
       ${proDailyRows}
     </table>
     <h2>🔎 升级入口来源</h2>
